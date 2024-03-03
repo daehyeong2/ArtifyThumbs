@@ -21,6 +21,7 @@ root.render(
           href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@100..900&display=swap"
           rel="stylesheet"
         />
+        <link rel="icon" sizes="16x16" href="/img/favicon.ico" />
       </Helmet>
       <AnimatePresence mode="wait">
         <RouterProvider router={router} />

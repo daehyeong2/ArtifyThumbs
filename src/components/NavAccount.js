@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import styled from "styled-components";
@@ -35,9 +35,13 @@ const Profile = styled.div`
   background-color: #74b9ff;
   cursor: pointer;
   position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 `;
 
-const Menu = styled.div`
+const Menu = styled(motion.div)`
   width: 100px;
   background-color: #fafafa;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -93,6 +97,27 @@ const startVariants = {
   },
 };
 
+const menuVariants = {
+  initial: {
+    opacity: 0,
+    y: -8,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.1,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    transition: {
+      duration: 0.1,
+    },
+  },
+};
+
 const NavAccount = () => {
   const isLoggedIn = useRecoilValue(isLoggedInAtom);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -136,15 +161,23 @@ const NavAccount = () => {
       ) : (
         <>
           <Profile className="Profile" onClick={onClickProfile}>
-            {isMenuOpen && (
-              <Menu className="Menu">
-                <MenuList className="MenuList">
-                  <MenuItem className="MenuItem">프로필</MenuItem>
-                  <MenuItem className="MenuItem">설정</MenuItem>
-                  <MenuItem className="MenuItem">로그아웃</MenuItem>
-                </MenuList>
-              </Menu>
-            )}
+            <AnimatePresence>
+              {isMenuOpen && (
+                <Menu
+                  variants={menuVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  className="Menu"
+                >
+                  <MenuList className="MenuList">
+                    <MenuItem className="MenuItem">프로필</MenuItem>
+                    <MenuItem className="MenuItem">설정</MenuItem>
+                    <MenuItem className="MenuItem">로그아웃</MenuItem>
+                  </MenuList>
+                </Menu>
+              )}
+            </AnimatePresence>
           </Profile>
         </>
       )}

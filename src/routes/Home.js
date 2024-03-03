@@ -1,8 +1,12 @@
+import { motion } from "framer-motion";
 import { Helmet } from "react-helmet";
 import styled from "styled-components";
+import TopButton from "../components/TopButton";
 
 const Wrapper = styled.div`
-  height: 200vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const Container = styled.div`
@@ -31,7 +35,7 @@ const ContainerSubtitle = styled.h2`
   color: rgba(0, 0, 0, 0.6);
 `;
 
-const ContainerStartButton = styled.button`
+const ContainerStartButton = styled(motion.button)`
   padding: 8px 18px;
   background-color: #0984e3;
   border: none;
@@ -41,6 +45,15 @@ const ContainerStartButton = styled.button`
   cursor: pointer;
 `;
 
+const startVariants = {
+  hover: {
+    backgroundColor: "#0097e6",
+    transition: {
+      duration: 0.05,
+    },
+  },
+};
+
 const Home = () => {
   return (
     <>
@@ -48,14 +61,17 @@ const Home = () => {
         <title>홈 | ArtifyThumbs</title>
       </Helmet>
       <Wrapper>
-        <Container>
+        <TopButton />
+        <Container id="main">
           <ContainerTitle>
             쉽고, <span>완벽한.</span>
           </ContainerTitle>
           <ContainerSubtitle>
             ArtifyThumbs에서 쉽고 빠르게 좋은 그림을 받아보세요.
           </ContainerSubtitle>
-          <ContainerStartButton>시작하기</ContainerStartButton>
+          <ContainerStartButton variants={startVariants} whileHover="hover">
+            시작하기
+          </ContainerStartButton>
         </Container>
       </Wrapper>
     </>

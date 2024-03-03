@@ -4,7 +4,7 @@ import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { useRecoilValue } from "recoil";
 import { isLoggedInAtom } from "../atom";
 import { Link, useMatch } from "react-router-dom";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const Logo = styled.div`
   background-image: url("/img/Logo.jpeg");
@@ -107,9 +107,10 @@ const NavBar = () => {
   const orderListMatch = useMatch("/order-list");
   const orderMatch = useMatch("/order");
   const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (latest) => {
+  const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
-  });
+  }, []);
+  useMotionValueEvent(scrollY, "change", handleScroll);
   return (
     <Nav
       variants={NavVariants}
