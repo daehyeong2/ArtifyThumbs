@@ -22,7 +22,7 @@ const Nav = styled(motion.nav)`
   padding: 20px 75px;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr minmax(450px, 1fr) 1fr;
   width: 100vw;
   position: fixed;
 `;
@@ -31,7 +31,7 @@ const NavList = styled.ul`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 60px;
+  gap: 3vw;
 `;
 
 const NavItem = styled(motion.li)`
@@ -88,11 +88,11 @@ const UnderLineVariants = {
 const NavVariants = {
   initial: {
     border: "1px solid rgba(0, 0, 0, 0)",
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(255,255,255,0)",
   },
   scrolled: {
     border: "1px solid rgba(0, 0, 0, 0.15)",
-    backgroundColor: "white",
+    backgroundColor: "rgba(255,255,255,1)",
   },
 };
 
@@ -116,7 +116,7 @@ const NavBar = () => {
       variants={NavVariants}
       initial="initial"
       animate={currentScrollY > 80 ? "scrolled" : "initial"}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
     >
       <Link to="/">
         <Logo />

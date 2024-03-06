@@ -7,6 +7,7 @@ const Footer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 30px 0;
+  margin-top: 100px;
 `;
 
 const FooterItem = styled.li`
@@ -37,7 +38,7 @@ const FooterItems = styled.ul`
   gap: 65px;
 `;
 
-const FooterLogo = styled.img`
+const FooterLogo = styled(motion.img)`
   width: 80px;
   height: 80px;
 `;
@@ -83,6 +84,21 @@ const linkVariants = {
   },
 };
 
+const footerLogoVariants = {
+  initial: {
+    transform: "translateY(0px)",
+    transition: {
+      duration: 0.1,
+    },
+  },
+  hover: {
+    transform: "translateY(-3px)",
+    transition: {
+      duration: 0.1,
+    },
+  },
+};
+
 const MotionLink = motion(Link);
 
 const MainFooter = () => {
@@ -92,7 +108,7 @@ const MainFooter = () => {
         <FooterItem>
           <FooterItemTitle>ArtifyThumbs</FooterItemTitle>
           <p>
-            ArtifyThumbs는 자신이 필요한 사진을 요청하여
+            ArtifyThumbs는 필요한 사진을 요청하여
             <br />
             받을 수 있는 서비스입니다.
           </p>
@@ -158,7 +174,12 @@ const MainFooter = () => {
           </ul>
         </FooterItem>
         <FooterSymbol>
-          <FooterLogo src="/img/smallLogo.jpeg" />
+          <FooterLogo
+            variants={footerLogoVariants}
+            initial="initial"
+            whileHover="hover"
+            src="/img/smallLogo.jpeg"
+          />
           <FooterSymbolText>멋진 그림을 받아보세요!</FooterSymbolText>
         </FooterSymbol>
       </FooterItems>

@@ -51,7 +51,7 @@ const TopButton = () => {
     setIsTopButtonVisible(latest > 120);
   });
   return (
-    <Link to="main" smooth={true} duration={300}>
+    <Link to="root" smooth={true} duration={300}>
       <AnimatePresence>
         {isTopButtonVisible && (
           <Top

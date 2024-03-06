@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Helmet } from "react-helmet";
 import styled from "styled-components";
 import TopButton from "../components/TopButton";
+import Seo from "../components/Seo";
 
 const Wrapper = styled.div`
   display: flex;
@@ -35,6 +35,39 @@ const ContainerSubtitle = styled.h2`
   color: rgba(0, 0, 0, 0.6);
 `;
 
+const About = styled.div`
+  display: flex;
+  width: 100%;
+  height: 250px;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+  margin-bottom: 150px;
+`;
+
+const AboutInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  width: 500px;
+`;
+
+const AboutImage = styled.img`
+  width: 400px;
+  height: 200px;
+  background-color: #f4f4f4;
+`;
+
+const AboutTitle = styled.h2`
+  font-size: 2rem;
+`;
+
+const AboutContent = styled.p`
+  font-size: 1.1rem;
+  line-height: 25px;
+`;
+
 const ContainerStartButton = styled(motion.button)`
   padding: 8px 18px;
   background-color: #0984e3;
@@ -57,9 +90,7 @@ const startVariants = {
 const Home = () => {
   return (
     <>
-      <Helmet>
-        <title>홈 | ArtifyThumbs</title>
-      </Helmet>
+      <Seo title="홈" />
       <Wrapper>
         <TopButton />
         <Container id="main">
@@ -73,6 +104,26 @@ const Home = () => {
             시작하기
           </ContainerStartButton>
         </Container>
+        <About>
+          <AboutImage src="/img/various.png" alt="various" />
+          <AboutInfo>
+            <AboutTitle>다양한 그림 종류</AboutTitle>
+            <AboutContent>
+              ArtifyThumbs에서는 게임 일러스트, 캐릭터 일러스트, 유튜브 썸네일,
+              프로필 사진, 프로필 배너 등 많은 그림들을 그릴 수 있습니다.
+            </AboutContent>
+          </AboutInfo>
+        </About>
+        <About>
+          <AboutInfo>
+            <AboutTitle>간편한 신청</AboutTitle>
+            <AboutContent>
+              쉽게 가입하고 원하는 그림을 신청하세요. 좋은 퀄리티로 빠르게 받아
+              볼 수 있습니다.
+            </AboutContent>
+          </AboutInfo>
+          <AboutImage src="/img/convenient.png" alt="convenient" />
+        </About>
       </Wrapper>
     </>
   );
