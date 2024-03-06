@@ -3,6 +3,7 @@ import Home from "./routes/Home";
 import About from "./routes/About";
 import Root from "./routes/Root";
 import NotFound from "./components/NotFound";
+import Order from "./routes/Order";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
       {
         path: "about",
         element: <About />,
+      },
+      {
+        path: "order",
+        element: <Order />,
       },
     ],
   },

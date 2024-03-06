@@ -2,6 +2,7 @@ import { useRouteError } from "react-router";
 import NavBar from "./NavBar";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import Seo from "../components/Seo";
 
 const Container = styled.div`
   display: flex;
@@ -37,6 +38,7 @@ const NotFound = () => {
   const error = useRouteError();
   return (
     <>
+      <Seo title="에러 발생" />
       <NavBar />
       <Container>
         <ErrorCode>에러 발생! (Code: {error.status})</ErrorCode>

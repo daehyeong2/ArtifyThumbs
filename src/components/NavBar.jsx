@@ -103,7 +103,6 @@ const NavBar = () => {
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const homeMatch = useMatch("/");
   const aboutMatch = useMatch("/about");
-  const priceMatch = useMatch("/price");
   const orderListMatch = useMatch("/order-list");
   const orderMatch = useMatch("/order");
   const { scrollY } = useScroll();
@@ -142,18 +141,6 @@ const NavBar = () => {
           <div>
             <MotionLink to="/about" variants={NavItemVariants}>
               소개
-            </MotionLink>
-          </div>
-          <UnderLine variants={UnderLineVariants} />
-        </NavItem>
-        <NavItem
-          initial="initial"
-          animate={priceMatch ? "animate" : "initial"}
-          whileHover="hover"
-        >
-          <div>
-            <MotionLink to="/price" variants={NavItemVariants}>
-              가격
             </MotionLink>
           </div>
           <UnderLine variants={UnderLineVariants} />

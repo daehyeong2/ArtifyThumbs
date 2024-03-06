@@ -35,7 +35,7 @@ const ContainerSubtitle = styled.h2`
   color: rgba(0, 0, 0, 0.6);
 `;
 
-const About = styled.div`
+const About = styled(motion.div)`
   display: flex;
   width: 100%;
   height: 250px;
@@ -56,7 +56,7 @@ const AboutInfo = styled.div`
 const AboutImage = styled.img`
   width: 400px;
   height: 200px;
-  background-color: #f4f4f4;
+  object-fit: contain;
 `;
 
 const AboutTitle = styled.h2`
@@ -70,7 +70,6 @@ const AboutContent = styled.p`
 
 const ContainerStartButton = styled(motion.button)`
   padding: 8px 18px;
-  background-color: #0984e3;
   border: none;
   border-radius: 30px;
   color: white;
@@ -79,10 +78,31 @@ const ContainerStartButton = styled(motion.button)`
 `;
 
 const startVariants = {
+  initial: {
+    backgroundColor: "#0984e3",
+    transition: {
+      duration: 0.05,
+    },
+  },
   hover: {
     backgroundColor: "#0097e6",
     transition: {
       duration: 0.05,
+    },
+  },
+};
+
+const AboutVariants = {
+  hidden: {
+    opacity: 0,
+    y: -100,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      delay: 0.1,
     },
   },
 };
@@ -100,12 +120,21 @@ const Home = () => {
           <ContainerSubtitle>
             ArtifyThumbs에서 쉽고 빠르게 좋은 그림을 받아보세요.
           </ContainerSubtitle>
-          <ContainerStartButton variants={startVariants} whileHover="hover">
+          <ContainerStartButton
+            variants={startVariants}
+            initial="initial"
+            whileHover="hover"
+          >
             시작하기
           </ContainerStartButton>
         </Container>
-        <About>
-          <AboutImage src="/img/various.png" alt="various" />
+        <About
+          variants={AboutVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: "all" }}
+        >
+          <AboutImage src="/img/AboutImage/various.jpeg" alt="various" />
           <AboutInfo>
             <AboutTitle>다양한 그림 종류</AboutTitle>
             <AboutContent>
@@ -114,7 +143,12 @@ const Home = () => {
             </AboutContent>
           </AboutInfo>
         </About>
-        <About>
+        <About
+          variants={AboutVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: "all" }}
+        >
           <AboutInfo>
             <AboutTitle>간편한 신청</AboutTitle>
             <AboutContent>
@@ -122,7 +156,7 @@ const Home = () => {
               볼 수 있습니다.
             </AboutContent>
           </AboutInfo>
-          <AboutImage src="/img/convenient.png" alt="convenient" />
+          <AboutImage src="/img/AboutImage/convenient.jpeg" alt="convenient" />
         </About>
       </Wrapper>
     </>

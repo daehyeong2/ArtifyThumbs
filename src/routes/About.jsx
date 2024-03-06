@@ -95,8 +95,8 @@ const About = () => {
           <Info>
             <InfoTitle>어떻게 이용하나요?</InfoTitle>
             <InfoContent>
-              ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 신청 할
-              때는 간단한 시안이 필요해요!
+              ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 참고로 신청
+              할 때는 간단한 시안이 필요해요!
             </InfoContent>
           </Info>
         </Introduction>
