@@ -25,6 +25,7 @@ const Nav = styled(motion.nav)`
   grid-template-columns: 1fr minmax(450px, 1fr) 1fr;
   width: 100vw;
   position: fixed;
+  z-index: 99;
 `;
 
 const NavList = styled.ul`
@@ -88,7 +89,7 @@ const UnderLineVariants = {
 const NavVariants = {
   initial: {
     border: "1px solid rgba(0, 0, 0, 0)",
-    backgroundColor: "rgba(255,255,255,0)",
+    backgroundColor: "rgba(255, 255, 255, 0)",
   },
   scrolled: {
     border: "1px solid rgba(0, 0, 0, 0.15)",
@@ -103,8 +104,8 @@ const NavBar = () => {
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const homeMatch = useMatch("/");
   const aboutMatch = useMatch("/about");
-  const orderListMatch = useMatch("/order-list");
-  const orderMatch = useMatch("/order");
+  const applyListMatch = useMatch("/apply-list");
+  const applyMatch = useMatch("/apply");
   const { scrollY } = useScroll();
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
@@ -149,11 +150,11 @@ const NavBar = () => {
           <>
             <NavItem
               initial="initial"
-              animate={orderListMatch ? "animate" : "initial"}
+              animate={applyListMatch ? "animate" : "initial"}
               whileHover="hover"
             >
               <div>
-                <MotionLink to="/order-list" variants={NavItemVariants}>
+                <MotionLink to="/apply-list" variants={NavItemVariants}>
                   신청 목록
                 </MotionLink>
               </div>
@@ -161,11 +162,11 @@ const NavBar = () => {
             </NavItem>
             <NavItem
               initial="initial"
-              animate={orderMatch ? "animate" : "initial"}
+              animate={applyMatch ? "animate" : "initial"}
               whileHover="hover"
             >
               <div>
-                <MotionLink to="/order" variants={NavItemVariants}>
+                <MotionLink to="/apply" variants={NavItemVariants}>
                   신청하기
                 </MotionLink>
               </div>
