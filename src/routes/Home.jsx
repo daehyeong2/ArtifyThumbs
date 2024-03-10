@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import TopButton from "../components/TopButton";
 import Seo from "../components/Seo";
 
 const Wrapper = styled.div`
@@ -112,7 +111,6 @@ const Home = () => {
     <>
       <Seo title="홈" />
       <Wrapper>
-        <TopButton />
         <Container id="main">
           <ContainerTitle>
             쉽고, <span>완벽한.</span>

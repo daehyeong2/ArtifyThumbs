@@ -105,6 +105,7 @@ const NavBar = () => {
   const homeMatch = useMatch("/");
   const aboutMatch = useMatch("/about");
   const applyListMatch = useMatch("/apply-list");
+  const DetailApplyMatch = useMatch("/apply-list/:applyId");
   const applyMatch = useMatch("/apply");
   const { scrollY } = useScroll();
   const handleScroll = useCallback((latest) => {
@@ -150,7 +151,9 @@ const NavBar = () => {
           <>
             <NavItem
               initial="initial"
-              animate={applyListMatch ? "animate" : "initial"}
+              animate={
+                applyListMatch || DetailApplyMatch ? "animate" : "initial"
+              }
               whileHover="hover"
             >
               <div>

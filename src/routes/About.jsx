@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
-import TopButton from "../components/TopButton";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -63,7 +62,6 @@ const InfoContent = styled.p`
 const About = () => {
   return (
     <>
-      <TopButton />
       <Seo title="소개" />
       <Container>
         <TopBar>
