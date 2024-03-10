@@ -3,6 +3,7 @@ import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -102,12 +103,11 @@ const Chat = styled.div`
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 15px;
   height: 95%;
-  padding-bottom: 30px;
-  overflow-y: auto;
+  overflow: hidden;
+  padding-bottom: 20px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  position: relative;
 `;
 
 const MessageList = styled.ul`
@@ -115,8 +115,11 @@ const MessageList = styled.ul`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   gap: 20px;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Message = styled.li`
@@ -128,19 +131,16 @@ const Message = styled.li`
     border-radius: 15px;
     width: fit-content;
     background-color: ${(props) =>
-      props.$isMe ? "#0984e3" : "rgba(0, 0, 0, 0.1)"};
+      props.$isMe ? "#0984e3" : "rgba(0, 0, 0, 0.06)"};
     color: ${(props) => (props.$isMe ? "white" : "black")};
   }
 `;
 
 const MessageForm = styled.form`
-  position: fixed;
-  width: 100%;
-  bottom: 0;
   display: flex;
   align-items: center;
   gap: 15px;
-  padding: 20px;
+  padding: 10px;
 `;
 
 const MessageInput = styled.input`
@@ -149,6 +149,10 @@ const MessageInput = styled.input`
   border-radius: 15px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   font-size: 1.1rem;
+  &:focus-within {
+    outline: none;
+    border-color: #0984e3;
+  }
 `;
 
 const MessageButton = styled(motion.button)`
@@ -222,6 +226,13 @@ const DetailApply = () => {
   const onSubmit = (data) => {
     console.log(data);
   };
+  const ulRef = useRef(null);
+  useEffect(() => {
+    if (ulRef.current) {
+      const ulElement = ulRef.current;
+      ulElement.scrollTop = ulElement.scrollHeight;
+    }
+  }, []);
   return (
     <>
       <Seo title="제목" />
@@ -249,7 +260,7 @@ const DetailApply = () => {
           <DetailDate>신청 날짜: 2024년 3월 9일</DetailDate>
         </Detail>
         <Chat>
-          <MessageList>
+          <MessageList ref={ulRef}>
             <Message $isMe={true}>
               <span>안녕하세요</span>
             </Message>
@@ -292,11 +303,15 @@ const DetailApply = () => {
             <Message $isMe={true}>
               <span>안녕하세요</span>
             </Message>
+            <Message $isMe={false}>
+              <span>차단할게요.</span>
+            </Message>
           </MessageList>
           <MessageForm onSubmit={handleSubmit(onSubmit)}>
             <MessageInput
               {...register("message", { required: true })}
               type="text"
+              autoComplete="off"
               placeholder="메시지를 입력하세요"
             />
             <MessageButton
@@ -310,7 +325,7 @@ const DetailApply = () => {
           </MessageForm>
         </Chat>
         <Drafts>
-          <DraftTitle>올린 시안 (3/5)</DraftTitle>
+          <DraftTitle>보낸 시안 (3/12)</DraftTitle>
           <Draft>
             <DraftImage
               src="https://i.ytimg.com/vi/6eLGnF2te14/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLChES_ydzSlxbthBRr31PJgqUjYJQ"
