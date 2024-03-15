@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import Seo from "../components/Seo";
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -113,18 +114,21 @@ const Home = () => {
       <Wrapper>
         <Container id="main">
           <ContainerTitle>
-            쉽고, <span>완벽한.</span>
+            쉽고, <span>간편한</span>
           </ContainerTitle>
           <ContainerSubtitle>
             ArtifyThumbs에서 쉽고 빠르게 좋은 그림을 받아보세요.
           </ContainerSubtitle>
-          <ContainerStartButton
-            variants={startVariants}
-            initial="initial"
-            whileHover="hover"
-          >
-            시작하기
-          </ContainerStartButton>
+          <Link to="/signup">
+            <ContainerStartButton
+              transition={{ duration: 0.1 }}
+              variants={startVariants}
+              initial="initial"
+              whileHover="hover"
+            >
+              시작하기
+            </ContainerStartButton>
+          </Link>
         </Container>
         <About
           variants={AboutVariants}

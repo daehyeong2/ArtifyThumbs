@@ -6,6 +6,8 @@ import NotFound from "./components/NotFound";
 import Apply from "./routes/Apply";
 import ApplyList from "./routes/ApplyList";
 import DetailApply from "./routes/DetailApply";
+import Signup from "./routes/Signup";
+import Signin from "./routes/Signin";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +34,14 @@ const router = createBrowserRouter([
       {
         path: "apply-list/:applyId",
         element: <DetailApply />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
+      },
+      {
+        path: "signin",
+        element: <Signin />,
       },
     ],
   },

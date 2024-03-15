@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { isLoggedInAtom } from "../atom";
 
@@ -151,12 +152,24 @@ const NavAccount = () => {
     <Wrapper>
       {!isLoggedIn ? (
         <>
-          <SignInButton variants={signInVariants} whileHover="hover">
-            로그인
-          </SignInButton>
-          <StartButton variants={startVariants} whileHover="hover">
-            시작하기
-          </StartButton>
+          <Link to="/signin">
+            <SignInButton
+              transition={{ duration: 0.1 }}
+              variants={signInVariants}
+              whileHover="hover"
+            >
+              로그인
+            </SignInButton>
+          </Link>
+          <Link to="/signup">
+            <StartButton
+              transition={{ duration: 0.1 }}
+              variants={startVariants}
+              whileHover="hover"
+            >
+              시작하기
+            </StartButton>
+          </Link>
         </>
       ) : (
         <>

@@ -15,6 +15,7 @@ const Seo = ({ title }) => {
         rel="stylesheet"
       />
       <link rel="icon" sizes="16x16" href="/img/favicon.ico" />
+      <script src="https://kit.fontawesome.com/18c154b14c.js"></script>
     </Helmet>
   );
 };
