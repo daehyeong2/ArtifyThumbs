@@ -54,8 +54,8 @@ const InputContainer = styled.div`
 
 const Input = styled.input`
   width: 100%;
-  height: 40px;
-  padding: 10px;
+  height: 45px;
+  padding: 15px;
   font-size: 16px;
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 5px;
@@ -68,7 +68,7 @@ const TextArea = styled.textarea`
   height: 70%;
   box-sizing: border-box;
   font-size: 16px;
-  padding: 10px;
+  padding: 10px 15px;
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 5px;
   outline: none;

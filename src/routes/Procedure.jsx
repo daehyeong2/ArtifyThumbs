@@ -33,11 +33,11 @@ const Container = styled.div`
 
 const Back = styled(Link)`
   position: absolute;
-  top: -25px;
+  top: -20px;
   left: 3px;
   border: 1px solid rgba(0, 0, 0, 0.3);
   background-color: white;
-  padding: 7px 10px;
+  padding: 6px 10px;
   border-radius: 8px;
   font-size: 18px;
   cursor: pointer;
