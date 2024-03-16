@@ -109,6 +109,8 @@ const NavBar = () => {
   const applyListMatch = useMatch("/apply-list");
   const DetailApplyMatch = useMatch("/apply-list/:applyId");
   const applyMatch = useMatch("/apply");
+  const applyProcedureMatch = useMatch("/apply/procedure");
+  const inquiryMatch = useMatch("/inquiry");
   const { scrollY } = useScroll();
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
@@ -151,6 +153,18 @@ const NavBar = () => {
           </div>
           <UnderLine variants={UnderLineVariants} />
         </NavItem>
+        <NavItem
+          initial="initial"
+          animate={inquiryMatch ? "animate" : "initial"}
+          whileHover="hover"
+        >
+          <div>
+            <MotionLink to="/inquiry" variants={NavItemVariants}>
+              문의하기
+            </MotionLink>
+          </div>
+          <UnderLine variants={UnderLineVariants} />
+        </NavItem>
         {isLoggedIn && (
           <>
             <NavItem
@@ -169,7 +183,9 @@ const NavBar = () => {
             </NavItem>
             <NavItem
               initial="initial"
-              animate={applyMatch ? "animate" : "initial"}
+              animate={
+                applyMatch || applyProcedureMatch ? "animate" : "initial"
+              }
               whileHover="hover"
             >
               <div>

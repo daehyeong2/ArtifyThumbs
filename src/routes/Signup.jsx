@@ -27,6 +27,7 @@ const Form = styled.form`
 const Label = styled.label`
   font-size: 1rem;
   font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
 `;
 
 const Input = styled.input`
@@ -37,8 +38,9 @@ const Input = styled.input`
   padding: 10px;
   font-size: 0.9rem;
   font-weight: 600;
-  font-family: sans-serif;
   outline: none;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   &:focus-within {
     border: 1px solid #0984e3;
   }

@@ -2,6 +2,7 @@ import styled from "styled-components";
 import NavBar from "../components/NavBar";
 import Seo from "../components/Seo";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -34,6 +35,10 @@ const Plan = styled.div`
   padding: 30px;
   box-sizing: border-box;
   border-radius: 20px;
+  transition: 0.1s;
+  &:hover {
+    box-shadow: 2px 2px 5px 3px rgba(0, 0, 0, 0.13);
+  }
 `;
 
 const PlanTitle = styled.h2`
@@ -145,13 +150,15 @@ const Order = () => {
               </PlanFeatures>
               <PlanBuy>
                 <PlanPrice>4,900원</PlanPrice>
-                <PlanButton
-                  variants={planButtonVariants}
-                  initial="initial"
-                  whileHover="hover"
-                >
-                  신청하기
-                </PlanButton>
+                <Link to="/apply/procedure" state="standard">
+                  <PlanButton
+                    variants={planButtonVariants}
+                    initial="initial"
+                    whileHover="hover"
+                  >
+                    신청하기
+                  </PlanButton>
+                </Link>
               </PlanBuy>
             </PlanInfo>
           </Plan>
@@ -186,13 +193,15 @@ const Order = () => {
               </PlanFeatures>
               <PlanBuy>
                 <PlanPrice>8,900원</PlanPrice>
-                <PlanButton
-                  variants={planButtonVariants}
-                  initial="initial"
-                  whileHover="hover"
-                >
-                  신청하기
-                </PlanButton>
+                <Link to="/apply/procedure" state="pro">
+                  <PlanButton
+                    variants={planButtonVariants}
+                    initial="initial"
+                    whileHover="hover"
+                  >
+                    신청하기
+                  </PlanButton>
+                </Link>
               </PlanBuy>
             </PlanInfo>
           </Plan>

@@ -37,8 +37,9 @@ const Input = styled.input`
   padding: 10px;
   font-size: 0.9rem;
   font-weight: 600;
-  font-family: sans-serif;
   outline: none;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   &:focus-within {
     border: 1px solid #0984e3;
   }
@@ -50,7 +51,7 @@ const InputContainer = styled.div`
   gap: 8px;
 `;
 
-const SignUpButton = styled.button`
+const SignInButton = styled.button`
   width: 100%;
   padding: 10px;
   border: none;
@@ -72,7 +73,7 @@ const FormTitle = styled.h1`
   margin-bottom: 20px;
 `;
 
-const LoginLink = styled(Link)`
+const SignUpLink = styled(Link)`
   font-size: 0.9rem;
   font-weight: 600;
   width: 100%;
@@ -117,7 +118,7 @@ const Signup = () => {
   };
   return (
     <>
-      <Seo title="회원가입" />
+      <Seo title="로그인" />
       <Wrapper>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <FormTitle>로그인</FormTitle>
@@ -142,10 +143,10 @@ const Signup = () => {
               type="password"
             ></Input>
           </InputContainer>
-          <SignUpButton>로그인</SignUpButton>
-          <LoginLink to="/signup">
+          <SignInButton>로그인</SignInButton>
+          <SignUpLink to="/signup">
             계정이 없으신가요? 여기를 클릭하세요.
-          </LoginLink>
+          </SignUpLink>
           <OAuthList>
             <OAuth>
               <i className="fa-brands fa-discord"></i>

@@ -8,6 +8,8 @@ import ApplyList from "./routes/ApplyList";
 import DetailApply from "./routes/DetailApply";
 import Signup from "./routes/Signup";
 import Signin from "./routes/Signin";
+import Inquiry from "./routes/Inquiry";
+import Procedure from "./routes/Procedure";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +30,10 @@ const router = createBrowserRouter([
         element: <Apply />,
       },
       {
+        path: "apply/procedure",
+        element: <Procedure />,
+      },
+      {
         path: "apply-list",
         element: <ApplyList />,
       },
@@ -42,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "signin",
         element: <Signin />,
+      },
+      {
+        path: "inquiry",
+        element: <Inquiry />,
       },
     ],
   },
