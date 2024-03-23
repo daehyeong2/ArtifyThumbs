@@ -2,7 +2,7 @@ import styled from "styled-components";
 import NavAccount from "./NavAccount";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { useRecoilValue } from "recoil";
-import { isLoggedInAtom } from "../atom";
+import { isAdminAtom, isLoggedInAtom } from "../atom";
 import { Link, useMatch } from "react-router-dom";
 import { useCallback, useState } from "react";
 
@@ -22,7 +22,7 @@ const Nav = styled(motion.nav)`
   padding: 20px 75px;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 1fr minmax(450px, 1fr) 1fr;
+  grid-template-columns: 0.5fr minmax(450px, 1fr) 0.5fr;
   width: 100vw;
   position: fixed;
   z-index: 99;
@@ -101,6 +101,7 @@ const MotionLink = motion(Link);
 
 const NavBar = () => {
   const isLoggedIn = useRecoilValue(isLoggedInAtom);
+  const isAdmin = useRecoilValue(isAdminAtom);
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const homeMatch = useMatch("/");
   const signupMatch = useMatch("/signup");
@@ -111,6 +112,8 @@ const NavBar = () => {
   const applyMatch = useMatch("/apply");
   const applyProcedureMatch = useMatch("/apply/procedure");
   const inquiryMatch = useMatch("/inquiry");
+  const orderManagementMatch = useMatch("/order-management");
+  const orderManagementDetailMatch = useMatch("/order-management/:orderId");
   const { scrollY } = useScroll();
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
@@ -195,6 +198,29 @@ const NavBar = () => {
               </div>
               <UnderLine variants={UnderLineVariants} />
             </NavItem>
+            {isAdmin && (
+              <>
+                <NavItem
+                  initial="initial"
+                  animate={
+                    orderManagementMatch || orderManagementDetailMatch
+                      ? "animate"
+                      : "initial"
+                  }
+                  whileHover="hover"
+                >
+                  <div>
+                    <MotionLink
+                      to="/order-management"
+                      variants={NavItemVariants}
+                    >
+                      주문 관리
+                    </MotionLink>
+                  </div>
+                  <UnderLine variants={UnderLineVariants} />
+                </NavItem>
+              </>
+            )}
           </>
         )}
       </NavList>

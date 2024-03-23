@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Outlet, createBrowserRouter } from "react-router-dom";
 import Home from "./routes/Home";
 import About from "./routes/About";
 import Root from "./routes/Root";
@@ -10,6 +10,8 @@ import Signup from "./routes/Signup";
 import Signin from "./routes/Signin";
 import Inquiry from "./routes/Inquiry";
 import Procedure from "./routes/Procedure";
+import OrderManagement from "./routes/OrderManagement";
+import DetailOrderManagement from "./routes/DetailOrderManagement";
 
 const router = createBrowserRouter([
   {
@@ -27,19 +29,31 @@ const router = createBrowserRouter([
       },
       {
         path: "apply",
-        element: <Apply />,
-      },
-      {
-        path: "apply/procedure",
-        element: <Procedure />,
+        element: <Outlet />,
+        children: [
+          {
+            path: "",
+            element: <Apply />,
+          },
+          {
+            path: "procedure",
+            element: <Procedure />,
+          },
+        ],
       },
       {
         path: "apply-list",
-        element: <ApplyList />,
-      },
-      {
-        path: "apply-list/:applyId",
-        element: <DetailApply />,
+        element: <Outlet />,
+        children: [
+          {
+            path: "",
+            element: <ApplyList />,
+          },
+          {
+            path: ":applyId",
+            element: <DetailApply />,
+          },
+        ],
       },
       {
         path: "signup",
@@ -52,6 +66,20 @@ const router = createBrowserRouter([
       {
         path: "inquiry",
         element: <Inquiry />,
+      },
+      {
+        path: "order-management",
+        element: <Outlet />,
+        children: [
+          {
+            path: "",
+            element: <OrderManagement />,
+          },
+          {
+            path: ":orderId",
+            element: <DetailOrderManagement />,
+          },
+        ],
       },
     ],
   },

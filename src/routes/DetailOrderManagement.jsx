@@ -1,9 +1,9 @@
-import styled from "styled-components";
-import Seo from "../components/Seo";
-import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { motion } from "framer-motion";
+import Seo from "../components/Seo";
 import { useEffect, useRef } from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -233,7 +233,7 @@ const Download = styled.i`
   cursor: pointer;
 `;
 
-const DetailApply = () => {
+const DetailOrderManagement = () => {
   const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
     console.log(data);
@@ -249,7 +249,7 @@ const DetailApply = () => {
     <>
       <Seo title="제목" />
       <Wrapper>
-        <Back to="/apply-list">&larr; 뒤로가기</Back>
+        <Back to="/order-management">&larr; 뒤로가기</Back>
         <Detail>
           <DetailResult>
             <img
@@ -274,49 +274,49 @@ const DetailApply = () => {
         </Detail>
         <Chat>
           <MessageList ref={ulRef}>
-            <Message $isMe={true}>
+            <Message $isMe={false}>
               <span>안녕하세요</span>
             </Message>
-            <Message $isMe={false}>
+            <Message $isMe={true}>
               <span>안녕하세요 무슨 일이죠?</span>
             </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
-              <span>안녕하세요</span>
-            </Message>
-            <Message $isMe={true}>
+            <Message $isMe={false}>
               <span>안녕하세요</span>
             </Message>
             <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={false}>
+              <span>안녕하세요</span>
+            </Message>
+            <Message $isMe={true}>
               <span>차단할게요.</span>
             </Message>
           </MessageList>
@@ -338,7 +338,7 @@ const DetailApply = () => {
           </MessageForm>
         </Chat>
         <Drafts>
-          <DraftTitle>보낸 시안 (3/12)</DraftTitle>
+          <DraftTitle>받은 시안 (3/12)</DraftTitle>
           <Draft>
             <DraftImage
               src="https://i.ytimg.com/vi/6eLGnF2te14/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLChES_ydzSlxbthBRr31PJgqUjYJQ"
@@ -366,4 +366,4 @@ const DetailApply = () => {
   );
 };
 
-export default DetailApply;
+export default DetailOrderManagement;
