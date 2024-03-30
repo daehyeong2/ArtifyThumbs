@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { isLoggedInAtom } from "../atom";
+import { userAtom } from "../atom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -43,15 +43,17 @@ const Profile = styled.div`
 `;
 
 const Menu = styled(motion.div)`
-  width: 100px;
   background-color: #fafafa;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   position: absolute;
-  left: -28px;
+  right: -28px;
   top: 50px;
+  padding: 10px;
+  gap: 10px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   box-sizing: border-box;
   cursor: default;
 `;
@@ -61,23 +63,51 @@ const MenuList = styled.ul`
   flex-direction: column;
   align-items: center;
   padding: 10px 0;
-  gap: 6px;
-  width: 100%;
+  width: 100px;
   height: 100%;
 `;
 
-const MenuItem = styled.li`
+const MenuItem = styled(Link)`
   font-size: 15px;
-  width: 80%;
   text-align: center;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  width: 100%;
   cursor: pointer;
+  color: black;
+  text-decoration: none;
+  padding: 5px;
+  box-sizing: border-box;
+  transition: background-color 0.1s ease-in-out;
+  border-radius: 5px;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
   &:last-child {
     color: red;
     font-weight: bold;
     border: none;
   }
+`;
+
+const MenuProfile = styled.section`
+  width: 100px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+`;
+
+const AvatarImage = styled.img`
+  width: 50px;
+  height: 50px;
+  object-fit: center;
+  border-radius: 50%;
+`;
+
+const Username = styled.h2`
+  font-size: 20px;
+  font-weight: bold;
 `;
 
 const signInVariants = {
@@ -120,8 +150,8 @@ const menuVariants = {
 };
 
 const NavAccount = () => {
-  const isLoggedIn = useRecoilValue(isLoggedInAtom);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const user = useRecoilValue(userAtom);
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
   const onClickProfile = (event) => {
     if (event.target.closest(".Menu")) return;
     setIsMenuOpen(!isMenuOpen);
@@ -150,7 +180,7 @@ const NavAccount = () => {
   }, [isMenuOpen]);
   return (
     <Wrapper>
-      {!isLoggedIn ? (
+      {!user ? (
         <>
           <Link to="/signin">
             <SignInButton
@@ -183,10 +213,19 @@ const NavAccount = () => {
                   exit="exit"
                   className="Menu"
                 >
+                  <MenuProfile>
+                    <AvatarImage src={user.avatar} />
+                    <Username>{user.username}님</Username>
+                  </MenuProfile>
                   <MenuList className="MenuList">
                     <MenuItem className="MenuItem">프로필</MenuItem>
                     <MenuItem className="MenuItem">설정</MenuItem>
-                    <MenuItem className="MenuItem">로그아웃</MenuItem>
+                    <MenuItem
+                      to="http://localhost:4000/users/logout"
+                      className="MenuItem"
+                    >
+                      로그아웃
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               )}

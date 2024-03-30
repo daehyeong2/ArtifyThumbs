@@ -1,7 +1,9 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
 const Wrapper = styled.div`
   display: flex;
@@ -111,10 +113,41 @@ const OAuth = styled.li`
   }
 `;
 
+const ErrorMessage = styled.p`
+  width: 270px;
+  line-height: 1.2;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #d63031;
+`;
+
+const Login = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+`;
+
 const Signup = () => {
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
+  const [error, setError] = useState(false);
   const onSubmit = (data) => {
-    console.log(data);
+    axios
+      .post(`${process.env.REACT_APP_BACKEND_URL}/users/signin`, data, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          navigate("/");
+        } else {
+          setError(res.data.message);
+        }
+      });
   };
   return (
     <>
@@ -125,25 +158,37 @@ const Signup = () => {
           <InputContainer>
             <Label htmlFor="email">이메일을 입력하세요.</Label>
             <Input
-              {...register("email", { required: true })}
+              {...register("email", { required: true, pattern: /^\S+@\S+$/i })}
               placeholder="이메일"
               autoComplete="off"
               id="email"
               name="email"
+              type="email"
             ></Input>
+            {errors.email && (
+              <ErrorMessage>올바른 이메일 형식으로 입력해주세요.</ErrorMessage>
+            )}
           </InputContainer>
           <InputContainer>
             <Label htmlFor="password">비밀번호를 입력하세요.</Label>
             <Input
-              {...register("password", { required: true })}
+              {...register("password", { required: true, minLength: 8 })}
               placeholder="비밀번호"
               autoComplete="off"
               id="password"
               name="password"
               type="password"
             ></Input>
+            {errors.password && (
+              <ErrorMessage>
+                비밀번호는 최소 8자 이상이어야 합니다.
+              </ErrorMessage>
+            )}
           </InputContainer>
-          <SignInButton>로그인</SignInButton>
+          <Login>
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+            <SignInButton>로그인</SignInButton>
+          </Login>
           <SignUpLink to="/signup">
             계정이 없으신가요? 여기를 클릭하세요.
           </SignUpLink>

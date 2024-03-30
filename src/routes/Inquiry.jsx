@@ -199,9 +199,9 @@ const Inquiry = () => {
                 type: "just",
               }}
             >
-              <i class="fa-solid fa-arrow-down"></i>
+              <i className="fa-solid fa-arrow-down"></i>
               자주 묻는 질문
-              <i class="fa-solid fa-arrow-down"></i>
+              <i className="fa-solid fa-arrow-down"></i>
             </Message>
           </Link>
         </InquirySection>

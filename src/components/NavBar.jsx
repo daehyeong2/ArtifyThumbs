@@ -2,7 +2,7 @@ import styled from "styled-components";
 import NavAccount from "./NavAccount";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { useRecoilValue } from "recoil";
-import { isAdminAtom, isLoggedInAtom } from "../atom";
+import { userAtom } from "../atom";
 import { Link, useMatch } from "react-router-dom";
 import { useCallback, useState } from "react";
 
@@ -100,8 +100,7 @@ const NavVariants = {
 const MotionLink = motion(Link);
 
 const NavBar = () => {
-  const isLoggedIn = useRecoilValue(isLoggedInAtom);
-  const isAdmin = useRecoilValue(isAdminAtom);
+  const user = useRecoilValue(userAtom);
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const homeMatch = useMatch("/");
   const signupMatch = useMatch("/signup");
@@ -168,7 +167,7 @@ const NavBar = () => {
           </div>
           <UnderLine variants={UnderLineVariants} />
         </NavItem>
-        {isLoggedIn && (
+        {user && (
           <>
             <NavItem
               initial="initial"
@@ -198,7 +197,7 @@ const NavBar = () => {
               </div>
               <UnderLine variants={UnderLineVariants} />
             </NavItem>
-            {isAdmin && (
+            {user.role === "admin" && (
               <>
                 <NavItem
                   initial="initial"
