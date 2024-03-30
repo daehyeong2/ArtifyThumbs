@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../atom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,7 +67,7 @@ const AboutTitle = styled.h2`
 
 const AboutContent = styled.p`
   font-size: 1.1rem;
-  line-height: 25px;
+  line-height: 1.5;
 `;
 
 const ContainerStartButton = styled(motion.button)`
@@ -108,6 +110,7 @@ const AboutVariants = {
 };
 
 const Home = () => {
+  const user = useRecoilValue(userAtom);
   return (
     <>
       <Seo title="홈" />
@@ -119,7 +122,7 @@ const Home = () => {
           <ContainerSubtitle>
             ArtifyThumbs에서 쉽고 빠르게 좋은 그림을 받아보세요.
           </ContainerSubtitle>
-          <Link to="/signup">
+          <Link to={user ? "/apply" : "/signup"}>
             <ContainerStartButton
               transition={{ duration: 0.1 }}
               variants={startVariants}
@@ -140,8 +143,11 @@ const Home = () => {
           <AboutInfo>
             <AboutTitle>다양한 그림 종류</AboutTitle>
             <AboutContent>
-              ArtifyThumbs에서는 게임 일러스트, 캐릭터 일러스트, 유튜브 썸네일,
-              프로필 사진, 프로필 배너 등 많은 그림들을 그릴 수 있습니다.
+              ArtifyThumbs에서는 게임 일러스트, 캐릭터 일러스트,
+              <br />
+              유튜브 썸네일, 프로필 사진, 프로필 배너 등
+              <br />
+              많은 그림들을 받을 수 있습니다.
             </AboutContent>
           </AboutInfo>
         </About>
@@ -154,8 +160,9 @@ const Home = () => {
           <AboutInfo>
             <AboutTitle>간편한 신청</AboutTitle>
             <AboutContent>
-              쉽게 가입하고 원하는 그림을 신청하세요. 좋은 퀄리티로 빠르게 받아
-              볼 수 있습니다.
+              쉽게 가입하고 원하는 그림을 신청하세요.
+              <br />
+              좋은 퀄리티로 빠르게 받아 볼 수 있습니다.
             </AboutContent>
           </AboutInfo>
           <AboutImage src="/img/AboutImage/convenient.jpeg" alt="convenient" />

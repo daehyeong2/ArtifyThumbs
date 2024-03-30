@@ -92,7 +92,7 @@ const ApplyList = () => {
         <List>
           <ApplyLink to="/apply-list/1">
             <Apply>
-              <ApplyImage src="https://cdn.discordapp.com/attachments/1206468979779174464/1215248645272764436/a014f81ec5c4ff4a.png?ex=65fc0f7f&is=65e99a7f&hm=38f64bae5caf9170ddb6f5a8ce6129f60117fcdd9ca28e785220887d59f898c6&" />
+              <ApplyImage src="https://cdn.discordapp.com/attachments/1206468979779174464/1215248645272764436/a014f81ec5c4ff4a.png?ex=660e847f&is=65fc0f7f&hm=5f2aff11249937830f001b959df0f885666a9b852917f0828d600f9c35fc4f70&" />
               <ApplyDesc>
                 <ApplyTitle>발로란트 챔피언스 매드무비</ApplyTitle>
                 <ApplyInfoes>
@@ -106,7 +106,7 @@ const ApplyList = () => {
           </ApplyLink>
           <ApplyLink to="/apply-list/2">
             <Apply>
-              <ApplyImage src="https://cdn.discordapp.com/attachments/1137256407784230943/1215854411612426343/e4e9aba3730626ba.png?ex=65fe43a9&is=65ebcea9&hm=268fa49dc0dc2ef79ecb2a7ac3c7a58fac07a9382ee8ada0749b7bc8fc07dada&" />
+              <ApplyImage src="https://cdn.discordapp.com/attachments/1137256407784230943/1215854411612426343/e4e9aba3730626ba.png?ex=6619f329&is=66077e29&hm=8a2058348e10c22671c0235b248e7396aee951d61618ae8f3eeac3ff09666301&" />
               <ApplyDesc>
                 <ApplyTitle>발로란트 제트 매드무비</ApplyTitle>
                 <ApplyInfoes>

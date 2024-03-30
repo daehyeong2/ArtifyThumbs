@@ -19,7 +19,7 @@ const Container = styled.div`
   box-shadow: 5px 5px 10px 0 rgba(0, 0, 0, 0.2);
   border-radius: 20px;
   padding: 30px;
-  width: 500px;
+  width: 1000px;
   height: 700px;
   box-sizing: border-box;
   display: flex;
@@ -55,14 +55,16 @@ const Title = styled.h1`
 `;
 
 const Form = styled.form`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 1fr 3fr 0.5fr;
   gap: 20px;
   width: 100%;
   height: 100%;
 `;
 
 const InputContainer = styled.div`
+  grid-column: ${(props) => (props.$isFull ? "span 2" : "span 1")};
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -105,7 +107,7 @@ const Input = styled.input`
 `;
 
 const Textarea = styled.textarea`
-  height: 150px;
+  height: 100%;
   padding: 10px;
   font-size: 18px;
   border-radius: 10px;
@@ -122,6 +124,7 @@ const Textarea = styled.textarea`
 const ApplyButton = styled.button`
   padding: 10px;
   font-size: 20px;
+  grid-column: span 2;
   border-radius: 10px;
   background-color: #0984e3;
   color: white;
@@ -170,7 +173,7 @@ const Procedure = () => {
                 <option value="etc">기타</option>
               </Select>
             </InputContainer>
-            <InputContainer>
+            <InputContainer $isFull={true}>
               <Label>그림 제목</Label>
               <Input
                 {...register("title", { required: true })}
@@ -178,12 +181,12 @@ const Procedure = () => {
                 placeholder="그림 제목을 입력해주세요."
               />
             </InputContainer>
-            <InputContainer>
+            <InputContainer $isFull={true}>
               <Label>그림 상세내용</Label>
               <Textarea
                 type="text"
                 {...register("content", { required: true })}
-                placeholder="원하는 그림에 대해 최대한 상세하게 설명해주세요!"
+                placeholder="원하는 그림에 대해 최대한 상세하게 설명해주세요!&#10;(예시: 하늘색 배경에 귀여운 남자아이를 그려주세요. 참고사진 올려드릴게요.)"
               />
             </InputContainer>
             <ApplyButton>신청하기</ApplyButton>

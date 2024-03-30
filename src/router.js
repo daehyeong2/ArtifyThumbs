@@ -12,6 +12,7 @@ import Inquiry from "./routes/Inquiry";
 import Procedure from "./routes/Procedure";
 import OrderManagement from "./routes/OrderManagement";
 import DetailOrderManagement from "./routes/DetailOrderManagement";
+import SecurePage from "./components/SecurePage";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,7 @@ const router = createBrowserRouter([
       },
       {
         path: "apply",
-        element: <Outlet />,
+        element: <SecurePage element={<Outlet />} authenticatedOnly />,
         children: [
           {
             path: "",
@@ -43,7 +44,7 @@ const router = createBrowserRouter([
       },
       {
         path: "apply-list",
-        element: <Outlet />,
+        element: <SecurePage element={<Outlet />} authenticatedOnly />,
         children: [
           {
             path: "",
@@ -57,11 +58,11 @@ const router = createBrowserRouter([
       },
       {
         path: "signup",
-        element: <Signup />,
+        element: <SecurePage element={<Signup />} guestOnly />,
       },
       {
         path: "signin",
-        element: <Signin />,
+        element: <SecurePage element={<Signin />} guestOnly />,
       },
       {
         path: "inquiry",
@@ -69,7 +70,7 @@ const router = createBrowserRouter([
       },
       {
         path: "order-management",
-        element: <Outlet />,
+        element: <SecurePage element={<Outlet />} adminOnly />,
         children: [
           {
             path: "",

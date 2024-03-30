@@ -19,6 +19,7 @@ const StartButton = styled(motion.button)`
   color: white;
   border: none;
   font-size: 18px;
+  font-weight: 400;
   cursor: pointer;
 `;
 
@@ -26,6 +27,7 @@ const SignInButton = styled(motion.button)`
   background: none;
   border: none;
   font-size: 15px;
+  font-weight: 400;
   cursor: pointer;
 `;
 
@@ -33,7 +35,11 @@ const Profile = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #74b9ff;
+  background-color: rgba(0, 0, 0, 0.1);
+  background-image: url(${(props) => props.$avatar});
+  border: 1px solid #cbcbcb;
+  background-size: cover;
+  background-position: center;
   cursor: pointer;
   position: relative;
   -webkit-user-select: none;
@@ -45,7 +51,7 @@ const Profile = styled.div`
 const Menu = styled(motion.div)`
   background-color: #fafafa;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
+  border-radius: 10px;
   position: absolute;
   right: -28px;
   top: 50px;
@@ -79,7 +85,7 @@ const MenuItem = styled(Link)`
   transition: background-color 0.1s ease-in-out;
   border-radius: 5px;
   &:hover {
-    background-color: rgba(0, 0, 0, 0.03);
+    background-color: rgba(0, 0, 0, 0.04);
   }
   &:last-child {
     color: red;
@@ -103,10 +109,10 @@ const AvatarImage = styled.img`
   height: 50px;
   object-fit: center;
   border-radius: 50%;
+  border: 1px solid #cbcbcb;
 `;
 
 const Username = styled.h2`
-  font-size: 20px;
   font-weight: bold;
 `;
 
@@ -151,7 +157,7 @@ const menuVariants = {
 
 const NavAccount = () => {
   const user = useRecoilValue(userAtom);
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const onClickProfile = (event) => {
     if (event.target.closest(".Menu")) return;
     setIsMenuOpen(!isMenuOpen);
@@ -203,7 +209,13 @@ const NavAccount = () => {
         </>
       ) : (
         <>
-          <Profile className="Profile" onClick={onClickProfile}>
+          <Profile
+            $avatar={
+              "https://cdn.discordapp.com/attachments/1185437332569075782/1223603691831951450/3.png?ex=661a74bd&is=6607ffbd&hm=7551385b8c0354a8d299012e343f94682da00e9815c7776702e484e88702e00c&"
+            }
+            className="Profile"
+            onClick={onClickProfile}
+          >
             <AnimatePresence>
               {isMenuOpen && (
                 <Menu
@@ -214,7 +226,11 @@ const NavAccount = () => {
                   className="Menu"
                 >
                   <MenuProfile>
-                    <AvatarImage src={user.avatar} />
+                    <AvatarImage
+                      src={
+                        "https://cdn.discordapp.com/attachments/1185437332569075782/1223603691831951450/3.png?ex=661a74bd&is=6607ffbd&hm=7551385b8c0354a8d299012e343f94682da00e9815c7776702e484e88702e00c&"
+                      }
+                    />
                     <Username>{user.username}님</Username>
                   </MenuProfile>
                   <MenuList className="MenuList">

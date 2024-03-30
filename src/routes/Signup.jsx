@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { useSetRecoilState } from "recoil";
+import { isRequestedAtom } from "../atom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -130,6 +132,7 @@ const Signup = () => {
   } = useForm();
   const navigate = useNavigate();
   const [error, setError] = useState(false);
+  const setIsRequested = useSetRecoilState(isRequestedAtom);
   const onSubmit = (data) => {
     axios
       .post(`${process.env.REACT_APP_BACKEND_URL}/users/signup`, data, {
@@ -138,6 +141,7 @@ const Signup = () => {
       .then((res) => {
         if (res.status === 200) {
           localStorage.setItem("token", res.token);
+          setIsRequested(false);
           navigate("/");
         } else {
           setError(res.message);

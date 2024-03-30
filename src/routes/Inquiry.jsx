@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { useForm } from "react-hook-form";
-import { motion } from "framer-motion";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Link } from "react-scroll";
+import { useCallback, useState } from "react";
 
 const Wrapper = styled.div`
   display: flex;
@@ -149,11 +150,29 @@ const MessageVariants = {
   },
   animate: {
     y: 0,
+    transition: {
+      repeat: Infinity,
+      repeatType: "reverse",
+      type: "just",
+      duration: 0.45,
+    },
+  },
+  scrolled: {
+    opacity: 0,
+    transition: {
+      duration: 0.2,
+    },
   },
 };
 
 const Inquiry = () => {
   const { register, handleSubmit } = useForm();
+  const [currentScrollY, setCurrentScrollY] = useState(0);
+  const { scrollY } = useScroll();
+  const handleScroll = useCallback((latest) => {
+    setCurrentScrollY(latest);
+  }, []);
+  useMotionValueEvent(scrollY, "change", handleScroll);
   const onSubmit = (data) => {
     console.log(data);
   };
@@ -191,13 +210,7 @@ const Inquiry = () => {
             <Message
               variants={MessageVariants}
               initial="initial"
-              animate="animate"
-              transition={{
-                repeat: Infinity,
-                repeatType: "reverse",
-                duration: 0.5,
-                type: "just",
-              }}
+              animate={currentScrollY > 80 ? "scrolled" : "animate"}
             >
               <i className="fa-solid fa-arrow-down"></i>
               자주 묻는 질문
