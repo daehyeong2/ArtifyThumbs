@@ -157,14 +157,10 @@ const Signup = () => {
           <InputContainer>
             <Label htmlFor="email">이메일을 입력하세요.</Label>
             <Input
-              {...register(
-                "email",
-                {
-                  required: true,
-                  pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                },
-                { maxLength: 50 }
-              )}
+              {...register("email", {
+                required: true,
+                pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              })}
               placeholder="이메일"
               autoComplete="off"
               id="email"

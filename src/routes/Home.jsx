@@ -57,7 +57,7 @@ const AboutInfo = styled.div`
 
 const AboutImage = styled.img`
   width: 400px;
-  height: 200px;
+  height: 100%;
   object-fit: contain;
 `;
 

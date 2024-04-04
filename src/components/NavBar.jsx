@@ -25,7 +25,7 @@ const Nav = styled(motion.nav)`
   grid-template-columns: 0.5fr minmax(450px, 1fr) 0.5fr;
   width: 100vw;
   position: fixed;
-  z-index: 99;
+  z-index: 2;
 `;
 
 const NavList = styled.ul`

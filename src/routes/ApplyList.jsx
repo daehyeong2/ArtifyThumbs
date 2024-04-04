@@ -1,6 +1,10 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { userAtom } from "../atom";
+import axios from "axios";
+import { useEffect } from "react";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -16,8 +20,10 @@ const Title = styled.h1`
 `;
 
 const List = styled.ul`
-  display: grid;
+  display: ${(props) => (props.$isExist ? "grid" : "flex")};
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  justify-content: center;
+  align-items: center;
   gap: 20px;
   padding: 0 40px;
 `;
@@ -32,6 +38,7 @@ const Apply = styled.li`
   height: 300px;
   display: grid;
   grid-template-rows: 1fr 0.2fr;
+  border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   box-shadow: 3px 3px 7px 2px rgba(0, 0, 0, 0.15);
   transition: 0.2s;
@@ -83,55 +90,104 @@ const ApplyDate = styled.span`
   color: #666;
 `;
 
+const ApplyMessage = styled.h2`
+  font-size: 18px;
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  margin-top: 110px;
+  align-items: center;
+  gap: 10px;
+`;
+
+const GoApply = styled(Link)`
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const ApplyHeader = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ApplyPlan = styled.div`
+  font-size: 1.1rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  position: absolute;
+  right: 0;
+  background-color: ${(props) => (props.$isPro ? "#ff7675" : "#0984e3")};
+  color: white;
+`;
+
+function parseISOString(string) {
+  const strDate = string.substring(0, 10);
+  const [y, m, d] = strDate.split("-");
+  return `${y}년 ${+m}월 ${+d}일`;
+}
+
 const ApplyList = () => {
+  const [user, setUser] = useRecoilState(userAtom);
+  useEffect(() => {
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/get`, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        setUser(res.data.user);
+      });
+  }, [setUser]);
   return (
     <>
       <Seo title="신청 목록" />
       <Container>
         <Title>내 신청 목록</Title>
-        <List>
-          <ApplyLink to="/apply-list/1">
-            <Apply>
-              <ApplyImage src="https://cdn.discordapp.com/attachments/1206468979779174464/1215248645272764436/a014f81ec5c4ff4a.png?ex=660e847f&is=65fc0f7f&hm=5f2aff11249937830f001b959df0f885666a9b852917f0828d600f9c35fc4f70&" />
-              <ApplyDesc>
-                <ApplyTitle>발로란트 챔피언스 매드무비</ApplyTitle>
-                <ApplyInfoes>
-                  <ApplyStatus>
-                    상태: <Status $isComplete={true}>완료됨</Status>
-                  </ApplyStatus>
-                  <ApplyDate>신청 날짜: 2024년 3월 16일</ApplyDate>
-                </ApplyInfoes>
-              </ApplyDesc>
-            </Apply>
-          </ApplyLink>
-          <ApplyLink to="/apply-list/2">
-            <Apply>
-              <ApplyImage src="https://cdn.discordapp.com/attachments/1137256407784230943/1215854411612426343/e4e9aba3730626ba.png?ex=6619f329&is=66077e29&hm=8a2058348e10c22671c0235b248e7396aee951d61618ae8f3eeac3ff09666301&" />
-              <ApplyDesc>
-                <ApplyTitle>발로란트 제트 매드무비</ApplyTitle>
-                <ApplyInfoes>
-                  <ApplyStatus>
-                    상태: <Status $isComplete={true}>완료됨</Status>
-                  </ApplyStatus>
-                  <ApplyDate>신청 날짜: 2024년 3월 15일</ApplyDate>
-                </ApplyInfoes>
-              </ApplyDesc>
-            </Apply>
-          </ApplyLink>
-          <ApplyLink to="/apply-list/3">
-            <Apply>
-              <ApplyImage src="/img/preparing.jpeg" />
-              <ApplyDesc>
-                <ApplyTitle>발로란트 아이소 매드무비</ApplyTitle>
-                <ApplyInfoes>
-                  <ApplyStatus>
-                    상태: <Status $isComplete={false}>준비 중</Status>
-                  </ApplyStatus>
-                  <ApplyDate>신청 날짜: 2024년 3월 13일</ApplyDate>
-                </ApplyInfoes>
-              </ApplyDesc>
-            </Apply>
-          </ApplyLink>
+        <List $isExist={user.orders.length > 0}>
+          {user.orders.length > 0 ? (
+            user.orders.map((apply, index) => {
+              return (
+                <ApplyLink key={index} to={`/apply-list/${apply._id}`}>
+                  <Apply>
+                    <ApplyImage
+                      src={
+                        apply.isCompleted ? apply.result : "/img/preparing.jpeg"
+                      }
+                    />
+                    <ApplyDesc>
+                      <ApplyHeader>
+                        <ApplyTitle>{apply.title}</ApplyTitle>
+                        <ApplyPlan $isPro={apply.plan === "pro"}>
+                          {apply.plan === "pro" ? "프로" : "기본"}
+                        </ApplyPlan>
+                      </ApplyHeader>
+                      <ApplyInfoes>
+                        <ApplyStatus>
+                          상태:{" "}
+                          <Status $isComplete={apply.isCompleted}>
+                            {apply.isCompleted ? "완료됨" : "준비중"}
+                          </Status>
+                        </ApplyStatus>
+                        <ApplyDate>
+                          신청 날짜: {parseISOString(apply.applyedAt)}
+                        </ApplyDate>
+                      </ApplyInfoes>
+                    </ApplyDesc>
+                  </Apply>
+                </ApplyLink>
+              );
+            })
+          ) : (
+            <ApplyMessage>
+              🪄 이런! 신청한 그림이 없어요!
+              <GoApply to="/apply">🚀 신청하러 가기 🚀</GoApply>
+            </ApplyMessage>
+          )}
         </List>
       </Container>
     </>

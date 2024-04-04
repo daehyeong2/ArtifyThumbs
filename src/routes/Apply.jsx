@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import NavBar from "../components/NavBar";
 import Seo from "../components/Seo";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -109,7 +108,6 @@ const Order = () => {
   return (
     <>
       <Seo title="신청하기" />
-      <NavBar />
       <Container>
         <ContainerTitle>신청하기</ContainerTitle>
         <Plans>
@@ -139,13 +137,13 @@ const Order = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                     <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
                   </svg>
-                  시안 최대 6장
+                  참고 사진 최대 6장
                 </li>
                 <li>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                     <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
                   </svg>
-                  요구사항 최대 200글자
+                  요구사항 최대 500글자
                 </li>
               </PlanFeatures>
               <PlanBuy>
@@ -182,13 +180,13 @@ const Order = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                     <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
                   </svg>
-                  시안 최대 12장
+                  참고 사진 최대 12장
                 </li>
                 <li>
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
                     <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
                   </svg>
-                  요구사항 최대 500글자
+                  요구사항 최대 1500글자
                 </li>
               </PlanFeatures>
               <PlanBuy>

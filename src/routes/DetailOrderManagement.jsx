@@ -338,7 +338,7 @@ const DetailOrderManagement = () => {
           </MessageForm>
         </Chat>
         <Drafts>
-          <DraftTitle>받은 시안 (3/12)</DraftTitle>
+          <DraftTitle>받은 참고 사진 (3/12)</DraftTitle>
           <Draft>
             <DraftImage
               src="https://i.ytimg.com/vi/6eLGnF2te14/hq720.jpg?sqp=-oaymwEcCOgCEMoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLChES_ydzSlxbthBRr31PJgqUjYJQ"

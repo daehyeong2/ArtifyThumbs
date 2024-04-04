@@ -210,9 +210,7 @@ const NavAccount = () => {
       ) : (
         <>
           <Profile
-            $avatar={
-              "https://cdn.discordapp.com/attachments/1185437332569075782/1223603691831951450/3.png?ex=661a74bd&is=6607ffbd&hm=7551385b8c0354a8d299012e343f94682da00e9815c7776702e484e88702e00c&"
-            }
+            $avatar={user.avatar}
             className="Profile"
             onClick={onClickProfile}
           >
@@ -226,11 +224,7 @@ const NavAccount = () => {
                   className="Menu"
                 >
                   <MenuProfile>
-                    <AvatarImage
-                      src={
-                        "https://cdn.discordapp.com/attachments/1185437332569075782/1223603691831951450/3.png?ex=661a74bd&is=6607ffbd&hm=7551385b8c0354a8d299012e343f94682da00e9815c7776702e484e88702e00c&"
-                      }
-                    />
+                    <AvatarImage src={user.avatar} />
                     <Username>{user.username}님</Username>
                   </MenuProfile>
                   <MenuList className="MenuList">
