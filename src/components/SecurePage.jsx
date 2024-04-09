@@ -1,14 +1,13 @@
-import { useRecoilValue } from "recoil";
-import { isRequestedAtom, userAtom } from "../atom";
 import { Navigate } from "react-router";
+import { getUser } from "../api";
+import { useQuery } from "react-query";
 
 const SecurePage = ({ element, authenticatedOnly, guestOnly, adminOnly }) => {
-  const user = useRecoilValue(userAtom);
-  const isRequested = useRecoilValue(isRequestedAtom);
-  if (!isRequested) {
-    // 데이터 요청이 완료되지 않은 경우 로딩 상태를 표시합니다.
+  const { data, isLoading } = useQuery(["user-info"], getUser);
+  if (isLoading) {
     return null;
   }
+  const user = data?.user;
   if (authenticatedOnly && !user) {
     alert("로그인이 필요한 서비스입니다.");
     return <Navigate to="/signin" replace />;

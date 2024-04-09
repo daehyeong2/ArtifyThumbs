@@ -2,8 +2,8 @@ import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { getOrders } from "../api";
 import { useQuery } from "react-query";
+import { getInquiries } from "../api";
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -52,20 +52,6 @@ const PreviewDescription = styled.p`
   width: 460px;
   overflow-wrap: break-word;
   overflow-y: auto;
-`;
-
-const PreviewTags = styled.ul`
-  display: flex;
-  gap: 10px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  position: relative;
-  li {
-    background-color: rgba(0, 0, 0, 0.1);
-    padding: 5px 10px;
-    border-radius: 8px;
-  }
 `;
 
 const Title = styled.h1`
@@ -154,64 +140,40 @@ const OrderLink = styled(Link)`
   color: black;
 `;
 
-const Plan = styled.div`
-  background-color: ${(props) => (props.$isPro ? "#ff7675" : "#0984e3")};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 8px;
-  font-size: 18px;
-  color: white;
-  border-radius: 5px;
-  position: absolute;
-  right: 30px;
-`;
-
 function parseISOString(string) {
   const strDate = string.substring(0, 10);
   const [y, m, d] = strDate.split("-");
   return `${y}년 ${+m}월 ${+d}일`;
 }
 
-const OrderManagement = () => {
+const InquiryManagement = () => {
   const [hoverItem, setHoverItem] = useState(null);
-  const { data: orders } = useQuery("order-list", getOrders);
+  const { data: inquiries } = useQuery("inquiry-list", getInquiries);
   let hoverData;
   if (hoverItem !== null) {
-    hoverData = orders.find((order) => order._id === hoverItem);
+    hoverData = inquiries.find((inquiry) => inquiry._id === hoverItem);
   } else {
     hoverData = null;
   }
   return (
     <>
-      <Seo title="주문 관리" />
+      <Seo title="문의 관리" />
       <Wrapper>
         <Container>
-          <Title>주문 관리</Title>
+          <Title>문의 관리</Title>
           <Order>
             <OrderPreview>
               {hoverData ? (
                 <>
-                  <PreviewImage src={hoverData.result} />
                   <PreviewTitle>{hoverData.title}</PreviewTitle>
-                  <PreviewTags>
-                    {hoverData.tags.map((tag) => (
-                      <li key={tag}>{tag}</li>
-                    ))}
-                    <Plan $isPro={hoverData.plan === "pro"}>
-                      {hoverData.plan === "pro" ? "프로" : "기본"}
-                    </Plan>
-                  </PreviewTags>
-                  <PreviewDescription>
-                    {hoverData.description}
-                  </PreviewDescription>
+                  <PreviewDescription>{hoverData.content}</PreviewDescription>
                 </>
               ) : (
                 <>
                   <PreviewImage src="/img/smallLogo.jpeg" />
-                  <PreviewTitle>주문을 선택해주세요.</PreviewTitle>
+                  <PreviewTitle>문의를 선택해주세요.</PreviewTitle>
                   <PreviewDescription>
-                    주문 위에 마우스를 올려보세요!
+                    문의 위에 마우스를 올려보세요!
                   </PreviewDescription>
                 </>
               )}
@@ -220,23 +182,23 @@ const OrderManagement = () => {
               <OrderHeader>
                 <OrderNumber>번호</OrderNumber>
                 <OrderTitle $isComplete="header">제목</OrderTitle>
-                <OrderDate>신청 날짜</OrderDate>
+                <OrderDate>문의 날짜</OrderDate>
                 <OrderStatus $isComplete="header">상태</OrderStatus>
               </OrderHeader>
-              {orders?.map((order, index) => (
+              {inquiries?.map((inquiry, index) => (
                 <li
-                  key={order._id}
-                  onMouseEnter={() => setHoverItem(order._id)}
+                  key={inquiry._id}
+                  onMouseEnter={() => setHoverItem(inquiry._id)}
                   onMouseLeave={() => setHoverItem(null)}
                 >
-                  <OrderLink to={`/order-management/${order._id}`}>
-                    <OrderNumber>{orders.length - index}</OrderNumber>
-                    <OrderTitle $isComplete={order.isComplete}>
-                      {order.title}
+                  <OrderLink to={`/inquiry-management/${inquiry._id}`}>
+                    <OrderNumber>{inquiries.length - index}</OrderNumber>
+                    <OrderTitle $isComplete={inquiry.isAnswered}>
+                      {inquiry.title}
                     </OrderTitle>
-                    <OrderDate>{parseISOString(order.applyedAt)}</OrderDate>
-                    <OrderStatus $isComplete={order.isComplete}>
-                      {order.isComplete ? "제출 됨" : "준비 중"}
+                    <OrderDate>{parseISOString(inquiry.createdAt)}</OrderDate>
+                    <OrderStatus $isComplete={inquiry.isAnswered}>
+                      {inquiry.isAnswered ? "답변 됨" : "대기 중"}
                     </OrderStatus>
                   </OrderLink>
                 </li>
@@ -249,4 +211,4 @@ const OrderManagement = () => {
   );
 };
 
-export default OrderManagement;
+export default InquiryManagement;

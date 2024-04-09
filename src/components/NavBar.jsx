@@ -113,6 +113,10 @@ const NavBar = () => {
   const inquiryMatch = useMatch("/inquiry");
   const orderManagementMatch = useMatch("/order-management");
   const orderManagementDetailMatch = useMatch("/order-management/:orderId");
+  const inquiryManagementMatch = useMatch("/inquiry-management");
+  const inquiryManagementDetailMatch = useMatch(
+    "/inquiry-management/:inquiryId"
+  );
   const { scrollY } = useScroll();
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
@@ -214,6 +218,25 @@ const NavBar = () => {
                       variants={NavItemVariants}
                     >
                       주문 관리
+                    </MotionLink>
+                  </div>
+                  <UnderLine variants={UnderLineVariants} />
+                </NavItem>
+                <NavItem
+                  initial="initial"
+                  animate={
+                    inquiryManagementMatch || inquiryManagementDetailMatch
+                      ? "animate"
+                      : "initial"
+                  }
+                  whileHover="hover"
+                >
+                  <div>
+                    <MotionLink
+                      to="/inquiry-management"
+                      variants={NavItemVariants}
+                    >
+                      문의 목록
                     </MotionLink>
                   </div>
                   <UnderLine variants={UnderLineVariants} />

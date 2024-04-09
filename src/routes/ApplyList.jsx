@@ -1,10 +1,9 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { userAtom } from "../atom";
-import axios from "axios";
-import { useEffect } from "react";
+import { useQueryClient } from "react-query";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -133,62 +132,55 @@ function parseISOString(string) {
 }
 
 const ApplyList = () => {
-  const [user, setUser] = useRecoilState(userAtom);
-  useEffect(() => {
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/api/get`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        setUser(res.data.user);
-      });
-  }, [setUser]);
+  const user = useRecoilValue(userAtom);
+  const queryClient = useQueryClient();
+  queryClient.invalidateQueries("user-info");
   return (
     <>
       <Seo title="신청 목록" />
       <Container>
         <Title>내 신청 목록</Title>
-        <List $isExist={user.orders.length > 0}>
-          {user.orders.length > 0 ? (
-            user.orders.map((apply, index) => {
-              return (
-                <ApplyLink key={index} to={`/apply-list/${apply._id}`}>
-                  <Apply>
-                    <ApplyImage
-                      src={
-                        apply.isCompleted ? apply.result : "/img/preparing.jpeg"
-                      }
-                    />
-                    <ApplyDesc>
-                      <ApplyHeader>
-                        <ApplyTitle>{apply.title}</ApplyTitle>
-                        <ApplyPlan $isPro={apply.plan === "pro"}>
-                          {apply.plan === "pro" ? "프로" : "기본"}
-                        </ApplyPlan>
-                      </ApplyHeader>
-                      <ApplyInfoes>
-                        <ApplyStatus>
-                          상태:{" "}
-                          <Status $isComplete={apply.isCompleted}>
-                            {apply.isCompleted ? "완료됨" : "준비중"}
-                          </Status>
-                        </ApplyStatus>
-                        <ApplyDate>
-                          신청 날짜: {parseISOString(apply.applyedAt)}
-                        </ApplyDate>
-                      </ApplyInfoes>
-                    </ApplyDesc>
-                  </Apply>
-                </ApplyLink>
-              );
-            })
-          ) : (
-            <ApplyMessage>
-              🪄 이런! 신청한 그림이 없어요!
-              <GoApply to="/apply">🚀 신청하러 가기 🚀</GoApply>
-            </ApplyMessage>
-          )}
-        </List>
+        {user ? (
+          <List $isExist={user.orders.length > 0}>
+            {user.orders.length > 0 ? (
+              user.orders.map((apply, index) => {
+                return (
+                  <ApplyLink key={index} to={`/apply-list/${apply._id}`}>
+                    <Apply>
+                      <ApplyImage src={apply.result} />
+                      <ApplyDesc>
+                        <ApplyHeader>
+                          <ApplyTitle>{apply.title}</ApplyTitle>
+                          <ApplyPlan $isPro={apply.plan === "pro"}>
+                            {apply.plan === "pro" ? "프로" : "기본"}
+                          </ApplyPlan>
+                        </ApplyHeader>
+                        <ApplyInfoes>
+                          <ApplyStatus>
+                            상태:{" "}
+                            <Status $isComplete={apply.isCompleted}>
+                              {apply.isCompleted ? "완료됨" : "준비중"}
+                            </Status>
+                          </ApplyStatus>
+                          <ApplyDate>
+                            신청 날짜: {parseISOString(apply.applyedAt)}
+                          </ApplyDate>
+                        </ApplyInfoes>
+                      </ApplyDesc>
+                    </Apply>
+                  </ApplyLink>
+                );
+              })
+            ) : (
+              <ApplyMessage>
+                🪄 이런! 신청한 그림이 없어요!
+                <GoApply to="/apply">🚀 신청하러 가기 🚀</GoApply>
+              </ApplyMessage>
+            )}
+          </List>
+        ) : (
+          <div>로딩 중..</div>
+        )}
       </Container>
     </>
   );

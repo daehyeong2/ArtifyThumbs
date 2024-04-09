@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Link } from "react-scroll";
 import { useCallback, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Wrapper = styled.div`
   display: flex;
@@ -17,17 +19,17 @@ const InquirySection = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
 `;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
-  height: 400px;
-  padding: 20px;
+  height: 450px;
+  padding: 30px;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  width: 700px;
+  width: 750px;
   box-sizing: border-box;
   border-radius: 20px;
   transition: 0.1s;
@@ -98,7 +100,7 @@ const QnA = styled.div`
   display: flex;
   flex-direction: column;
   gap: 60px;
-  height: 100vh;
+  min-height: 100vh;
   padding-top: 200px;
   width: 700px;
   box-sizing: border-box;
@@ -169,12 +171,26 @@ const Inquiry = () => {
   const { register, handleSubmit } = useForm();
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const { scrollY } = useScroll();
+  const navigate = useNavigate();
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
   }, []);
   useMotionValueEvent(scrollY, "change", handleScroll);
   const onSubmit = (data) => {
-    console.log(data);
+    axios
+      .post(`${process.env.REACT_APP_BACKEND_URL}/inquiry/create`, data, {
+        withCredentials: true,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          alert("문의 신청이 완료되었습니다. (답변은 이메일로 전송됩니다.)");
+          navigate("/");
+        }
+      })
+      .catch((error) => {
+        alert(`에러 발생: ${error}`);
+        navigate("/");
+      });
   };
   return (
     <>
@@ -189,19 +205,22 @@ const Inquiry = () => {
                   type="text"
                   autoComplete="off"
                   placeholder="문의 제목을 입력하세요."
-                  {...register("title")}
+                  {...register("title", { required: true })}
                 />
                 <Input
                   type="email"
                   autoComplete="off"
                   placeholder="이메일을 입력하세요."
-                  {...register("email")}
+                  {...register("email", {
+                    required: true,
+                    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  })}
                 />
               </InputContainer>
               <TextArea
                 autoComplete="off"
                 placeholder="문의 내용을 입력해주세요."
-                {...register("content")}
+                {...register("content", { required: true })}
               />
               <Button>문의 등록하기</Button>
             </Form>

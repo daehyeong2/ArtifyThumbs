@@ -1,9 +1,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { Link } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { userAtom } from "../atom";
+import axios from "axios";
+import { useQueryClient } from "react-query";
 
 const Wrapper = styled.div`
   display: flex;
@@ -156,14 +158,27 @@ const menuVariants = {
 };
 
 const NavAccount = () => {
-  const user = useRecoilValue(userAtom);
+  const [user, setUser] = useRecoilState(userAtom);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const queryClient = useQueryClient();
   const onClickProfile = (event) => {
     if (event.target.closest(".Menu")) return;
     setIsMenuOpen(!isMenuOpen);
   };
   const onClickOutsideMenu = () => {
     setIsMenuOpen(false);
+  };
+  const navigate = useNavigate();
+  const onClick = () => {
+    axios
+      .get(`${process.env.REACT_APP_BACKEND_URL}/users/logout`, {
+        withCredentials: true,
+      })
+      .then(() => {
+        setUser(null);
+        queryClient.invalidateQueries("user-info");
+        navigate("/");
+      });
   };
 
   useEffect(() => {
@@ -230,10 +245,7 @@ const NavAccount = () => {
                   <MenuList className="MenuList">
                     <MenuItem className="MenuItem">프로필</MenuItem>
                     <MenuItem className="MenuItem">설정</MenuItem>
-                    <MenuItem
-                      to="http://localhost:4000/users/logout"
-                      className="MenuItem"
-                    >
+                    <MenuItem onClick={onClick} className="MenuItem">
                       로그아웃
                     </MenuItem>
                   </MenuList>

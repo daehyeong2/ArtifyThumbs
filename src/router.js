@@ -13,6 +13,8 @@ import Procedure from "./routes/Procedure";
 import OrderManagement from "./routes/OrderManagement";
 import DetailOrderManagement from "./routes/DetailOrderManagement";
 import SecurePage from "./components/SecurePage";
+import InquiryList from "./routes/InquiryList";
+import DetailInquiry from "./routes/DetailInquiry";
 
 const router = createBrowserRouter([
   {
@@ -79,6 +81,20 @@ const router = createBrowserRouter([
           {
             path: ":orderId",
             element: <DetailOrderManagement />,
+          },
+        ],
+      },
+      {
+        path: "inquiry-management",
+        element: <SecurePage element={<Outlet />} adminOnly />,
+        children: [
+          {
+            path: "",
+            element: <InquiryList />,
+          },
+          {
+            path: ":inquiryId",
+            element: <DetailInquiry />,
           },
         ],
       },

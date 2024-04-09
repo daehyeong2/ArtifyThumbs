@@ -4,7 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { getOrder } from "../api";
+import { useQuery } from "react-query";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -92,18 +93,27 @@ const DetailType = styled.span`
   color: white;
 `;
 
-const DetailDate = styled.span`
+const DetailMetaData = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const DetailData = styled.span`
   font-size: 1.1rem;
   width: 100%;
   color: rgba(0, 0, 0, 0.25);
   font-weight: bold;
-  margin-top: 20px;
 `;
 
 const DetailDescription = styled.p`
   font-size: 1.03rem;
   color: rgba(0, 0, 0, 0.75);
   line-height: 1.25;
+  height: 180px;
+  overflow-wrap: break-word;
+  overflow-y: auto;
 `;
 
 const Chat = styled.div`
@@ -112,7 +122,7 @@ const Chat = styled.div`
   border-radius: 15px;
   height: 95%;
   overflow: hidden;
-  padding-bottom: 20px;
+  padding-bottom: 15px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -376,7 +386,11 @@ function parseISOString(string) {
 const DetailApply = () => {
   const { register, handleSubmit } = useForm();
   const { applyId } = useParams();
-  const [apply, setApply] = useState(null);
+  const { data } = useQuery(["order", applyId], () => getOrder(applyId));
+  let apply = null;
+  if (data?.order) {
+    apply = data.order;
+  }
   const [currentImage, setCurrentImage] = useState(null);
   const onSubmit = (data) => {
     console.log(data);
@@ -388,22 +402,9 @@ const DetailApply = () => {
       ulElement.scrollTop = ulElement.scrollHeight;
     }
   });
-  useEffect(() => {
-    axios
-      .post(
-        `${process.env.REACT_APP_BACKEND_URL}/orders/get`,
-        {
-          id: applyId,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        setApply(res.data.order);
-      });
-  }, [applyId]);
   return (
     <>
-      <Seo title={apply ? apply.title : "로딩 중.."} />
+      <Seo title={apply?.title ? apply.title : "로딩 중.."} />
       <AnimatePresence>
         {currentImage && (
           <>
@@ -423,16 +424,20 @@ const DetailApply = () => {
         )}
       </AnimatePresence>
       <Wrapper>
-        <Back to="/apply-list">&larr; 뒤로가기</Back>
-        {apply && (
+        {apply ? (
           <>
+            <Back to="/apply-list">&larr; 뒤로가기</Back>
             <Detail>
               <DetailResult>
                 <DetailImage
                   $isCompleted={apply.isCompleted}
-                  onClick={() => setCurrentImage(apply.result)}
+                  onClick={
+                    apply.isCompleted
+                      ? () => setCurrentImage(apply.result)
+                      : null
+                  }
                   layoutId={apply.result}
-                  src={apply.isCompleted ? apply.result : "/img/preparing.jpeg"}
+                  src={apply.result}
                   alt="ApplyImage"
                 ></DetailImage>
                 {apply.isCompleted && (
@@ -461,9 +466,12 @@ const DetailApply = () => {
                 </DetailInfoes>
                 <DetailDescription>{apply.description}</DetailDescription>
               </DetailDesc>
-              <DetailDate>
-                신청 날짜: {parseISOString(apply.applyedAt)}
-              </DetailDate>
+              <DetailMetaData>
+                <DetailData>
+                  신청 날짜: {parseISOString(apply.applyedAt)}
+                </DetailData>
+                <DetailData>신청인: {apply.orderer.username}</DetailData>
+              </DetailMetaData>
             </Detail>
             <Chat>
               <MessageList ref={ulRef}>
@@ -527,6 +535,8 @@ const DetailApply = () => {
               )}
             </Drafts>
           </>
+        ) : (
+          <></>
         )}
       </Wrapper>
     </>
