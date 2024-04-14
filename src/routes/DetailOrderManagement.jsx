@@ -497,7 +497,7 @@ const DetailApply = () => {
                   return (
                     <Draft
                       onClick={() => setCurrentImage(draft.imageUrl)}
-                      layoutId="https://i.ytimg.com/vi/g8fyhmu-e78/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDAKdyjc5D5_b3WSxqfH6N2SzPKQg"
+                      layoutId={draft.imageUrl}
                     >
                       <DraftImage src={draft.imageUrl} alt="draftImage" />
                       <DraftDesc>{draft.title}</DraftDesc>

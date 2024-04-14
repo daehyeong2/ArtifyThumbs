@@ -1,9 +1,8 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
-import { useQueryClient } from "react-query";
+import axiosInstance from "../axiosInstance";
+import { useEffect, useState } from "react";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -132,18 +131,23 @@ function parseISOString(string) {
 }
 
 const ApplyList = () => {
-  const user = useRecoilValue(userAtom);
-  const queryClient = useQueryClient();
-  queryClient.invalidateQueries("user-info");
+  const [orders, setOrders] = useState(null);
+  useEffect(() => {
+    axiosInstance
+      .get(`${process.env.REACT_APP_BACKEND_URL}/orders/getMine`)
+      .then((res) => {
+        setOrders(res.data);
+      });
+  }, [setOrders]);
   return (
     <>
       <Seo title="신청 목록" />
       <Container>
         <Title>내 신청 목록</Title>
-        {user ? (
-          <List $isExist={user.orders.length > 0}>
-            {user.orders.length > 0 ? (
-              user.orders.map((apply, index) => {
+        {orders ? (
+          <List $isExist={orders.length > 0}>
+            {orders.length > 0 ? (
+              orders.map((apply, index) => {
                 return (
                   <ApplyLink key={index} to={`/apply-list/${apply._id}`}>
                     <Apply>

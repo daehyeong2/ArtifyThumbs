@@ -1,13 +1,9 @@
 import { Navigate } from "react-router";
-import { getUser } from "../api";
-import { useQuery } from "react-query";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../atom";
 
 const SecurePage = ({ element, authenticatedOnly, guestOnly, adminOnly }) => {
-  const { data, isLoading } = useQuery(["user-info"], getUser);
-  if (isLoading) {
-    return null;
-  }
-  const user = data?.user;
+  const user = useRecoilValue(userAtom);
   if (authenticatedOnly && !user) {
     alert("로그인이 필요한 서비스입니다.");
     return <Navigate to="/signin" replace />;

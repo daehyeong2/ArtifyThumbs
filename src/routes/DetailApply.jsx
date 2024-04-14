@@ -386,11 +386,15 @@ function parseISOString(string) {
 const DetailApply = () => {
   const { register, handleSubmit } = useForm();
   const { applyId } = useParams();
-  const { data } = useQuery(["order", applyId], () => getOrder(applyId));
-  let apply = null;
-  if (data?.order) {
-    apply = data.order;
-  }
+  const { data, isLoading } = useQuery(["order", applyId], () =>
+    getOrder(applyId)
+  );
+  const [apply, setApply] = useState(null);
+  useEffect(() => {
+    if (!isLoading) {
+      setApply(data.data.order);
+    }
+  }, [setApply, data, isLoading]);
   const [currentImage, setCurrentImage] = useState(null);
   const onSubmit = (data) => {
     console.log(data);
@@ -512,7 +516,7 @@ const DetailApply = () => {
                   return (
                     <Draft
                       onClick={() => setCurrentImage(draft.imageUrl)}
-                      layoutId="https://i.ytimg.com/vi/g8fyhmu-e78/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDAKdyjc5D5_b3WSxqfH6N2SzPKQg"
+                      layoutId={draft.imageUrl}
                     >
                       <DraftImage src={draft.imageUrl} alt="draftImage" />
                       <DraftDesc>{draft.title}</DraftDesc>

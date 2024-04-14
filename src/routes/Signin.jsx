@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import { useQueryClient } from "react-query";
 
 const Wrapper = styled.div`
   display: flex;
@@ -135,17 +134,14 @@ const Signup = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const onSubmit = (data) => {
     axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/users/signin`, data, {
-        withCredentials: true,
-      })
+      .post(`${process.env.REACT_APP_BACKEND_URL}/users/signin`, data)
       .then((res) => {
         if (res.status === 200) {
-          queryClient.invalidateQueries("user-info");
+          localStorage.setItem("token", res.data);
           navigate("/");
         }
       })

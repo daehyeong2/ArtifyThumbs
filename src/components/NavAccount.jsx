@@ -1,11 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { userAtom } from "../atom";
-import axios from "axios";
-import { useQueryClient } from "react-query";
 
 const Wrapper = styled.div`
   display: flex;
@@ -160,7 +158,6 @@ const menuVariants = {
 const NavAccount = () => {
   const [user, setUser] = useRecoilState(userAtom);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const queryClient = useQueryClient();
   const onClickProfile = (event) => {
     if (event.target.closest(".Menu")) return;
     setIsMenuOpen(!isMenuOpen);
@@ -168,17 +165,9 @@ const NavAccount = () => {
   const onClickOutsideMenu = () => {
     setIsMenuOpen(false);
   };
-  const navigate = useNavigate();
   const onClick = () => {
-    axios
-      .get(`${process.env.REACT_APP_BACKEND_URL}/users/logout`, {
-        withCredentials: true,
-      })
-      .then(() => {
-        setUser(null);
-        queryClient.invalidateQueries("user-info");
-        navigate("/");
-      });
+    setUser(null);
+    localStorage.removeItem("token");
   };
 
   useEffect(() => {

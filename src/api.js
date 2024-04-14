@@ -1,39 +1,20 @@
-export function getUser() {
-  return fetch(`${process.env.REACT_APP_BACKEND_URL}/api/get`, {
-    credentials: "include",
-  }).then((res) => res.json());
-}
+import axiosInstance from "./axiosInstance";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 export function getOrder(id) {
-  return fetch(`${process.env.REACT_APP_BACKEND_URL}/orders/get`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id,
-    }),
-    credentials: "include",
-  }).then((res) => res.json());
+  return axiosInstance.post(`${BACKEND_URL}/orders/get`, {
+    id,
+  });
 }
 export function getOrders() {
-  return fetch(`${process.env.REACT_APP_BACKEND_URL}/orders/getAll`, {
-    credentials: "include",
-  }).then((res) => res.json());
+  return axiosInstance.get(`${BACKEND_URL}/orders/getAll`);
 }
 export function getInquiries() {
-  return fetch(`${process.env.REACT_APP_BACKEND_URL}/inquiry/getAll`, {
-    credentials: "include",
-  }).then((res) => res.json());
+  return axiosInstance.get(`${BACKEND_URL}/inquiry/getAll`);
 }
 export function getInquiry(inquiryId) {
-  return fetch(`${process.env.REACT_APP_BACKEND_URL}/inquiry/get`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      inquiryId,
-    }),
-    credentials: "include",
-  }).then((res) => res.json());
+  return axiosInstance.post(`${BACKEND_URL}/inquiry/get`, {
+    inquiryId,
+  });
 }

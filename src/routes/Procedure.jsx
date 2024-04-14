@@ -3,7 +3,7 @@ import Seo from "../components/Seo";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 const Wrapper = styled.div`
   padding: 100px;
@@ -167,10 +167,8 @@ const Procedure = () => {
   const [currentPlan, setCurrentPlan] = useState(state);
   const navigate = useNavigate();
   const onSubmit = (data) => {
-    axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/orders/apply`, data, {
-        withCredentials: true,
-      })
+    axiosInstance
+      .post(`${process.env.REACT_APP_BACKEND_URL}/orders/apply`, data)
       .then((res) => {
         if (res.status === 200) {
           alert("신청을 성공했습니다.");
