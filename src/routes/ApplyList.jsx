@@ -144,7 +144,7 @@ const ApplyList = () => {
       <Seo title="신청 목록" />
       <Container>
         <Title>내 신청 목록</Title>
-        {orders ? (
+        {orders && (
           <List $isExist={orders.length > 0}>
             {orders.length > 0 ? (
               orders.map((apply, index) => {
@@ -182,8 +182,6 @@ const ApplyList = () => {
               </ApplyMessage>
             )}
           </List>
-        ) : (
-          <div>로딩 중..</div>
         )}
       </Container>
     </>
