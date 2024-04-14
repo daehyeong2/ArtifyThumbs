@@ -4,8 +4,8 @@ import MainFooter from "../components/Footer";
 import pageScrollTop from "../components/pageScrollTop";
 import TopButton from "../components/TopButton";
 import styled from "styled-components";
-import { useRecoilState } from "recoil";
-import { userAtom } from "../atom";
+import { useRecoilState, useSetRecoilState } from "recoil";
+import { userAtom, userIsLoadedAtom } from "../atom";
 import axiosInstance from "../axiosInstance";
 import { useEffect } from "react";
 
@@ -15,6 +15,7 @@ const Wrapper = styled.div`
 
 const Root = () => {
   const [user, setUser] = useRecoilState(userAtom);
+  const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
   const token = localStorage.getItem("token");
   useEffect(() => {
     if (token && !user) {
@@ -23,8 +24,11 @@ const Root = () => {
         .then((res) => {
           if (res.status === 200) {
             setUser(res.data);
+            setUserIsLoaded(true);
           }
         });
+    } else {
+      setUserIsLoaded(true);
     }
   }, [token, user, setUser]);
   pageScrollTop();

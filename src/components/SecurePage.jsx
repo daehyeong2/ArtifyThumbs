@@ -1,9 +1,13 @@
 import { Navigate } from "react-router";
 import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
+import { userAtom, userIsLoadedAtom } from "../atom";
 
 const SecurePage = ({ element, authenticatedOnly, guestOnly, adminOnly }) => {
   const user = useRecoilValue(userAtom);
+  const userIsLoaded = useRecoilValue(userIsLoadedAtom);
+  if (!userIsLoaded) {
+    return;
+  }
   if (authenticatedOnly && !user) {
     alert("로그인이 필요한 서비스입니다.");
     return <Navigate to="/signin" replace />;
