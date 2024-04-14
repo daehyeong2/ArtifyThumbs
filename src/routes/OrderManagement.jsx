@@ -178,7 +178,7 @@ const OrderManagement = () => {
   const { data: orders } = useQuery("order-list", getOrders);
   let hoverData;
   if (hoverItem !== null) {
-    hoverData = orders.find((order) => order._id === hoverItem);
+    hoverData = orders.data.find((order) => order._id === hoverItem);
   } else {
     hoverData = null;
   }
@@ -223,14 +223,14 @@ const OrderManagement = () => {
                 <OrderDate>신청 날짜</OrderDate>
                 <OrderStatus $isComplete="header">상태</OrderStatus>
               </OrderHeader>
-              {orders?.map((order, index) => (
+              {orders?.data.map((order, index) => (
                 <li
                   key={order._id}
                   onMouseEnter={() => setHoverItem(order._id)}
                   onMouseLeave={() => setHoverItem(null)}
                 >
                   <OrderLink to={`/order-management/${order._id}`}>
-                    <OrderNumber>{orders.length - index}</OrderNumber>
+                    <OrderNumber>{orders?.data.length - index}</OrderNumber>
                     <OrderTitle $isComplete={order.isComplete}>
                       {order.title}
                     </OrderTitle>

@@ -30,7 +30,7 @@ const Root = () => {
     } else {
       setUserIsLoaded(true);
     }
-  }, [token, user, setUser]);
+  }, [token, user, setUser, setUserIsLoaded]);
   pageScrollTop();
   return (
     <>

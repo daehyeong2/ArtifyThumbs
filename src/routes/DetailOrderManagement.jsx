@@ -373,8 +373,8 @@ const DetailApply = () => {
   const { orderId } = useParams();
   const { data } = useQuery(["order", orderId], () => getOrder(orderId));
   let apply = null;
-  if (data?.order) {
-    apply = data.order;
+  if (data?.data) {
+    apply = data.data.order;
   }
   const [currentImage, setCurrentImage] = useState(null);
   const onSubmit = (data) => {

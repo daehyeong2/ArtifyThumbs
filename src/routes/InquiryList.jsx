@@ -39,6 +39,7 @@ const PreviewImage = styled.img`
   width: 100%;
   height: 300px;
   object-fit: contain;
+  overflow: hidden;
 `;
 
 const PreviewTitle = styled.div`
@@ -151,7 +152,7 @@ const InquiryManagement = () => {
   const { data: inquiries } = useQuery("inquiry-list", getInquiries);
   let hoverData;
   if (hoverItem !== null) {
-    hoverData = inquiries.find((inquiry) => inquiry._id === hoverItem);
+    hoverData = inquiries.data.find((inquiry) => inquiry._id === hoverItem);
   } else {
     hoverData = null;
   }
@@ -165,6 +166,7 @@ const InquiryManagement = () => {
             <OrderPreview>
               {hoverData ? (
                 <>
+                  <PreviewImage src="/img/inquiry.jpeg" />
                   <PreviewTitle>{hoverData.title}</PreviewTitle>
                   <PreviewDescription>{hoverData.content}</PreviewDescription>
                 </>
@@ -185,14 +187,14 @@ const InquiryManagement = () => {
                 <OrderDate>문의 날짜</OrderDate>
                 <OrderStatus $isComplete="header">상태</OrderStatus>
               </OrderHeader>
-              {inquiries?.map((inquiry, index) => (
+              {inquiries?.data.map((inquiry, index) => (
                 <li
                   key={inquiry._id}
                   onMouseEnter={() => setHoverItem(inquiry._id)}
                   onMouseLeave={() => setHoverItem(null)}
                 >
                   <OrderLink to={`/inquiry-management/${inquiry._id}`}>
-                    <OrderNumber>{inquiries.length - index}</OrderNumber>
+                    <OrderNumber>{inquiries.data.length - index}</OrderNumber>
                     <OrderTitle $isComplete={inquiry.isAnswered}>
                       {inquiry.title}
                     </OrderTitle>

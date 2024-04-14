@@ -5,7 +5,7 @@ import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Link } from "react-scroll";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 const Wrapper = styled.div`
   display: flex;
@@ -177,10 +177,8 @@ const Inquiry = () => {
   }, []);
   useMotionValueEvent(scrollY, "change", handleScroll);
   const onSubmit = (data) => {
-    axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/inquiry/create`, data, {
-        withCredentials: true,
-      })
+    axiosInstance
+      .post(`${process.env.REACT_APP_BACKEND_URL}/inquiry/create`, data)
       .then((res) => {
         if (res.status === 200) {
           alert("문의 신청이 완료되었습니다. (답변은 이메일로 전송됩니다.)");

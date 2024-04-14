@@ -58,9 +58,10 @@ const Description = styled.p`
 
 const DetailInquiry = () => {
   const { inquiryId } = useParams();
-  const { data, isLoading } = useQuery(["inquiry", inquiryId], () =>
-    getInquiry(inquiryId)
-  );
+  const {
+    data: { data },
+    isLoading,
+  } = useQuery(["inquiry", inquiryId], () => getInquiry(inquiryId));
   return (
     <>
       <Seo title={isLoading ? "로딩 중.." : data.title} />
