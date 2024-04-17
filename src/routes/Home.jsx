@@ -113,7 +113,10 @@ const Home = () => {
   const user = useRecoilValue(userAtom);
   return (
     <>
-      <Seo title="홈" />
+      <Seo
+        title="홈"
+        description="ArtifyThumbs에서 원하는 사진을 받아보세요!"
+      />
       <Wrapper>
         <Container id="main">
           <ContainerTitle>

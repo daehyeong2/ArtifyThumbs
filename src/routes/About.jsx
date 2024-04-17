@@ -24,7 +24,7 @@ const ContainerTitle = styled.h1`
   display: flex;
   justify-content: center;
   gap: 10px;
-  span {
+  h1 {
     background: linear-gradient(to right top, #6c5ce7, #74b9ff);
     color: transparent;
     background-clip: text;
@@ -62,11 +62,11 @@ const InfoContent = styled.p`
 const About = () => {
   return (
     <>
-      <Seo title="소개" />
+      <Seo title="소개" description="ArtifyThumbs에 대해 알아보세요!" />
       <Container>
         <TopBar>
           <ContainerTitle>
-            <span>ArtifyThumbs</span>에 대해
+            <h1>ArtifyThumbs</h1>에 대해
           </ContainerTitle>
           <ContainerSubtitle>
             ArtifyThumbs는 이미지를 신청하고 좋은 퀄리티의 이미지를 빠르게 받을

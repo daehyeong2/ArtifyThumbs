@@ -3,6 +3,8 @@ import { useQuery } from "react-query";
 import { Link, useParams } from "react-router-dom";
 import { getInquiry } from "../api";
 import styled from "styled-components";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -58,20 +60,25 @@ const Description = styled.p`
 
 const DetailInquiry = () => {
   const { inquiryId } = useParams();
-  const {
-    data: { data },
-    isLoading,
-  } = useQuery(["inquiry", inquiryId], () => getInquiry(inquiryId));
+  const { data, isLoading } = useQuery(["inquiry", inquiryId], () =>
+    getInquiry(inquiryId)
+  );
+  const [inquiry, setInquiry] = useState(null);
+  useEffect(() => {
+    if (!isLoading) {
+      setInquiry(data.data);
+    }
+  }, [isLoading, data]);
   return (
     <>
-      <Seo title={isLoading ? "로딩 중.." : data.title} />
-      {!isLoading ? (
+      <Seo title={inquiry ? inquiry.title : "로딩 중.."} />
+      {inquiry ? (
         <Wrapper>
           <Container>
             <Back to="/inquiry-management">&larr; 뒤로가기</Back>
-            <Title>{data.title}</Title>
-            <Email>이메일: {data.email}</Email>
-            <Description>{data.content}</Description>
+            <Title>{inquiry.title}</Title>
+            <Email>이메일: {inquiry.email}</Email>
+            <Description>{inquiry.content}</Description>
           </Container>
         </Wrapper>
       ) : null}

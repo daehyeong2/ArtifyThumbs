@@ -1,13 +1,13 @@
 import { Helmet } from "react-helmet";
 
-const Seo = ({ title }) => {
+const Seo = ({
+  title,
+  description = "ArtifyThumbs는 이미지를 신청하고 좋은 퀄리티의 이미지를 빠르게 받을 수 있는 서비스입니다.",
+}) => {
   return (
     <Helmet>
       <title>{title} | ArtifyThumbs</title>
-      <meta
-        name="description"
-        content="ArtifyThumbs는 이미지를 신청하고 좋은 퀄리티의 이미지를 빠르게 받을 수 있는 서비스입니다."
-      />
+      <meta name="description" content={description} />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link
