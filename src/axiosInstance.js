@@ -22,8 +22,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.log(error);
-    if (error.response.status === 403) {
+    if (error.response.status === 400) {
       localStorage.removeItem("token");
       alert("권한 없음");
       window.location.href = "/";
