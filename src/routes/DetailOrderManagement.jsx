@@ -1,11 +1,13 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import axiosInstance from "../axiosInstance";
+import { useSetRecoilState } from "recoil";
+import { userAtom } from "../atom";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -117,7 +119,7 @@ const DetailDescription = styled.p`
 `;
 
 const Chat = styled.div`
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.01);
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 15px;
   height: 95%;
@@ -374,6 +376,8 @@ const DetailApply = () => {
   const { register, handleSubmit, setValue, setFocus } = useForm();
   const { orderId } = useParams();
   const [apply, setApply] = useState(null);
+  const setUser = useSetRecoilState(userAtom);
+  const navigate = useNavigate();
   useEffect(() => {
     axiosInstance
       .post(`${process.env.REACT_APP_BACKEND_URL}/orders/get`, {
@@ -389,9 +393,16 @@ const DetailApply = () => {
   const onSubmit = (data) => {
     setValue("message", "");
     setFocus("message");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("권한 없음");
+      navigate("/");
+      setUser(null);
+      return;
+    }
     socket.emit(
       "chat_message",
-      { message: data.message, isMe: false },
+      { message: data.message, isMe: false, jwt: token },
       orderId
     );
     paint_message(data.message, data.isMe);

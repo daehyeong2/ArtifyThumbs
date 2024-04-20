@@ -26,10 +26,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
-  height: 450px;
-  padding: 30px;
+  height: 500px;
+  padding: 50px;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  width: 750px;
+  width: 800px;
   box-sizing: border-box;
   border-radius: 20px;
   transition: 0.1s;
@@ -64,6 +64,9 @@ const Input = styled.input`
   border-radius: 5px;
   outline: none;
   box-sizing: border-box;
+  &:focus-within {
+    border: 1px solid #0984e3;
+  }
 `;
 
 const TextArea = styled.textarea`
@@ -76,6 +79,9 @@ const TextArea = styled.textarea`
   border-radius: 5px;
   outline: none;
   resize: none;
+  &:focus-within {
+    border: 1px solid #0984e3;
+  }
 `;
 
 const Button = styled.button`

@@ -1,13 +1,16 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../atom";
+import { motion } from "framer-motion";
 
 const Container = styled.div`
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+  padding: 0 25vw;
   padding-top: 140px;
   gap: 80px;
 `;
@@ -68,7 +71,112 @@ const StyledLink = styled(Link)`
   }
 `;
 
+const WorkersTitle = styled.h1`
+  margin-top: 50px;
+  font-size: 30px;
+  font-weight: bold;
+`;
+
+const Workers = styled.section`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 100px;
+  gap: 50px;
+`;
+
+const Worker = styled(motion.article)`
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  grid-column: ${(props) => props.$isBig && "span 2"};
+  width: ${(props) => (props.$isBig ? "390px" : "390px")};
+  place-self: center;
+  position: relative;
+  background: none;
+  overflow: hidden;
+`;
+
+const WorkerList = styled.ul`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 800px;
+`;
+
+const WorkerProfile = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+`;
+
+const WorkerAvatar = styled.img`
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-position: center;
+  object-fit: cover;
+`;
+
+const WorkerName = styled.span`
+  font-size: 20px;
+  font-weight: bold;
+  span {
+    font-size: 13px;
+    color: transparent;
+    ${(props) =>
+      props.$type === "purple"
+        ? "background: linear-gradient(to right top, #0984e3, #e84393);"
+        : props.$type === "yellow"
+        ? "background: linear-gradient(to right top, #fdcb6e, #e84393);"
+        : "background: linear-gradient(to right top, #0984e3, #00cec9);"}
+    background-clip: text;
+  }
+`;
+
+const WorkerBackground = styled(motion.div)`
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  filter: blur(80px);
+  z-index: -1;
+`;
+
+const WorkerIntroduction = styled.p`
+  font-size: 15px;
+  line-height: 1.5;
+  span {
+    font-size: 16px;
+    font-weight: bold;
+  }
+`;
+
+function getWorkerVariants(type) {
+  let linearGradient = null;
+  if (type === "purple") {
+    linearGradient = "linear-gradient(to right top, #ffeaa7, #e84393)";
+  } else if (type === "yellow") {
+    linearGradient = "linear-gradient(to right top, #ffeaa7, #00cec9";
+  } else {
+    linearGradient = "linear-gradient(to right top, #74b9ff, #81ecec)";
+  }
+  return {
+    initial: {
+      background: "linear-gradient(to right top, #ecf0f1, #bdc3c7)",
+    },
+    hover: {
+      background: linearGradient,
+    },
+  };
+}
+
 const About = () => {
+  const user = useRecoilValue(userAtom);
   return (
     <>
       <Seo title="소개" description="ArtifyThumbs에 대해 알아보세요!" />
@@ -102,12 +210,72 @@ const About = () => {
           <Info>
             <InfoTitle>어떻게 이용하나요?</InfoTitle>
             <InfoContent>
-              ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 자세한
-              내용은 <StyledLink to="/apply">신청 페이지</StyledLink>에
-              있습니다.
+              ArtifyThumbs에{" "}
+              {user ? <StyledLink to="/signup">가입</StyledLink> : "가입"}하고
+              원하는 사진을 신청하면 됩니다. 자세한 내용은{" "}
+              <StyledLink to="/apply">신청 페이지</StyledLink>에 있습니다.
             </InfoContent>
           </Info>
         </Introduction>
+        <Workers>
+          <WorkersTitle>ArtifyThumbs 직원</WorkersTitle>
+          <WorkerList>
+            <Worker initial="initial" whileHover="hover">
+              <WorkerBackground
+                variants={getWorkerVariants("purple")}
+                transition={{ duration: 0.3 }}
+              />
+              <WorkerProfile>
+                <WorkerAvatar src="/img/workers/dawn.jpeg" alt="workerAvatar" />
+                <WorkerName $type="purple">
+                  새벽 <span>그림 담당</span>
+                </WorkerName>
+              </WorkerProfile>
+              <WorkerIntroduction>
+                <span>소개글:</span> 안녕하세요 저는 포로필 배너, 프로필 사진,
+                캐릭터 디자인, 등을 만들 수 있는 새벽입니다.
+              </WorkerIntroduction>
+            </Worker>
+            <Worker initial="initial" whileHover="hover">
+              <WorkerBackground
+                variants={getWorkerVariants("yellow")}
+                transition={{ duration: 0.3 }}
+              />
+              <WorkerProfile>
+                <WorkerAvatar
+                  src="/img/workers/perry.jpeg"
+                  alt="workerAvatar"
+                />
+                <WorkerName $type="yellow">
+                  페리 <span>썸네일 담당</span>
+                </WorkerName>
+              </WorkerProfile>
+              <WorkerIntroduction>
+                <span>소개글:</span> 안녕하세요 저는 유튜브 썸네일 등을 만들 수
+                있는 페리입니다.
+              </WorkerIntroduction>
+            </Worker>
+            <Worker initial="initial" whileHover="hover">
+              <WorkerBackground
+                variants={getWorkerVariants("blue")}
+                transition={{ duration: 0.3 }}
+              />
+              <WorkerProfile>
+                <WorkerAvatar
+                  src="/img/workers/gorani.jpeg"
+                  alt="workerAvatar"
+                />
+                <WorkerName>
+                  고라니 <span>개발 담당</span>
+                </WorkerName>
+              </WorkerProfile>
+              <WorkerIntroduction>
+                <span>소개글:</span> 안녕하세요 이 웹 사이트를 개발하고 있는
+                고라니입니다.
+              </WorkerIntroduction>
+            </Worker>
+          </WorkerList>
+        </Workers>
       </Container>
     </>
   );

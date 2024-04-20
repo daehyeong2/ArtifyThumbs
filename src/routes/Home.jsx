@@ -28,7 +28,7 @@ const ContainerTitle = styled.h1`
   font-weight: 900;
   span {
     margin-left: 15px;
-    background: linear-gradient(to right top, #55efc4, #00b894);
+    background: linear-gradient(to right top, #55efc4, #6c5ce7);
     color: transparent;
     background-clip: text;
   }
@@ -138,29 +138,36 @@ function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-const labelList = ["간편한", "신속한", "친절한", "아름다운"];
+const labelList = ["간편한", "다양한", "빠른", "아름다운", "친절한"];
 
 const Home = () => {
   const user = useRecoilValue(userAtom);
-  const [label, setLabel] = useState("");
+  const [label, setLabel] = useState(labelList[0]);
+  const [isFirst, setIsFirst] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const createComebackInterval = useCallback((data, initialTime) => {
-    const text = data.text;
-    const r = data.r;
-    let index = data.index;
-    const comebackInterval = setInterval(() => {
-      setLabel(text.slice(0, index));
-      index--;
-      clearInterval(comebackInterval);
-      if (Math.abs(index) - 1 === text.length) {
-        r();
-      } else {
-        const x = Math.abs(index);
-        const result = 200 - 18 * (x ** 2 / 2 + -0.5 * x + 2);
-        createComebackInterval({ text, r, index }, result);
-      }
-    }, initialTime);
-  }, []);
+  const createComebackInterval = useCallback(
+    (data, initialTime) => {
+      const text = data.text;
+      const r = data.r;
+      let index = data.index;
+      const comebackInterval = setInterval(() => {
+        setLabel(text.slice(0, index));
+        index--;
+        clearInterval(comebackInterval);
+        if (Math.abs(index) - 1 === text.length) {
+          if (isFirst) {
+            setIsFirst(false);
+          }
+          r();
+        } else {
+          const x = Math.abs(index);
+          const result = 200 - 18 * (x ** 2 / 2 + -0.5 * x + 2);
+          createComebackInterval({ text, r, index }, result);
+        }
+      }, initialTime);
+    },
+    [isFirst]
+  );
   const createLetterInterval = useCallback(
     (data, initialTime) => {
       const text = data.text;
@@ -193,14 +200,21 @@ const Home = () => {
     (text) => {
       return new Promise((r) => {
         let index = 0;
-        createLetterInterval({ text, r, index }, 60);
+        if (isFirst) {
+          const x = 1;
+          createComebackInterval(
+            { text, r, index: -1 },
+            200 - 12 * (x ** 2 / 3 + -0.3 * x + 2)
+          );
+        } else {
+          createLetterInterval({ text, r, index }, 60);
+        }
       });
     },
-    [createLetterInterval]
+    [createLetterInterval, createComebackInterval, isFirst]
   );
   useEffect(() => {
     sleep(1000).then(() => {
-      setLabel("");
       const text = labelList[currentIndex];
       addLetter(text).then(() => {
         setCurrentIndex((prev) => (prev + 1) % labelList.length);
