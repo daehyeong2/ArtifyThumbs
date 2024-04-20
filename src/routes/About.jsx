@@ -91,6 +91,7 @@ const Worker = styled(motion.article)`
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   padding: 20px;
+  height: 100%;
   box-sizing: border-box;
   grid-column: ${(props) => props.$isBig && "span 2"};
   width: ${(props) => (props.$isBig ? "390px" : "390px")};
@@ -232,8 +233,10 @@ const About = () => {
                 </WorkerName>
               </WorkerProfile>
               <WorkerIntroduction>
-                <span>소개글:</span> 안녕하세요 저는 포로필 배너, 프로필 사진,
-                캐릭터 디자인, 등을 만들 수 있는 새벽입니다.
+                <span>소개글:</span> 어쩌다가 여기에 끌려왔을까요? 살려주세요
+                ㅠㅠ 하지만 퀄리티는 보장 해드립니다.
+                <br />
+                믿고 맡겨주세요.
               </WorkerIntroduction>
             </Worker>
             <Worker initial="initial" whileHover="hover">
@@ -242,20 +245,17 @@ const About = () => {
                 transition={{ duration: 0.3 }}
               />
               <WorkerProfile>
-                <WorkerAvatar
-                  src="/img/workers/perry.jpeg"
-                  alt="workerAvatar"
-                />
+                <WorkerAvatar src="/img/workers/wind.jpeg" alt="workerAvatar" />
                 <WorkerName $type="yellow">
-                  페리 <span>썸네일 담당</span>
+                  바람 <span>썸네일 담당</span>
                 </WorkerName>
               </WorkerProfile>
               <WorkerIntroduction>
-                <span>소개글:</span> 안녕하세요 저는 유튜브 썸네일 등을 만들 수
-                있는 페리입니다.
+                <span>소개글:</span> 하루 24시간중 12시간을 자니까 100년을
+                산다면 50년을 자는겁니다.
               </WorkerIntroduction>
             </Worker>
-            <Worker initial="initial" whileHover="hover">
+            <Worker $isBig={true} initial="initial" whileHover="hover">
               <WorkerBackground
                 variants={getWorkerVariants("blue")}
                 transition={{ duration: 0.3 }}
@@ -270,8 +270,7 @@ const About = () => {
                 </WorkerName>
               </WorkerProfile>
               <WorkerIntroduction>
-                <span>소개글:</span> 안녕하세요 이 웹 사이트를 개발하고 있는
-                고라니입니다.
+                <span>소개글:</span> 에러가 아니라 기능입니다.
               </WorkerIntroduction>
             </Worker>
           </WorkerList>
