@@ -2,11 +2,6 @@ import axiosInstance from "./axiosInstance";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-export function getOrder(id) {
-  return axiosInstance.post(`${BACKEND_URL}/orders/get`, {
-    id,
-  });
-}
 export function getOrders() {
   return axiosInstance.get(`${BACKEND_URL}/orders/getAll`);
 }

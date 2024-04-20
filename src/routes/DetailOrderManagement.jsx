@@ -4,8 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { getOrder } from "../api";
-import { useQuery } from "react-query";
+import io from "socket.io-client";
+import axiosInstance from "../axiosInstance";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -142,15 +142,15 @@ const MessageList = styled.ul`
 
 const Message = styled.li`
   display: flex;
-  justify-content: ${(props) => (props.$isMe ? "flex-end" : "flex-start")};
+  justify-content: ${(props) => (props.$isMe ? "flex-start" : "flex-end")};
   span {
     font-size: 1.1rem;
     padding: 10px 15px;
     border-radius: 15px;
     width: fit-content;
     background-color: ${(props) =>
-      props.$isMe ? "#0984e3" : "rgba(0, 0, 0, 0.06)"};
-    color: ${(props) => (props.$isMe ? "white" : "black")};
+      props.$isMe ? "rgba(0, 0, 0, 0.06)" : "#0984e3"};
+    color: ${(props) => (props.$isMe ? "black" : "white")};
   }
 `;
 
@@ -368,18 +368,55 @@ function parseISOString(string) {
   return `${y}년 ${+m}월 ${+d}일`;
 }
 
+let socket = null;
+
 const DetailApply = () => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue, setFocus } = useForm();
   const { orderId } = useParams();
-  const { data } = useQuery(["order", orderId], () => getOrder(orderId));
-  let apply = null;
-  if (data?.data) {
-    apply = data.data.order;
-  }
+  const [apply, setApply] = useState(null);
+  useEffect(() => {
+    axiosInstance
+      .post(`${process.env.REACT_APP_BACKEND_URL}/orders/get`, {
+        id: orderId,
+      })
+      .then((data) => {
+        setApply(data.data.order);
+      });
+  }, [orderId, setApply]);
+  const [chats, setChats] = useState([]);
   const [currentImage, setCurrentImage] = useState(null);
+
   const onSubmit = (data) => {
-    console.log(data);
+    setValue("message", "");
+    setFocus("message");
+    socket.emit(
+      "chat_message",
+      { message: data.message, isMe: false },
+      orderId
+    );
+    paint_message(data.message, data.isMe);
   };
+
+  function paint_message(message, isMe) {
+    setChats((prev) => [...prev, { message, isMe }]);
+  }
+
+  useEffect(() => {
+    if (apply) {
+      socket = io.connect(process.env.REACT_APP_BACKEND_URL);
+      socket.emit("chat_room", orderId);
+      socket.on("chat_message", (data) => {
+        paint_message(data.message, data.isMe);
+      });
+      socket.on("error", (error) => {
+        alert(`에러 발생: ${error}`);
+      });
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [apply, orderId]);
+
   const ulRef = useRef(null);
   useEffect(() => {
     if (ulRef.current) {
@@ -425,19 +462,17 @@ const DetailApply = () => {
                   src={apply.result}
                   alt="ApplyImage"
                 ></DetailImage>
-                {apply.isCompleted && (
-                  <DownloadContainer>
-                    <TooltipContainer initial="initial" whileHover="hover">
-                      <Download className="fa-solid fa-download" />
-                      <Tooltip
-                        transition={{ duration: 0.2 }}
-                        variants={tooltipVariants}
-                      >
-                        다운로드
-                      </Tooltip>
-                    </TooltipContainer>
-                  </DownloadContainer>
-                )}
+                <DownloadContainer>
+                  <TooltipContainer initial="initial" whileHover="hover">
+                    <Download className="fa-solid fa-upload" />
+                    <Tooltip
+                      transition={{ duration: 0.2 }}
+                      variants={tooltipVariants}
+                    >
+                      업로드
+                    </Tooltip>
+                  </TooltipContainer>
+                </DownloadContainer>
               </DetailResult>
               <DetailDesc>
                 <DetailTitle>{apply.title}</DetailTitle>
@@ -460,10 +495,23 @@ const DetailApply = () => {
             </Detail>
             <Chat>
               <MessageList ref={ulRef}>
-                {apply.chats.length > 0 ? (
-                  apply.chats.map((chat) => {
-                    return <Message $isMe={chat.isMe}>{chat.message}</Message>;
-                  })
+                {apply.chats.length > 0 || chats.length > 0 ? (
+                  <>
+                    {apply.chats.map((chat, index) => {
+                      return (
+                        <Message key={index} $isMe={chat.isMe}>
+                          <span>{chat.message}</span>
+                        </Message>
+                      );
+                    })}
+                    {chats.map((chat, index) => {
+                      return (
+                        <Message key={index} $isMe={chat.isMe}>
+                          <span>{chat.message}</span>
+                        </Message>
+                      );
+                    })}
+                  </>
                 ) : (
                   <Notification>
                     🦄 멋진 결과를 위해 대화를 시작해보세요! 🦄

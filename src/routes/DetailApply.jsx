@@ -4,8 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { getOrder } from "../api";
-import { useQuery } from "react-query";
+import io from "socket.io-client";
+import axiosInstance from "../axiosInstance";
 
 const Wrapper = styled.div`
   height: 100vh;
@@ -383,29 +383,58 @@ function parseISOString(string) {
   return `${y}년 ${+m}월 ${+d}일`;
 }
 
+let socket = null;
+
 const DetailApply = () => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue, setFocus } = useForm();
   const { applyId } = useParams();
-  const { data, isLoading } = useQuery(["order", applyId], () =>
-    getOrder(applyId)
-  );
   const [apply, setApply] = useState(null);
   useEffect(() => {
-    if (!isLoading) {
-      setApply(data.data.order);
-    }
-  }, [setApply, data, isLoading]);
+    axiosInstance
+      .post(`${process.env.REACT_APP_BACKEND_URL}/orders/get`, {
+        id: applyId,
+      })
+      .then((data) => {
+        setApply(data.data.order);
+      });
+  }, [applyId, setApply]);
+  const [chats, setChats] = useState([]);
   const [currentImage, setCurrentImage] = useState(null);
+
   const onSubmit = (data) => {
-    console.log(data);
+    setValue("message", "");
+    setFocus("message");
+    socket.emit("chat_message", { message: data.message, isMe: true }, applyId);
+    paint_message(data.message, true);
   };
+
+  function paint_message(message, isMe) {
+    setChats((prev) => [...prev, { message, isMe }]);
+  }
+
+  useEffect(() => {
+    if (apply) {
+      socket = io.connect(process.env.REACT_APP_BACKEND_URL);
+      socket.emit("chat_room", applyId);
+      socket.on("chat_message", (data) => {
+        paint_message(data.message, data.isMe);
+      });
+      socket.on("error", (error) => {
+        alert(`에러 발생: ${error}`);
+      });
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [apply, applyId]);
+
   const ulRef = useRef(null);
   useEffect(() => {
     if (ulRef.current) {
       const ulElement = ulRef.current;
       ulElement.scrollTop = ulElement.scrollHeight;
     }
-  });
+  }, []);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -479,10 +508,23 @@ const DetailApply = () => {
             </Detail>
             <Chat>
               <MessageList ref={ulRef}>
-                {apply.chats.length > 0 ? (
-                  apply.chats.map((chat) => {
-                    return <Message $isMe={chat.isMe}>{chat.message}</Message>;
-                  })
+                {apply.chats.length > 0 || chats.length > 0 ? (
+                  <>
+                    {apply.chats.map((chat, index) => {
+                      return (
+                        <Message key={index} $isMe={chat.isMe}>
+                          <span>{chat.message}</span>
+                        </Message>
+                      );
+                    })}
+                    {chats.map((chat, index) => {
+                      return (
+                        <Message key={index} $isMe={chat.isMe}>
+                          <span>{chat.message}</span>
+                        </Message>
+                      );
+                    })}
+                  </>
                 ) : (
                   <Notification>
                     🦄 멋진 결과를 위해 대화를 시작해보세요! 🦄

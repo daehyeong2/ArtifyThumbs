@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -24,7 +25,7 @@ const ContainerTitle = styled.h1`
   display: flex;
   justify-content: center;
   gap: 10px;
-  h1 {
+  span {
     background: linear-gradient(to right top, #6c5ce7, #74b9ff);
     color: transparent;
     background-clip: text;
@@ -59,6 +60,14 @@ const InfoContent = styled.p`
   font-size: 1.1rem;
 `;
 
+const StyledLink = styled(Link)`
+  color: #0984e3;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 const About = () => {
   return (
     <>
@@ -66,7 +75,7 @@ const About = () => {
       <Container>
         <TopBar>
           <ContainerTitle>
-            <h1>ArtifyThumbs</h1>에 대해
+            <span>ArtifyThumbs</span>에 대해
           </ContainerTitle>
           <ContainerSubtitle>
             ArtifyThumbs는 이미지를 신청하고 좋은 퀄리티의 이미지를 빠르게 받을
@@ -77,8 +86,8 @@ const About = () => {
           <Info>
             <InfoTitle>무엇을 할 수 있나요?</InfoTitle>
             <InfoContent>
-              ArtifyThumbs에서는 싼 가격에 원하는 사진을 신청하고 금방 받아볼 수
-              있어요.
+              ArtifyThumbs에서는 저렴한 가격에 원하는 사진을 신청하고 금방
+              받아볼 수 있어요.
             </InfoContent>
           </Info>
           <Info>
@@ -86,15 +95,16 @@ const About = () => {
               AritfyThumbs를 이용해야 하는 이유는 무엇인가요?
             </InfoTitle>
             <InfoContent>
-              저희는 가격이 저렴하고 신청도 간편해요! 그리고 좋은 퀄리티의
-              사진을 빠르게 받아볼 수 있죠.
+              저희는 가격이 저렴하고 신청도 간편해요! 게다가 좋은 퀄리티의
+              사진을 빠르게 받아볼 수 있어요.
             </InfoContent>
           </Info>
           <Info>
             <InfoTitle>어떻게 이용하나요?</InfoTitle>
             <InfoContent>
-              ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 참고로 신청
-              할 때는 간단한 시안이 필요해요!
+              ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 자세한
+              내용은 <StyledLink to="/apply">신청 페이지</StyledLink>에
+              있습니다.
             </InfoContent>
           </Info>
         </Introduction>

@@ -1,11 +1,4 @@
-# https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Disallow: /apply/
-Disallow: /apply-list/
-Disallow: /order-management/
-Disallow: /inquiry-management/
+User-Agent: *
+Allow: /
 
 Sitemap: https://artifythumbs.netlify.app/sitemap.xml
-
-User-agent: BadBot
-Disallow: /

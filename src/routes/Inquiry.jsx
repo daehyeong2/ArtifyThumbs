@@ -125,6 +125,7 @@ const Q = styled.h2`
 
 const A = styled.p`
   font-size: 20px;
+  line-height: 1.2;
 `;
 
 const Message = styled(motion.div)`
@@ -247,7 +248,10 @@ const Inquiry = () => {
             </QnAItem>
             <QnAItem>
               <Q>Q. 어떤 종류의 문의를 해야하나요?</Q>
-              <A>A. 궁금한 점이라면 무엇이든 문의 하실 수 있습니다.</A>
+              <A>
+                A. 궁금한 점이나 서비스 피드백 등 무엇이든 문의 하실 수
+                있습니다.
+              </A>
             </QnAItem>
             <QnAItem>
               <Q>Q. 이메일 정보는 안전한가요?</Q>

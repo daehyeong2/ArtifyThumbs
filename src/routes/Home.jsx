@@ -4,6 +4,7 @@ import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../atom";
+import { useEffect, useState, useCallback } from "react";
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,9 +22,12 @@ const Container = styled.div`
 `;
 
 const ContainerTitle = styled.h1`
+  display: flex;
+  align-items: center;
   font-size: 4rem;
   font-weight: 900;
   span {
+    margin-left: 15px;
     background: linear-gradient(to right top, #55efc4, #00b894);
     color: transparent;
     background-clip: text;
@@ -79,6 +83,13 @@ const ContainerStartButton = styled(motion.button)`
   cursor: pointer;
 `;
 
+const Pipe = styled(motion.div)`
+  margin-left: 5px;
+  margin-top: 6px;
+  width: 8px;
+  height: 90%;
+`;
+
 const startVariants = {
   initial: {
     backgroundColor: "#0984e3",
@@ -109,8 +120,93 @@ const AboutVariants = {
   },
 };
 
+const PipeVariants = {
+  initial: {
+    backgroundColor: "rgba(0,0,0,0.8)",
+  },
+  animate: {
+    backgroundColor: "rgba(0,0,0,0.0)",
+    transition: {
+      repeat: Infinity,
+      repeatType: "reverse",
+      duration: 0.5,
+    },
+  },
+};
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+const labelList = ["간편한", "신속한", "친절한", "아름다운"];
+
 const Home = () => {
   const user = useRecoilValue(userAtom);
+  const [label, setLabel] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const createComebackInterval = useCallback((data, initialTime) => {
+    const text = data.text;
+    const r = data.r;
+    let index = data.index;
+    const comebackInterval = setInterval(() => {
+      setLabel(text.slice(0, index));
+      index--;
+      clearInterval(comebackInterval);
+      if (Math.abs(index) - 1 === text.length) {
+        r();
+      } else {
+        const x = Math.abs(index);
+        const result = 200 - 18 * (x ** 2 / 2 + -0.5 * x + 2);
+        createComebackInterval({ text, r, index }, result);
+      }
+    }, initialTime);
+  }, []);
+  const createLetterInterval = useCallback(
+    (data, initialTime) => {
+      const text = data.text;
+      const r = data.r;
+      let index = data.index;
+      sleep(initialTime).then(() => {
+        setLabel((prev) => (prev += text[index]));
+        sleep(30).then(() => {
+          index++;
+          if (index === text.length) {
+            index = -1;
+            sleep(1000).then(() => {
+              const x = Math.abs(index);
+              createComebackInterval(
+                { index, r, text },
+                200 - 12 * (x ** 2 / 3 + -0.3 * x + 2)
+              );
+            });
+          } else {
+            const x = Math.abs(index);
+            const result = 40 * (x ** 2 / 3 + -0.3 * x + 2);
+            createLetterInterval({ text, r, index }, result);
+          }
+        });
+      });
+    },
+    [createComebackInterval]
+  );
+  const addLetter = useCallback(
+    (text) => {
+      return new Promise((r) => {
+        let index = 0;
+        createLetterInterval({ text, r, index }, 60);
+      });
+    },
+    [createLetterInterval]
+  );
+  useEffect(() => {
+    sleep(1000).then(() => {
+      setLabel("");
+      const text = labelList[currentIndex];
+      addLetter(text).then(() => {
+        setCurrentIndex((prev) => (prev + 1) % labelList.length);
+      });
+    });
+  }, [currentIndex, addLetter]);
   return (
     <>
       <Seo
@@ -120,7 +216,8 @@ const Home = () => {
       <Wrapper>
         <Container id="main">
           <ContainerTitle>
-            쉽고, <span>간편한</span>
+            쉽고, <span>{label}</span>
+            <Pipe variants={PipeVariants} initial="initial" animate="animate" />
           </ContainerTitle>
           <ContainerSubtitle>
             ArtifyThumbs에서 쉽고 빠르게 좋은 그림을 받아보세요.
