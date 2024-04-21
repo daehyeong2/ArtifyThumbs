@@ -215,7 +215,7 @@ const Procedure = () => {
             <InputContainer $isFull={true}>
               <Label>그림 제목</Label>
               <Input
-                {...register("title", { required: true })}
+                {...register("title", { required: true, maxLength: 30 })}
                 type="text"
                 placeholder="그림 제목을 입력해주세요."
               />

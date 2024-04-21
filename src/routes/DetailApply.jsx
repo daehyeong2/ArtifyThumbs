@@ -68,7 +68,10 @@ const DetailDesc = styled.div`
 `;
 
 const DetailTitle = styled.h2`
-  font-size: 2rem;
+  font-size: 1.7rem;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-all;
 `;
 
 const DetailInfoes = styled.div`
