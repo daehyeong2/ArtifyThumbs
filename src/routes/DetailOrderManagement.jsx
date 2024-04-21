@@ -437,7 +437,7 @@ const DetailApply = () => {
       const ulElement = ulRef.current;
       ulElement.scrollTop = ulElement.scrollHeight;
     }
-  });
+  }, [chats, apply]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
