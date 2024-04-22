@@ -3,14 +3,14 @@ import Seo from "../components/Seo";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import axiosInstance from "../axiosInstance";
 import { useSetRecoilState } from "recoil";
 import { userAtom } from "../atom";
 
 const Wrapper = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   box-sizing: border-box;
   padding-top: 140px;
   display: grid;
@@ -125,7 +125,7 @@ const Chat = styled.div`
   background-color: rgba(0, 0, 0, 0.01);
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 15px;
-  height: 95%;
+  height: 765px;
   overflow: hidden;
   padding-bottom: 15px;
   display: flex;
@@ -391,6 +391,7 @@ function parseISOString(string) {
 let socket = null;
 
 const DetailApply = () => {
+  const ulRef = useRef(null);
   const { register, handleSubmit, setValue, setFocus } = useForm();
   const { applyId } = useParams();
   const [apply, setApply] = useState(null);
@@ -426,9 +427,12 @@ const DetailApply = () => {
     paint_message(data.message, true);
   };
 
-  function paint_message(message, isMe) {
-    setChats((prev) => [...prev, { message, isMe }]);
-  }
+  const paint_message = useCallback(async (message, isMe) => {
+    await setChats((prev) => [...prev, { message, isMe }]);
+    if (isMe) {
+      scrollDown();
+    }
+  }, []);
 
   useEffect(() => {
     if (apply) {
@@ -444,15 +448,19 @@ const DetailApply = () => {
         socket.disconnect();
       };
     }
-  }, [apply, applyId]);
+  }, [apply, applyId, paint_message]);
 
-  const ulRef = useRef(null);
-  useEffect(() => {
+  function scrollDown() {
     if (ulRef.current) {
       const ulElement = ulRef.current;
       ulElement.scrollTop = ulElement.scrollHeight;
     }
-  }, [chats, apply]);
+  }
+  useEffect(() => {
+    if (apply) {
+      scrollDown();
+    }
+  }, [apply]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
