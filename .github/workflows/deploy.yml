@@ -30,7 +30,7 @@ jobs:
               spa: true
               buildenv:
                 - name: REACT_APP_BACKEND_URL
-                  value: {{ secrets.BACKEND_URL }}
+                  value: ${{ secrets.BACKEND_URL }}
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
