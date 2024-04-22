@@ -1,4 +1,4 @@
-name: Deploy to Cloudtype
+name: Deploy to cloudtype
 on:
   push:
     branches:
@@ -22,13 +22,15 @@ jobs:
           stage: main
           yaml: >
             name: artifythumbs-frontend
+
             app: web@
+
             options:
               nodeversion: "18"
               spa: true
               buildenv:
                 - name: REACT_APP_BACKEND_URL
-                  value: ${{ secrets.REACT_APP_BACKEND_URL }}
+                  value: {{ secrets.REACT_APP_BACKEND_URL }}
             context:
               git:
                 url: git@github.com:${{ github.repository }}.git
