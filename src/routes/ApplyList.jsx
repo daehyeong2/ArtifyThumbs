@@ -154,7 +154,11 @@ const ApplyList = () => {
                       <ApplyImage src={apply.result} />
                       <ApplyDesc>
                         <ApplyHeader>
-                          <ApplyTitle>{apply.title}</ApplyTitle>
+                          <ApplyTitle>
+                            {apply.title.length > 10
+                              ? `${apply.title.slice(0, 10)}...`
+                              : apply.title}
+                          </ApplyTitle>
                           <ApplyPlan $isPro={apply.plan === "pro"}>
                             {apply.plan === "pro" ? "프로" : "기본"}
                           </ApplyPlan>

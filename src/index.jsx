@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom/client";
+import { hydrateRoot, createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -17,14 +17,30 @@ const queryClient = new QueryClient({
   },
 });
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <RecoilRoot>
-    <QueryClientProvider client={queryClient}>
-      <AnimatePresence mode="wait">
-        <RouterProvider router={router} />
-      </AnimatePresence>
-      <ReactQueryDevtools />
-    </QueryClientProvider>
-  </RecoilRoot>
-);
+const container = document.getElementById("root");
+const root = createRoot(container);
+
+if (container.hasChildNodes()) {
+  hydrateRoot(
+    container,
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <AnimatePresence mode="wait">
+          <RouterProvider router={router} />
+        </AnimatePresence>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+    </RecoilRoot>
+  );
+} else {
+  root.render(
+    <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <AnimatePresence mode="wait">
+          <RouterProvider router={router} />
+        </AnimatePresence>
+        <ReactQueryDevtools />
+      </QueryClientProvider>
+    </RecoilRoot>
+  );
+}

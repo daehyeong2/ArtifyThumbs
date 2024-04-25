@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
 import { motion } from "framer-motion";
 
 const Container = styled.div`
@@ -30,6 +28,7 @@ const ContainerTitle = styled.h1`
   gap: 10px;
   span {
     background: linear-gradient(to right top, #6c5ce7, #74b9ff);
+    padding-bottom: 15px;
     color: transparent;
     background-clip: text;
   }
@@ -177,7 +176,6 @@ function getWorkerVariants(type) {
 }
 
 const About = () => {
-  const user = useRecoilValue(userAtom);
   return (
     <>
       <Seo title="소개" description="ArtifyThumbs에 대해 알아보세요!" />
@@ -211,10 +209,9 @@ const About = () => {
           <Info>
             <InfoTitle>어떻게 이용하나요?</InfoTitle>
             <InfoContent>
-              ArtifyThumbs에{" "}
-              {user ? <StyledLink to="/signup">가입</StyledLink> : "가입"}하고
-              원하는 사진을 신청하면 됩니다. 자세한 내용은{" "}
-              <StyledLink to="/apply">신청 페이지</StyledLink>에 있습니다.
+              ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 자세한
+              내용은 <StyledLink to="/apply">신청 페이지</StyledLink>에
+              있습니다.
             </InfoContent>
           </Info>
         </Introduction>
