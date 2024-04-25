@@ -43,7 +43,8 @@
     ],
     "crawl": false,
     "puppeteerArgs": [
-      "--no-sandbox"
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
     ]
   },
   "browserslist": {
