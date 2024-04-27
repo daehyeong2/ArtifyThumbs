@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Container = styled.div`
@@ -60,14 +59,6 @@ const InfoTitle = styled.h1`
 const InfoContent = styled.p`
   font-weight: 700px;
   font-size: 1.1rem;
-`;
-
-const StyledLink = styled(Link)`
-  color: #0984e3;
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 const WorkersTitle = styled.h1`
@@ -210,8 +201,7 @@ const About = () => {
             <InfoTitle>어떻게 이용하나요?</InfoTitle>
             <InfoContent>
               ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 자세한
-              내용은 <StyledLink to="/apply">신청 페이지</StyledLink>에
-              있습니다.
+              내용은 신청 페이지에 있습니다.
             </InfoContent>
           </Info>
         </Introduction>

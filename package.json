@@ -41,7 +41,9 @@
       "/about",
       "/inquiry"
     ],
-    "crawl": false,
+    "crawl": true,
+    "inlineCss": true,
+    "minifyHtml": true,
     "puppeteerArgs": [
       "--no-sandbox",
       "--disable-setuid-sandbox"

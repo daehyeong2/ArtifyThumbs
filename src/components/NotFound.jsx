@@ -38,7 +38,7 @@ const NotFound = () => {
   const error = useRouteError();
   return (
     <>
-      <Seo title="에러 발생" />
+      <Seo title={`${error.status} - 에러 발생`} />
       <NavBar />
       <Container>
         <ErrorCode>에러 발생! (Code: {error.status})</ErrorCode>
