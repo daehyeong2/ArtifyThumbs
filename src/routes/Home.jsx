@@ -141,7 +141,8 @@ function sleep(ms) {
 const labelList = ["간편한", "다양한", "빠른", "아름다운", "친절한"];
 
 const Home = () => {
-  const user = useRecoilValue(userAtom);
+  const userValue = useRecoilValue(userAtom);
+  const [user, setUser] = useState(null);
   const [label, setLabel] = useState(labelList[0]);
   const [isFirst, setIsFirst] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -221,6 +222,11 @@ const Home = () => {
       });
     });
   }, [currentIndex, addLetter]);
+  useEffect(() => {
+    if (userValue) {
+      setUser(userValue);
+    }
+  }, [userValue]);
   return (
     <>
       <Seo
