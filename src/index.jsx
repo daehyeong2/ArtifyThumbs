@@ -1,12 +1,16 @@
-import React from "react";
+import React, { lazy } from "react";
 import { hydrateRoot, createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { ReactQueryDevtools } from "react-query/devtools";
 import router from "./router";
 import { RecoilRoot } from "recoil";
 import "./styles.css";
 import { AnimatePresence } from "framer-motion";
+const LazyReactQueryDevtools = lazy(() =>
+  import("react-query/devtools").then((module) => ({
+    default: module.ReactQueryDevtools,
+  }))
+);
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +32,9 @@ if (container.hasChildNodes()) {
         <AnimatePresence mode="wait">
           <RouterProvider router={router} />
         </AnimatePresence>
-        <ReactQueryDevtools />
+        {process.env.NODE_ENV === "development" && (
+          <LazyReactQueryDevtools initialIsOpen={false} />
+        )}
       </QueryClientProvider>
     </RecoilRoot>
   );
@@ -39,7 +45,9 @@ if (container.hasChildNodes()) {
         <AnimatePresence mode="wait">
           <RouterProvider router={router} />
         </AnimatePresence>
-        <ReactQueryDevtools />
+        {process.env.NODE_ENV === "development" && (
+          <LazyReactQueryDevtools initialIsOpen={false} />
+        )}
       </QueryClientProvider>
     </RecoilRoot>
   );

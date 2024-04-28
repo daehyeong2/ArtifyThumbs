@@ -1,10 +1,18 @@
 import { Navigate } from "react-router";
 import { useRecoilValue } from "recoil";
 import { userAtom, userIsLoadedAtom } from "../atom";
+import { useEffect, useState } from "react";
 
 const SecurePage = ({ element, authenticatedOnly, guestOnly, adminOnly }) => {
   const user = useRecoilValue(userAtom);
   const userIsLoaded = useRecoilValue(userIsLoadedAtom);
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  if (!isClient) {
+    return element;
+  }
   if (!userIsLoaded) {
     return;
   }

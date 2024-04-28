@@ -128,14 +128,14 @@ const Login = styled.div`
   width: 100%;
 `;
 
-const Signup = () => {
+const Signin = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const onSubmit = (data) => {
     axios
       .post(`${process.env.REACT_APP_BACKEND_URL}/users/signin`, data)
@@ -208,4 +208,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Signin;
