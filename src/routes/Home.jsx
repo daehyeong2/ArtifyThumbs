@@ -143,7 +143,7 @@ const labelList = ["간편한", "다양한", "빠른", "아름다운", "친절�
 const Home = () => {
   const userValue = useRecoilValue(userAtom);
   const [user, setUser] = useState(null);
-  const [label, setLabel] = useState(labelList[0]);
+  const [label, setLabel] = useState();
   const [isFirst, setIsFirst] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const createComebackInterval = useCallback(
@@ -227,6 +227,9 @@ const Home = () => {
       setUser(userValue);
     }
   }, [userValue]);
+  useEffect(() => {
+    setLabel(labelList[0]);
+  }, []);
   return (
     <>
       <Seo
