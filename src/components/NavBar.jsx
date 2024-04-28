@@ -103,8 +103,6 @@ const NavBar = () => {
   const user = useRecoilValue(userAtom);
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const homeMatch = useMatch("/");
-  const signupMatch = useMatch("/signup");
-  const signinMatch = useMatch("/signin");
   const aboutMatch = useMatch("/about");
   const applyListMatch = useMatch("/apply-list");
   const DetailApplyMatch = useMatch("/apply-list/:applyId");
@@ -135,9 +133,7 @@ const NavBar = () => {
       <NavList>
         <NavItem
           initial="initial"
-          animate={
-            homeMatch || signupMatch || signinMatch ? "animate" : "initial"
-          }
+          animate={homeMatch ? "animate" : "initial"}
           whileHover="hover"
         >
           <div>
