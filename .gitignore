@@ -10,6 +10,7 @@
 
 # production
 /build
+/.cloudtype
 
 # misc
 .DS_Store

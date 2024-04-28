@@ -1,36 +1,20 @@
 import { Outlet, createBrowserRouter } from "react-router-dom";
-import React, { Suspense } from "react";
+import Home from "./routes/Home";
+import About from "./routes/About";
 import Root from "./routes/Root";
 import NotFound from "./components/NotFound";
+import Apply from "./routes/Apply";
+import ApplyList from "./routes/ApplyList";
+import DetailApply from "./routes/DetailApply";
+import Signup from "./routes/Signup";
+import Signin from "./routes/Signin";
+import Inquiry from "./routes/Inquiry";
+import Procedure from "./routes/Procedure";
+import OrderManagement from "./routes/OrderManagement";
+import DetailOrderManagement from "./routes/DetailOrderManagement";
 import SecurePage from "./components/SecurePage";
-import styled from "styled-components";
-const Home = React.lazy(() => import("./routes/Home"));
-const About = React.lazy(() => import("./routes/About"));
-const Apply = React.lazy(() => import("./routes/Apply"));
-const ApplyList = React.lazy(() => import("./routes/ApplyList"));
-const DetailApply = React.lazy(() => import("./routes/DetailApply"));
-const Signup = React.lazy(() => import("./routes/Signup"));
-const Signin = React.lazy(() => import("./routes/Signin"));
-const Inquiry = React.lazy(() => import("./routes/Inquiry"));
-const Procedure = React.lazy(() => import("./routes/Procedure"));
-const OrderManagement = React.lazy(() => import("./routes/OrderManagement"));
-const DetailOrderManagement = React.lazy(() =>
-  import("./routes/DetailOrderManagement")
-);
-const InquiryList = React.lazy(() => import("./routes/InquiryList"));
-const DetailInquiry = React.lazy(() => import("./routes/DetailInquiry"));
-
-const Loading = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2rem;
-  font-weight: bold;
-`;
-
-const loading = <Loading>Loading...</Loading>;
+import InquiryList from "./routes/InquiryList";
+import DetailInquiry from "./routes/DetailInquiry";
 
 const router = createBrowserRouter([
   {
@@ -40,19 +24,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: (
-          <Suspense fallback={loading}>
-            <Home />
-          </Suspense>
-        ),
+        element: <Home />,
       },
       {
         path: "about",
-        element: (
-          <Suspense fallback={loading}>
-            <About />
-          </Suspense>
-        ),
+        element: <About />,
       },
       {
         path: "apply",
@@ -60,19 +36,11 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: (
-              <Suspense fallback={loading}>
-                <Apply />
-              </Suspense>
-            ),
+            element: <Apply />,
           },
           {
             path: "procedure",
-            element: (
-              <Suspense fallback={loading}>
-                <Procedure />
-              </Suspense>
-            ),
+            element: <Procedure />,
           },
         ],
       },
@@ -82,45 +50,25 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: (
-              <Suspense fallback={loading}>
-                <ApplyList />
-              </Suspense>
-            ),
+            element: <ApplyList />,
           },
           {
             path: ":applyId",
-            element: (
-              <Suspense fallback={loading}>
-                <DetailApply />
-              </Suspense>
-            ),
+            element: <DetailApply />,
           },
         ],
       },
       {
         path: "signup",
-        element: (
-          <Suspense fallback={loading}>
-            <SecurePage element={<Signup />} guestOnly />
-          </Suspense>
-        ),
+        element: <SecurePage element={<Signup />} guestOnly />,
       },
       {
         path: "signin",
-        element: (
-          <Suspense fallback={loading}>
-            <SecurePage element={<Signin />} guestOnly />
-          </Suspense>
-        ),
+        element: <SecurePage element={<Signin />} guestOnly />,
       },
       {
         path: "inquiry",
-        element: (
-          <Suspense fallback={loading}>
-            <Inquiry />
-          </Suspense>
-        ),
+        element: <Inquiry />,
       },
       {
         path: "order-management",
@@ -128,19 +76,11 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: (
-              <Suspense fallback={loading}>
-                <OrderManagement />
-              </Suspense>
-            ),
+            element: <OrderManagement />,
           },
           {
             path: ":orderId",
-            element: (
-              <Suspense fallback={loading}>
-                <DetailOrderManagement />
-              </Suspense>
-            ),
+            element: <DetailOrderManagement />,
           },
         ],
       },
@@ -150,19 +90,11 @@ const router = createBrowserRouter([
         children: [
           {
             path: "",
-            element: (
-              <Suspense fallback={loading}>
-                <InquiryList />
-              </Suspense>
-            ),
+            element: <InquiryList />,
           },
           {
             path: ":inquiryId",
-            element: (
-              <Suspense fallback={loading}>
-                <DetailInquiry />
-              </Suspense>
-            ),
+            element: <DetailInquiry />,
           },
         ],
       },

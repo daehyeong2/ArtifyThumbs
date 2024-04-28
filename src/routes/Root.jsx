@@ -14,6 +14,7 @@ const Wrapper = styled.div`
 `;
 
 const Root = () => {
+  pageScrollTop();
   const [user, setUser] = useRecoilState(userAtom);
   const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
   const token = localStorage.getItem("token");
@@ -26,12 +27,16 @@ const Root = () => {
             setUser(res.data);
             setUserIsLoaded(true);
           }
+        })
+        .catch((e) => {
+          alert(e);
+          localStorage.removeItem("token");
+          window.location.href = "/";
         });
     } else {
       setUserIsLoaded(true);
     }
   }, [token, user, setUser, setUserIsLoaded]);
-  pageScrollTop();
   return (
     <>
       <NavBar />
