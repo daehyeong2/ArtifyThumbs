@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 const Container = styled.div`
   background-image: url("/img/background/home.jpeg");
   background-position: right 8% bottom 13%;
-  background-size: 450px;
+  background-size: 23.5vw;
   background-repeat: no-repeat;
   height: 100vh;
   width: 100%;
