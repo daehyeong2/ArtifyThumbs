@@ -8,6 +8,8 @@ import io from "socket.io-client";
 import axiosInstance from "../axiosInstance";
 import { useSetRecoilState } from "recoil";
 import { userAtom } from "../atom";
+import { faDownload, faUpload } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -282,7 +284,7 @@ const DraftList = styled.ul`
   }
 `;
 
-const UploadIcon = styled.i`
+const UploadIcon = styled(FontAwesomeIcon)`
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   padding: 8px;
@@ -366,7 +368,7 @@ const ImageDownload = styled.div`
   cursor: pointer;
 `;
 
-const ImageDownloadIcon = styled.i`
+const ImageDownloadIcon = styled(FontAwesomeIcon)`
   font-size: 20px;
 `;
 
@@ -475,7 +477,7 @@ const DetailApply = () => {
             <ImageViewer layoutId={currentImage}>
               <BigImage src={currentImage} alt="bigImage" />
               <ImageDownload>
-                <ImageDownloadIcon className="fa-solid fa-download" />
+                <ImageDownloadIcon icon={faDownload} />
                 <span>다운로드</span>
               </ImageDownload>
             </ImageViewer>
@@ -595,7 +597,7 @@ const DetailApply = () => {
               {(apply.plan === "pro" ? 12 : 6) > apply.drafts.length && (
                 <DraftUploadButton>
                   <TooltipContainer initial="initial" whileHover="hover">
-                    <UploadIcon className="fa-solid fa-upload" />
+                    <UploadIcon icon={faUpload} />
                     <Tooltip
                       variants={tooltipVariants}
                       transition={{ duration: 0.2 }}

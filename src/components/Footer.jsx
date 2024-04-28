@@ -7,7 +7,7 @@ const Footer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 30px 0;
-  margin-top: 100px;
+  margin-top: 80px;
 `;
 
 const FooterItem = styled.li`

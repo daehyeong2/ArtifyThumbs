@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 const Wrapper = styled.div`
   display: flex;
@@ -12,15 +14,27 @@ const Wrapper = styled.div`
   height: 100vh;
 `;
 
+const Overlay = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: blur(2.5px);
+  background-image: url("/img/background/login.jpeg");
+  background-position: center;
+  background-size: cover;
+`;
+
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 35px 50px;
   border-radius: 30px;
   transition: 0.2s;
+  z-index: 1;
+  background-color: white;
   &:hover {
     box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
   }
@@ -196,13 +210,14 @@ const Signin = () => {
           </SignUpLink>
           <OAuthList>
             <OAuth>
-              <i className="fa-brands fa-discord"></i>
+              <FontAwesomeIcon icon={faDiscord} />
             </OAuth>
             <OAuth>
-              <i className="fa-brands fa-google"></i>
+              <FontAwesomeIcon icon={faGoogle} />
             </OAuth>
           </OAuthList>
         </Form>
+        <Overlay />
       </Wrapper>
     </>
   );

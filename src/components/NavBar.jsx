@@ -25,7 +25,11 @@ const Nav = styled(motion.nav)`
   grid-template-columns: 0.5fr minmax(450px, 1fr) 0.5fr;
   width: 100vw;
   position: fixed;
+  width: 100vw;
+  position: fixed;
   z-index: 2;
+  border: ${(props) =>
+    props.$isBorderExist ? "1px solid rgba(0, 0, 0, 0.1)" : "none"};
 `;
 
 const NavList = styled.ul`
@@ -54,7 +58,7 @@ const UnderLine = styled(motion.div)`
 
 const NavItemVariants = {
   initial: {
-    color: "rgba(0,0,0,0.2)",
+    color: "rgba(0,0,0,0.25)",
     transition: {
       duration: 0.1,
     },
@@ -97,6 +101,16 @@ const NavVariants = {
   },
 };
 
+const BorderNavVariants = {
+  initial: {
+    border: "1px solid rgba(0, 0, 0, 0.15)",
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+  },
+  scrolled: {
+    backgroundColor: "rgba(255,255,255,1)",
+  },
+};
+
 const MotionLink = motion(Link);
 
 const NavBar = () => {
@@ -115,14 +129,18 @@ const NavBar = () => {
   const inquiryManagementDetailMatch = useMatch(
     "/inquiry-management/:inquiryId"
   );
+  const signinMatch = useMatch("/signin");
+  const signupMatch = useMatch("/signup");
   const { scrollY } = useScroll();
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
   }, []);
   useMotionValueEvent(scrollY, "change", handleScroll);
+  const isBorderExist = signinMatch || signupMatch || aboutMatch;
   return (
     <Nav
-      variants={NavVariants}
+      $isBorderExist={isBorderExist}
+      variants={isBorderExist ? BorderNavVariants : NavVariants}
       initial="initial"
       animate={currentScrollY > 80 ? "scrolled" : "initial"}
       transition={{ duration: 0.2 }}

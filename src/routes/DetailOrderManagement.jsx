@@ -8,6 +8,8 @@ import io from "socket.io-client";
 import axiosInstance from "../axiosInstance";
 import { useSetRecoilState } from "recoil";
 import { userAtom } from "../atom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpload } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -249,7 +251,7 @@ const DownloadContainer = styled.div`
   right: 10px;
 `;
 
-const Download = styled.i`
+const Download = styled(FontAwesomeIcon)`
   border: 1px solid rgba(0, 0, 0, 0.15);
   font-size: 1.5rem;
   background-color: white;
@@ -351,7 +353,7 @@ const ImageDownload = styled.div`
   cursor: pointer;
 `;
 
-const ImageDownloadIcon = styled.i`
+const ImageDownloadIcon = styled(FontAwesomeIcon)`
   font-size: 20px;
 `;
 
@@ -460,7 +462,7 @@ const DetailApply = () => {
             <ImageViewer layoutId={currentImage}>
               <BigImage src={currentImage} alt="bigImage" />
               <ImageDownload>
-                <ImageDownloadIcon className="fa-solid fa-upload" />
+                <ImageDownloadIcon icon={faUpload} />
                 <span>업로드</span>
               </ImageDownload>
             </ImageViewer>
@@ -486,7 +488,7 @@ const DetailApply = () => {
                 ></DetailImage>
                 <DownloadContainer>
                   <TooltipContainer initial="initial" whileHover="hover">
-                    <Download className="fa-solid fa-upload" />
+                    <Download icon={faUpload} />
                     <Tooltip
                       transition={{ duration: 0.2 }}
                       variants={tooltipVariants}

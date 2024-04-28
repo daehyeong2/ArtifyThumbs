@@ -10,6 +10,10 @@ const Container = styled.div`
   padding: 0 25vw;
   padding-top: 140px;
   gap: 80px;
+  background-image: url("/img/background/about.jpeg");
+  background-size: 120%;
+  background-position: center left 54%;
+  background-repeat: no-repeat;
 `;
 
 const TopBar = styled.div`
@@ -89,6 +93,7 @@ const Worker = styled(motion.article)`
   position: relative;
   background: none;
   overflow: hidden;
+  z-index: 99;
 `;
 
 const WorkerList = styled.ul`
@@ -158,7 +163,7 @@ function getWorkerVariants(type) {
   }
   return {
     initial: {
-      background: "linear-gradient(to right top, #ecf0f1, #bdc3c7)",
+      background: "linear-gradient(to right top, #ced6e0, #f1f2f6)",
     },
     hover: {
       background: linearGradient,
@@ -206,7 +211,7 @@ const About = () => {
           </Info>
         </Introduction>
         <Workers>
-          <WorkersTitle>ArtifyThumbs 직원</WorkersTitle>
+          <WorkersTitle>ArtifyThumbs 팀</WorkersTitle>
           <WorkerList>
             <Worker initial="initial" whileHover="hover">
               <WorkerBackground
@@ -257,7 +262,7 @@ const About = () => {
                 </WorkerName>
               </WorkerProfile>
               <WorkerIntroduction>
-                <span>소개글:</span> 에러가 아니라 기능입니다.
+                <span>소개글:</span> 좋은 아침입니다. 음.. 밤인가?
               </WorkerIntroduction>
             </Worker>
           </WorkerList>

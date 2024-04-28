@@ -6,6 +6,8 @@ import { Link } from "react-scroll";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
   display: flex;
@@ -61,7 +63,7 @@ const Input = styled.input`
   padding: 15px;
   font-size: 16px;
   border: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
+  border-radius: 10px;
   outline: none;
   box-sizing: border-box;
   &:focus-within {
@@ -76,7 +78,7 @@ const TextArea = styled.textarea`
   font-size: 16px;
   padding: 10px 15px;
   border: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: 5px;
+  border-radius: 10px;
   outline: none;
   resize: none;
   &:focus-within {
@@ -236,9 +238,9 @@ const Inquiry = () => {
               initial="initial"
               animate={currentScrollY > 80 ? "scrolled" : "animate"}
             >
-              <i className="fa-solid fa-arrow-down"></i>
+              <FontAwesomeIcon icon={faArrowDown} />
               자주 묻는 질문
-              <i className="fa-solid fa-arrow-down"></i>
+              <FontAwesomeIcon icon={faArrowDown} />
             </Message>
           </Link>
         </InquirySection>

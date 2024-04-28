@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 
 const Wrapper = styled.div`
   display: flex;
@@ -21,9 +23,21 @@ const Form = styled.form`
   padding: 35px 50px;
   border-radius: 30px;
   transition: 0.2s;
+  z-index: 1;
+  background-color: white;
   &:hover {
     box-shadow: 3px 3px 10px 0 rgba(0, 0, 0, 0.2);
   }
+`;
+
+const Overlay = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  filter: blur(2.5px);
+  background-image: url("/img/background/login.jpeg");
+  background-position: center;
+  background-size: cover;
 `;
 
 const Label = styled.label`
@@ -127,10 +141,16 @@ const Signup = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setError: setFormError,
   } = useForm();
   const navigate = useNavigate();
   const [error, setError] = useState(false);
   const onSubmit = (data) => {
+    if (data.passwordConfirmation !== data.password) {
+      setFormError("passwordConfirmation", "비밀번호가 일치하지 않습니다.", {
+        shouldFocus: true,
+      });
+    }
     axios
       .post(`${process.env.REACT_APP_BACKEND_URL}/users/signup`, data)
       .then((res) => {
@@ -145,14 +165,16 @@ const Signup = () => {
         }
       });
   };
+  console.log(errors);
   return (
     <>
       <Seo title="회원가입" />
       <Wrapper>
+        <Overlay />
         <Form onSubmit={handleSubmit(onSubmit)}>
           <FormTitle>회원가입</FormTitle>
           <InputContainer>
-            <Label htmlFor="email">이메일을 입력하세요.</Label>
+            <Label htmlFor="email">이메일을 입력해 주세요.</Label>
             <Input
               {...register("email", {
                 required: true,
@@ -168,7 +190,7 @@ const Signup = () => {
             )}
           </InputContainer>
           <InputContainer>
-            <Label htmlFor="username">아이디를 입력하세요.</Label>
+            <Label htmlFor="username">아이디를 입력해 주세요.</Label>
             <Input
               {...register(
                 "username",
@@ -189,7 +211,7 @@ const Signup = () => {
             )}
           </InputContainer>
           <InputContainer>
-            <Label htmlFor="password">비밀번호를 입력하세요.</Label>
+            <Label htmlFor="password">비밀번호를 입력해 주세요.</Label>
             <Input
               {...register(
                 "password",
@@ -212,15 +234,39 @@ const Signup = () => {
               </ErrorMessage>
             )}
           </InputContainer>
+          <InputContainer>
+            <Label htmlFor="passwordConfirmation">
+              비밀번호를 다시 입력해 주세요.
+            </Label>
+            <Input
+              {...register(
+                "passwordConfirmation",
+                {
+                  required: true,
+                  pattern: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
+                },
+                { maxLength: 16 },
+                { minLength: 8 }
+              )}
+              placeholder="비밀번호 확인"
+              autoComplete="off"
+              id="passwordConfirmation"
+              name="passwordConfirmation"
+              type="password"
+            ></Input>
+            {errors.passwordConfirmation && (
+              <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>
+            )}
+          </InputContainer>
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <SignUpButton>가입하기</SignUpButton>
           <LoginLink to="/signin">계정이 이미 있으신가요?</LoginLink>
           <OAuthList>
             <OAuth>
-              <i className="fa-brands fa-discord"></i>
+              <FontAwesomeIcon icon={faDiscord} />
             </OAuth>
             <OAuth>
-              <i className="fa-brands fa-google"></i>
+              <FontAwesomeIcon icon={faGoogle} />
             </OAuth>
           </OAuthList>
         </Form>

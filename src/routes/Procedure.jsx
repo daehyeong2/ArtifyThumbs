@@ -253,7 +253,7 @@ const Procedure = () => {
             </InputContainer>
             <ApplyBox>
               <ApplyMessage>
-                ※ 참고 사진은 신청을 완료하신 후, 신청 목록에서 추가 하실 수
+                ※ 참고 사진은 신청을 완료하신 후, 세부 페이지에서 추가 하실 수
                 있습니다.
               </ApplyMessage>
               <ApplyButton>신청하기</ApplyButton>

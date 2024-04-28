@@ -13,7 +13,12 @@ const Wrapper = styled.div`
 `;
 
 const Container = styled.div`
+  background-image: url("/img/background/home.jpeg");
+  background-position: right 8% bottom 13%;
+  background-size: 450px;
+  background-repeat: no-repeat;
   height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -289,6 +294,22 @@ const Home = () => {
             </AboutContent>
           </AboutInfo>
           <AboutImage src="/img/AboutImage/convenient.jpeg" alt="convenient" />
+        </About>
+        <About
+          variants={AboutVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: "all" }}
+        >
+          <AboutImage src="/img/AboutImage/chats.jpeg" alt="convenient" />
+          <AboutInfo>
+            <AboutTitle>실시간 채팅</AboutTitle>
+            <AboutContent>
+              매우 빠른 무제한 실시간 채팅을 이용해 보세요.
+              <br />
+              간편하게 당신이 원하는 그림에 대해 설명해 보세요.
+            </AboutContent>
+          </AboutInfo>
         </About>
       </Wrapper>
     </>
