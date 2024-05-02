@@ -301,7 +301,7 @@ const Home = () => {
           whileInView="visible"
           viewport={{ once: true, amount: "all" }}
         >
-          <AboutImage src="/img/AboutImage/chats.jpeg" alt="convenient" />
+          <AboutImage src="/img/AboutImage/chats.jpeg" alt="chats" />
           <AboutInfo>
             <AboutTitle>실시간 채팅</AboutTitle>
             <AboutContent>

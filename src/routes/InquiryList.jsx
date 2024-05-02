@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useQuery } from "react-query";
-import { getInquiries } from "../api";
+import { useCallback, useEffect, useState } from "react";
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import { db } from "../firebase";
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -149,10 +149,35 @@ function parseISOString(string) {
 
 const InquiryManagement = () => {
   const [hoverItem, setHoverItem] = useState(null);
-  const { data: inquiries } = useQuery("inquiry-list", getInquiries);
+  const [inquiries, setInquiries] = useState([]);
+  const fetchInquiries = useCallback(async () => {
+    try {
+      const inquiryQuery = query(
+        collection(db, "inquiries"),
+        orderBy("createdAt", "desc"),
+        orderBy("isAnswered", "asc"),
+        limit(25)
+      );
+      const inquirySnap = await getDocs(inquiryQuery);
+      if (inquirySnap.docs.length > 0) {
+        const docs = inquirySnap.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        setInquiries(docs);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+  useEffect(() => {
+    fetchInquiries();
+  }, [fetchInquiries]);
   let hoverData;
   if (hoverItem !== null) {
-    hoverData = inquiries.data.find((inquiry) => inquiry._id === hoverItem);
+    hoverData = inquiries.find((inquiry) => inquiry.id === hoverItem);
   } else {
     hoverData = null;
   }
@@ -187,14 +212,14 @@ const InquiryManagement = () => {
                 <OrderDate>문의 날짜</OrderDate>
                 <OrderStatus $isComplete="header">상태</OrderStatus>
               </OrderHeader>
-              {inquiries?.data.map((inquiry, index) => (
+              {inquiries?.map((inquiry, index) => (
                 <li
-                  key={inquiry._id}
-                  onMouseEnter={() => setHoverItem(inquiry._id)}
+                  key={inquiry.id}
+                  onMouseEnter={() => setHoverItem(inquiry.id)}
                   onMouseLeave={() => setHoverItem(null)}
                 >
-                  <OrderLink to={`/inquiry-management/${inquiry._id}`}>
-                    <OrderNumber>{inquiries.data.length - index}</OrderNumber>
+                  <OrderLink to={`/inquiry-management/${inquiry.id}`}>
+                    <OrderNumber>{inquiries.length - index}</OrderNumber>
                     <OrderTitle $isComplete={inquiry.isAnswered}>
                       {inquiry.title}
                     </OrderTitle>

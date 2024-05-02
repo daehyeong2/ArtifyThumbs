@@ -1,11 +1,13 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth, db } from "../firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 const Wrapper = styled.div`
   display: flex;
@@ -136,6 +138,10 @@ const ErrorMessage = styled.p`
   color: #d63031;
 `;
 
+const errorMap = {
+  "auth/email-already-in-use": "이미 등록된 이메일입니다.",
+};
+
 const Signup = () => {
   const {
     register,
@@ -143,29 +149,43 @@ const Signup = () => {
     formState: { errors },
     setError: setFormError,
   } = useForm();
-  const navigate = useNavigate();
+  const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    if (isLoading) return;
     if (data.passwordConfirmation !== data.password) {
-      setFormError("passwordConfirmation", "비밀번호가 일치하지 않습니다.", {
-        shouldFocus: true,
-      });
+      return setFormError(
+        "passwordConfirmation",
+        "확인 비밀번호가 일치하지 않습니다.",
+        {
+          shouldFocus: true,
+        }
+      );
     }
-    axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/users/signup`, data)
-      .then((res) => {
-        if (res.status === 200) {
-          localStorage.setItem("token", res.data);
-          navigate("/");
-        }
-      })
-      .catch((error) => {
-        if (error.response.status === 400) {
-          setError(error.response.data.message);
-        }
+    try {
+      setLoading(true);
+      const credentials = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      await updateProfile(credentials.user, {
+        displayName: data.username,
+        photoURL: "/img/user.jpeg",
       });
+      await addDoc(collection(db, "users"), {
+        username: data.username,
+        isAdmin: true,
+        createdAt: Date.now(),
+        userId: credentials.user.uid,
+      });
+      window.location.href = "/";
+    } catch (e) {
+      setError(errorMap[e.code]);
+    } finally {
+      setLoading(false);
+    }
   };
-  console.log(errors);
   return (
     <>
       <Seo title="회원가입" />
@@ -259,7 +279,9 @@ const Signup = () => {
             )}
           </InputContainer>
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          <SignUpButton>가입하기</SignUpButton>
+          <SignUpButton>
+            {isLoading ? "가입하는 중.." : "가입하기"}
+          </SignUpButton>
           <LoginLink to="/signin">계정이 이미 있으신가요?</LoginLink>
           <OAuthList>
             <OAuth>

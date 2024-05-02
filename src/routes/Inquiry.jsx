@@ -5,9 +5,10 @@ import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Link } from "react-scroll";
 import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../firebase";
 
 const Wrapper = styled.div`
   display: flex;
@@ -181,23 +182,30 @@ const Inquiry = () => {
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const { scrollY } = useScroll();
   const navigate = useNavigate();
+  const [isLoading, setLoading] = useState(false);
   const handleScroll = useCallback((latest) => {
     setCurrentScrollY(latest);
   }, []);
   useMotionValueEvent(scrollY, "change", handleScroll);
-  const onSubmit = (data) => {
-    axiosInstance
-      .post(`${process.env.REACT_APP_BACKEND_URL}/inquiry/create`, data)
-      .then((res) => {
-        if (res.status === 200) {
-          alert("문의 신청이 완료되었습니다. (답변은 이메일로 전송됩니다.)");
-          navigate("/");
-        }
-      })
-      .catch((error) => {
-        alert(`에러 발생: ${error}`);
-        navigate("/");
+  const onSubmit = async (data) => {
+    if (isLoading || !data.title || !data.email || !data.content) return;
+    try {
+      setLoading(true);
+      const now = new Date();
+      await addDoc(collection(db, "inquiries"), {
+        email: data.email,
+        title: data.title,
+        content: data.content,
+        isAnswered: false,
+        createdAt: now.toISOString(),
       });
+      alert("문의가 접수됐습니다. (답변은 이메일로 전송됩니다.)");
+      navigate("/");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <>
@@ -229,7 +237,9 @@ const Inquiry = () => {
                 placeholder="문의 내용을 입력해주세요."
                 {...register("content", { required: true })}
               />
-              <Button>문의 등록하기</Button>
+              <Button>
+                {isLoading ? "문의를 등록하는 중.." : "문의 등록하기"}
+              </Button>
             </Form>
           </Container>
           <Link to="qna" smooth={true} duration={500}>

@@ -3,7 +3,8 @@ import Seo from "../components/Seo";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import axiosInstance from "../axiosInstance";
+import { addDoc, collection } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 const Wrapper = styled.div`
   padding: 100px;
@@ -157,26 +158,50 @@ const ErrorMessage = styled.p`
   color: #d63031;
 `;
 
+const tagMap = {
+  "youtube-thumbnail": "유튜브 썸네일",
+  banner: "프로필 배너",
+  profile: "프로필 사진",
+  "game-illustration": "게임 일러스트",
+  "character-design": "캐릭터 디자인",
+  etc: "기타",
+};
+
 const Procedure = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const user = auth.currentUser;
   const { state } = useLocation();
   const [currentPlan, setCurrentPlan] = useState(state);
   const navigate = useNavigate();
-  const onSubmit = (data) => {
-    axiosInstance
-      .post(`${process.env.REACT_APP_BACKEND_URL}/orders/apply`, data)
-      .then((res) => {
-        if (res.status === 200) {
-          alert("신청을 성공했습니다.");
-          navigate(`/apply-list/${res.data.orderId}`);
-        } else {
-          alert("신청을 실패했습니다.");
-        }
+  const [isLoading, setLoading] = useState(false);
+  const onSubmit = async (data) => {
+    if (isLoading || !data.plan || !data.kind || !data.title || !data.content)
+      return;
+    try {
+      setLoading(true);
+      const now = new Date();
+      const doc = await addDoc(collection(db, "orders"), {
+        title: data.title,
+        description: data.content,
+        plan: data.plan,
+        tags: [tagMap[data.kind]],
+        applyedAt: now.toISOString(),
+        chats: [],
+        drafts: [],
+        isCompleted: false,
+        orderer: user.uid,
+        result: "/img/preparing.jpeg",
       });
+      navigate(`/apply-list/${doc.id}`);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <>
@@ -256,7 +281,9 @@ const Procedure = () => {
                 ※ 참고 사진은 신청을 완료하신 후, 세부 페이지에서 추가 하실 수
                 있습니다.
               </ApplyMessage>
-              <ApplyButton>신청하기</ApplyButton>
+              <ApplyButton>
+                {isLoading ? "신청하는 중.." : "신청하기"}
+              </ApplyButton>
             </ApplyBox>
           </Form>
         </Container>

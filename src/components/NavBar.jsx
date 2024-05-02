@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import NavAccount from "./NavAccount";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
 import { Link, useMatch } from "react-router-dom";
 import { useCallback, useState } from "react";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../atom";
 
 const Logo = styled.div`
   background-image: url("/img/Logo.jpeg");
@@ -114,7 +114,7 @@ const BorderNavVariants = {
 const MotionLink = motion(Link);
 
 const NavBar = () => {
-  const user = useRecoilValue(userAtom);
+  const userData = useRecoilValue(userAtom);
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const homeMatch = useMatch("/");
   const aboutMatch = useMatch("/about");
@@ -185,7 +185,7 @@ const NavBar = () => {
           </div>
           <UnderLine variants={UnderLineVariants} />
         </NavItem>
-        {user && (
+        {userData && (
           <>
             <NavItem
               initial="initial"
@@ -215,7 +215,7 @@ const NavBar = () => {
               </div>
               <UnderLine variants={UnderLineVariants} />
             </NavItem>
-            {user.role === "admin" && (
+            {userData?.isAdmin && (
               <>
                 <NavItem
                   initial="initial"

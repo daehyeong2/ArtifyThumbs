@@ -1,10 +1,12 @@
 import Seo from "../components/Seo";
-import { useQuery } from "react-query";
-import { Link, useParams } from "react-router-dom";
-import { getInquiry } from "../api";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useRecoilValue } from "recoil";
+import { userAtom } from "../atom";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -59,16 +61,26 @@ const Description = styled.p`
 `;
 
 const DetailInquiry = () => {
+  const userData = useRecoilValue(userAtom);
   const { inquiryId } = useParams();
-  const { data, isLoading } = useQuery(["inquiry", inquiryId], () =>
-    getInquiry(inquiryId)
-  );
   const [inquiry, setInquiry] = useState(null);
-  useEffect(() => {
-    if (!isLoading) {
-      setInquiry(data.data);
+  const navigate = useNavigate();
+  const fetchInquiry = useCallback(async () => {
+    const docRef = doc(db, "inquiries", inquiryId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (userData?.isAdmin) {
+        setInquiry(data);
+      } else {
+        alert("권한 없음");
+        navigate("/");
+      }
     }
-  }, [isLoading, data]);
+  }, [inquiryId, navigate, userData?.isAdmin]);
+  useEffect(() => {
+    fetchInquiry();
+  }, [fetchInquiry]);
   return (
     <>
       <Seo title={inquiry ? inquiry.title : "로딩 중.."} />

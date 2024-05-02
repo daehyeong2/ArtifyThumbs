@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useRecoilState } from "recoil";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { userAtom } from "../atom";
+import { auth } from "../firebase";
 
 const Wrapper = styled.div`
   display: flex;
@@ -156,8 +155,9 @@ const menuVariants = {
 };
 
 const NavAccount = () => {
-  const [user, setUser] = useRecoilState(userAtom);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const user = auth.currentUser;
+  const navigate = useNavigate();
   const onClickProfile = (event) => {
     if (event.target.closest(".Menu")) return;
     setIsMenuOpen(!isMenuOpen);
@@ -165,9 +165,9 @@ const NavAccount = () => {
   const onClickOutsideMenu = () => {
     setIsMenuOpen(false);
   };
-  const onClick = () => {
-    setUser(null);
-    localStorage.removeItem("token");
+  const onClick = async () => {
+    await auth.signOut();
+    navigate(0);
   };
 
   useEffect(() => {
@@ -214,7 +214,7 @@ const NavAccount = () => {
       ) : (
         <>
           <Profile
-            $avatar={user.avatar}
+            $avatar={user.photoURL}
             className="Profile"
             onClick={onClickProfile}
           >
@@ -228,8 +228,8 @@ const NavAccount = () => {
                   className="Menu"
                 >
                   <MenuProfile>
-                    <AvatarImage src={user.avatar} />
-                    <Username>{user.username}님</Username>
+                    <AvatarImage src={user.photoURL} />
+                    <Username>{user.displayName}님</Username>
                   </MenuProfile>
                   <MenuList className="MenuList">
                     <MenuItem className="MenuItem">프로필</MenuItem>

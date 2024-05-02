@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { getOrders } from "../api";
-import { useQuery } from "react-query";
+import { useCallback, useEffect, useState } from "react";
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import { db } from "../firebase";
+import { parseISOString } from "../components/detailApply";
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -167,18 +168,37 @@ const Plan = styled.div`
   right: 30px;
 `;
 
-function parseISOString(string) {
-  const strDate = string.substring(0, 10);
-  const [y, m, d] = strDate.split("-");
-  return `${y}년 ${+m}월 ${+d}일`;
-}
-
 const OrderManagement = () => {
   const [hoverItem, setHoverItem] = useState(null);
-  const { data: orders } = useQuery("order-list", getOrders);
+  const [orders, setOrders] = useState([]);
+  const fetchOrders = useCallback(async () => {
+    try {
+      const orderQuery = query(
+        collection(db, "orders"),
+        orderBy("applyedAt", "desc"),
+        orderBy("isCompleted", "asc"),
+        limit(25)
+      );
+      const orderSnap = await getDocs(orderQuery);
+      if (orderSnap.docs.length > 0) {
+        const docs = orderSnap.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        setOrders(docs);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
   let hoverData;
   if (hoverItem !== null) {
-    hoverData = orders.data.find((order) => order._id === hoverItem);
+    hoverData = orders?.find((order) => order.id === hoverItem);
   } else {
     hoverData = null;
   }
@@ -223,14 +243,14 @@ const OrderManagement = () => {
                 <OrderDate>신청 날짜</OrderDate>
                 <OrderStatus $isComplete="header">상태</OrderStatus>
               </OrderHeader>
-              {orders?.data.map((order, index) => (
+              {orders?.map((order, index) => (
                 <li
-                  key={order._id}
-                  onMouseEnter={() => setHoverItem(order._id)}
+                  key={order.id}
+                  onMouseEnter={() => setHoverItem(order.id)}
                   onMouseLeave={() => setHoverItem(null)}
                 >
-                  <OrderLink to={`/order-management/${order._id}`}>
-                    <OrderNumber>{orders?.data.length - index}</OrderNumber>
+                  <OrderLink to={`/order-management/${order.id}`}>
+                    <OrderNumber>{orders?.length - index}</OrderNumber>
                     <OrderTitle $isComplete={order.isComplete}>
                       {order.title}
                     </OrderTitle>

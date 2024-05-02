@@ -1,8 +1,16 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
-import axiosInstance from "../axiosInstance";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -131,14 +139,31 @@ function parseISOString(string) {
 }
 
 const ApplyList = () => {
+  const user = auth.currentUser;
   const [orders, setOrders] = useState(null);
-  useEffect(() => {
-    axiosInstance
-      .get(`${process.env.REACT_APP_BACKEND_URL}/orders/getMine`)
-      .then((res) => {
-        setOrders(res.data);
+  const fetchOrders = useCallback(async () => {
+    const orderQuery = query(
+      collection(db, "orders"),
+      where("orderer", "==", user.uid),
+      orderBy("applyedAt", "desc"),
+      limit(20)
+    );
+    const querySnapshot = await getDocs(orderQuery);
+    if (querySnapshot.docs.length === 0) {
+      setOrders([]);
+    } else {
+      const docs = querySnapshot.docs.map((doc) => {
+        return {
+          id: doc.id,
+          ...doc.data(),
+        };
       });
-  }, [setOrders]);
+      setOrders(docs);
+    }
+  }, [user.uid]);
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
   return (
     <>
       <Seo title="신청 목록" />
@@ -149,7 +174,7 @@ const ApplyList = () => {
             {orders.length > 0 ? (
               orders.map((apply, index) => {
                 return (
-                  <ApplyLink key={index} to={`/apply-list/${apply._id}`}>
+                  <ApplyLink key={index} to={`/apply-list/${apply.id}`}>
                     <Apply>
                       <ApplyImage src={apply.result} />
                       <ApplyDesc>

@@ -1,11 +1,12 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
 
 const Wrapper = styled.div`
   display: flex;
@@ -142,28 +143,29 @@ const Login = styled.div`
   width: 100%;
 `;
 
+const errorMap = {
+  "auth/invalid-credential": "이메일 또는 비밀번호가 일치하지 않습니다.",
+};
+
 const Signin = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const navigate = useNavigate();
+  const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const onSubmit = (data) => {
-    axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/users/signin`, data)
-      .then((res) => {
-        if (res.status === 200) {
-          localStorage.setItem("token", res.data);
-          navigate("/");
-        }
-      })
-      .catch((error) => {
-        if (error.response.status === 400) {
-          setError(error.response.data.message);
-        }
-      });
+  const onSubmit = async (data) => {
+    if (isLoading) return;
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      window.location.href = "/";
+    } catch (e) {
+      setError(errorMap[e.code]);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <>
@@ -203,7 +205,7 @@ const Signin = () => {
           </InputContainer>
           <Login>
             {error && <ErrorMessage>{error}</ErrorMessage>}
-            <SignInButton>로그인</SignInButton>
+            <SignInButton>{isLoading ? "로그인 중.." : "로그인"}</SignInButton>
           </Login>
           <SignUpLink to="/signup">
             계정이 없으신가요? 여기를 클릭하세요.

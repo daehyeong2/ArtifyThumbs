@@ -4,10 +4,12 @@ import MainFooter from "../components/Footer";
 import pageScrollTop from "../components/pageScrollTop";
 import TopButton from "../components/TopButton";
 import styled from "styled-components";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useCallback, useEffect, useState } from "react";
+import { auth, db } from "../firebase";
+import LoadingScreen from "../components/LoadingScreen";
+import { useSetRecoilState } from "recoil";
 import { userAtom, userIsLoadedAtom } from "../atom";
-import axiosInstance from "../axiosInstance";
-import { useEffect } from "react";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -15,36 +17,40 @@ const Wrapper = styled.div`
 
 const Root = () => {
   pageScrollTop();
-  const [user, setUser] = useRecoilState(userAtom);
+  const [isLoading, setLoading] = useState(false);
+  const setUser = useSetRecoilState(userAtom);
   const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
-  const token = localStorage.getItem("token");
-  useEffect(() => {
-    if (token && !user) {
-      axiosInstance
-        .get(`${process.env.REACT_APP_BACKEND_URL}/api/get`)
-        .then((res) => {
-          if (res.status === 200) {
-            setUser(res.data);
-            setUserIsLoaded(true);
-          }
-        })
-        .catch((e) => {
-          alert(e);
-          localStorage.removeItem("token");
-          window.location.href = "/";
-        });
-    } else {
-      setUserIsLoaded(true);
+  const init = useCallback(async () => {
+    setLoading(true);
+    await auth.authStateReady();
+    if (auth.currentUser) {
+      const userQuery = query(
+        collection(db, "users"),
+        where("userId", "==", auth.currentUser.uid)
+      );
+      const user = (await getDocs(userQuery)).docs[0].data();
+      setUser(user);
     }
-  }, [token, user, setUser, setUserIsLoaded]);
+    setLoading(false);
+    setUserIsLoaded(true);
+  }, [setUser, setUserIsLoaded]);
+  useEffect(() => {
+    init();
+  }, [init]);
   return (
     <>
-      <NavBar />
-      <Wrapper>
-        <Outlet />
-      </Wrapper>
-      <MainFooter />
-      <TopButton />
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <>
+          <NavBar />
+          <Wrapper>
+            <Outlet />
+          </Wrapper>
+          <MainFooter />
+          <TopButton />
+        </>
+      )}
     </>
   );
 };
