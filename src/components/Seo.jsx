@@ -20,7 +20,10 @@ const Seo = ({
         content="그림, 간편한, 깔끔한, 빠른, 친절한, 유튜브 썸네일, 프로필 사진, 프로필 배너, 게임 일러스트, 매드무비 썸네일, 게임 썸네일"
       />
       <link rel="canonical" href="http://artifythumbs.netlify.app" />
-      <meta property="og:image" content="/img/smallLogo.jpeg" />
+      <meta
+        property="og:image"
+        content="http://artifythumbs.netlify.app/img/smallLogo.jpeg"
+      />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
     </Helmet>
