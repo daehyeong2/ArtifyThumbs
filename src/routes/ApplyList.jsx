@@ -142,9 +142,10 @@ const ApplyList = () => {
   const user = auth.currentUser;
   const [orders, setOrders] = useState(null);
   const fetchOrders = useCallback(async () => {
+    if (!user) return;
     const orderQuery = query(
       collection(db, "orders"),
-      where("orderer", "==", user?.uid),
+      where("orderer", "==", user.uid),
       orderBy("applyedAt", "desc"),
       limit(20)
     );
@@ -160,7 +161,7 @@ const ApplyList = () => {
       });
       setOrders(docs);
     }
-  }, [user?.uid]);
+  }, [user]);
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
