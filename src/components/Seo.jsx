@@ -24,8 +24,8 @@ const Seo = ({
         property="og:image"
         content="http://artifythumbs.netlify.app/img/smallLogo.jpeg"
       />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      <meta property="og:image:width" content="300" />
+      <meta property="og:image:height" content="200" />
     </Helmet>
   );
 };
