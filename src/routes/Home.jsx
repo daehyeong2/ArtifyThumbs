@@ -70,11 +70,11 @@ const AboutImage = styled.img`
   object-fit: contain;
 `;
 
-const AboutTitle = styled.h2`
+const AboutTitle = styled.h1`
   font-size: 2rem;
 `;
 
-const AboutContent = styled.p`
+const AboutContent = styled.span`
   font-size: 1.1rem;
   line-height: 1.5;
 `;
@@ -301,7 +301,7 @@ const Home = () => {
           whileInView="visible"
           viewport={{ once: true, amount: "all" }}
         >
-          <AboutImage src="/img/AboutImage/chats.jpeg" alt="chats" />
+          <AboutImage src="/img/AboutImage/chats.jpeg" alt="realtime-chats" />
           <AboutInfo>
             <AboutTitle>실시간 채팅</AboutTitle>
             <AboutContent>

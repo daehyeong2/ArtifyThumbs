@@ -146,7 +146,7 @@ const NavBar = () => {
       transition={{ duration: 0.2 }}
     >
       <Link to="/">
-        <Logo />
+        <Logo alt="logo" />
       </Link>
       <NavList>
         <NavItem

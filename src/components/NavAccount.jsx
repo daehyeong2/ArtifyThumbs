@@ -217,6 +217,7 @@ const NavAccount = () => {
             $avatar={user.photoURL}
             className="Profile"
             onClick={onClickProfile}
+            alt="profile"
           >
             <AnimatePresence>
               {isMenuOpen && (
@@ -228,7 +229,7 @@ const NavAccount = () => {
                   className="Menu"
                 >
                   <MenuProfile>
-                    <AvatarImage src={user.photoURL} />
+                    <AvatarImage src={user.photoURL} alt="profile" />
                     <Username>{user.displayName}님</Username>
                   </MenuProfile>
                   <MenuList className="MenuList">

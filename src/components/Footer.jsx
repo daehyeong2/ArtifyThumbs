@@ -169,6 +169,7 @@ const MainFooter = () => {
             initial="initial"
             whileHover="hover"
             src="/img/smallLogo.jpeg"
+            alt="logo"
           />
           <FooterSymbolText>멋진 그림을 받아보세요!</FooterSymbolText>
         </FooterSymbol>

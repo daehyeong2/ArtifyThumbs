@@ -177,7 +177,7 @@ const ApplyList = () => {
                 return (
                   <ApplyLink key={index} to={`/apply-list/${apply.id}`}>
                     <Apply>
-                      <ApplyImage src={apply.result} />
+                      <ApplyImage src={apply.result} alt="result" />
                       <ApplyDesc>
                         <ApplyHeader>
                           <ApplyTitle>
