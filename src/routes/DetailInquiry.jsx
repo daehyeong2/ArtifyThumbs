@@ -70,14 +70,15 @@ const DetailInquiry = () => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (userData?.isAdmin) {
+      if (!userData) return;
+      if (userData.isAdmin) {
         setInquiry(data);
       } else {
         alert("권한 없음");
         navigate("/");
       }
     }
-  }, [inquiryId, navigate, userData?.isAdmin]);
+  }, [inquiryId, navigate, userData]);
   useEffect(() => {
     fetchInquiry();
   }, [fetchInquiry]);

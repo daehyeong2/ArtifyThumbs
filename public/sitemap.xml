@@ -11,4 +11,12 @@
         <loc>https://artifythumbs.netlify.app/inquiry</loc>
         <lastmod>2024-04-17</lastmod>
     </url>
+    <url>
+        <loc>https://artifythumbs.netlify.app/signup</loc>
+        <lastmod>2024-04-17</lastmod>
+    </url>
+    <url>
+        <loc>https://artifythumbs.netlify.app/signin</loc>
+        <lastmod>2024-04-17</lastmod>
+    </url>
 </urlset>
