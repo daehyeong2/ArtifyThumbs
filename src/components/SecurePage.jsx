@@ -13,11 +13,11 @@ const SecurePage = ({ element, authenticatedOnly, guestOnly, adminOnly }) => {
   useEffect(() => {
     setIsClient(true);
   }, []);
-  if (!userDataIsLoaded) {
-    return <LoadingScreen />;
-  }
   if (!isClient) {
     return element;
+  }
+  if (!userDataIsLoaded) {
+    return <LoadingScreen />;
   }
   if (authenticatedOnly && !user) {
     alert("로그인이 필요한 서비스입니다.");

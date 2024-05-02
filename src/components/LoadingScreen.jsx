@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
+import Seo from "./Seo";
 
 const Wrapper = styled(motion.div)`
   width: 100vw;
@@ -37,6 +38,7 @@ const WrapperVariants = {
 const LoadingScreen = () => {
   return (
     <Wrapper variants={WrapperVariants} initial="initial" animate="animate">
+      <Seo title="로딩 중.." />
       <Logo src="/img/smallLogo.jpeg" />
       <Title>로딩 중..</Title>
     </Wrapper>
