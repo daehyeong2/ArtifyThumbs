@@ -1,17 +1,5 @@
 # 프로젝트 빌드
 FROM node:18-hydrogen AS builder
-WORKDIR /app
-COPY package*.json .
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# Production 런타임
-FROM nginxinc/nginx-unprivileged:1.23 AS runner
-WORKDIR /usr/share/nginx/html
-COPY --from=builder /app/build .
-
-# 필요한 라이브러리 설치
 RUN apt-get update && apt-get install -y \
     libasound2=1.2.6.1-1ubuntu1 \
     libatk-bridge2.0-0=2.38.0-3 \
@@ -47,6 +35,18 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1=1.3-1build4 \
     libxss1=1:1.2.3-1build2 \
     libxtst6=2:1.2.3-1build4
+WORKDIR /app
+COPY package*.json .
+RUN npm ci
+COPY . .
+RUN npm run build
+
+# Production 런타임
+FROM nginxinc/nginx-unprivileged:1.23 AS runner
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /app/build .
+
+# 필요한 라이브러리 설치
 
 ENV REACT_APP_BACKEND_URL={REACT_APP_BACKEND_URL}
 
