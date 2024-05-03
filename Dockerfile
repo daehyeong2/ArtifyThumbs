@@ -1,15 +1,8 @@
-# 프로젝트 빌드
 FROM node:16-buster AS builder
-
 WORKDIR /app
 COPY package*.json .
 RUN npm ci
 COPY . .
-
-ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
-
-# Set noninteractive mode for apt-get
-ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     gconf-service \
@@ -54,13 +47,9 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm run build
 
-# Production 런타임 - nginx
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/build .
 
-COPY nginx.conf /etc/nginx/nginx.conf
-
 EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]
-
