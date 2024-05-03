@@ -1,5 +1,5 @@
 # 프로젝트 빌드
-FROM node:16-buster AS builder
+FROM node:18-hydrogen AS builder
 WORKDIR /app
 COPY package*.json .
 RUN npm ci
