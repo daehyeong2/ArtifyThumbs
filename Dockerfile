@@ -8,6 +8,9 @@ COPY . .
 
 ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
 
+# Set noninteractive mode for apt-get
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y \
     gconf-service \
     libasound2 \
