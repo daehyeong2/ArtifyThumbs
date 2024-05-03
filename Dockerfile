@@ -1,6 +1,11 @@
 # 프로젝트 빌드
 FROM node:18-hydrogen AS builder
 
+WORKDIR /app
+COPY package*.json .
+RUN npm ci
+COPY . .
+
 RUN apt-get update && apt-get install -y \
     gconf-service \
     libasound2 \
@@ -42,10 +47,6 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     wget
 
-WORKDIR /app
-COPY package*.json .
-RUN npm ci
-COPY . .
 RUN npm run build
 
 # Production 런타임 - nginx
