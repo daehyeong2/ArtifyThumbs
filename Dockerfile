@@ -50,6 +50,10 @@ RUN npm run build
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/build .
+COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 3000
+# Remove the IPv6 script
+RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
