@@ -54,13 +54,12 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm run build
 
-FROM nginx
-RUN mkdir -p /var/cache/nginx/client_temp \
-    && chown -R nginx:nginx /var/cache/nginx/client_temp \
-    && chmod -R 755 /var/cache/nginx/client_temp
-
 # Production 런타임 - nginx
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
+RUN mkdir -p /var/cache/nginx/client_temp \
+&& chown -R nginx:nginx /var/cache/nginx/client_temp \
+    && chmod -R 755 /var/cache/nginx/client_temp
+
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/build .
 
