@@ -1,10 +1,12 @@
 # 프로젝트 빌드
-FROM node:18-hydrogen AS builder
+FROM node:16-buster AS builder
 
 WORKDIR /app
 COPY package*.json .
 RUN npm ci
 COPY . .
+
+ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
 
 RUN apt-get update && apt-get install -y \
     gconf-service \
