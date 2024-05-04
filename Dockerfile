@@ -47,13 +47,12 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm run build
 
-USER root
+FROM nginxinc/nginx-unprivileged:1.23 AS runner
+USER nginx
 
 # Remove the IPv6 script
 RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
-FROM nginxinc/nginx-unprivileged:1.23 AS runner
-USER nginx
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/build .
 COPY nginx.conf /etc/nginx/nginx.conf
