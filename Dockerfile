@@ -57,7 +57,5 @@ USER root
 # Remove the IPv6 script
 RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
-RUN sed -i '/listen \[::\]:80 ipv6only=on;/d' /etc/nginx/nginx.conf
-
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
