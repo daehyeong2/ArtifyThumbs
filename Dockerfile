@@ -50,14 +50,16 @@ RUN apt-get update && apt-get install -y \
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
-WORKDIR /usr/share/nginx/html
-COPY --from=builder /app/build .
-COPY nginx.conf /etc/nginx/nginx.conf
+USER nginx
 
 USER root
 
 # IPv6 리스닝 비활성화
 RUN sed -i '/listen \[::\]:80 ipv6only=on;/d' /etc/nginx/nginx.conf
+
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /app/build .
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
