@@ -57,5 +57,7 @@ USER root
 # Remove the IPv6 script
 RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
+RUN mkdir -p /run/nginx && chown -R nginx:nginx /run/nginx
+
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
