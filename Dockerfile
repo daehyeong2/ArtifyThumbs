@@ -4,8 +4,6 @@ COPY package*.json .
 RUN npm ci
 COPY . .
 
-RUN chown -R 1000:1000 /app
-
 RUN apt-get update && apt-get install -y \
     gconf-service \
     libasound2 \
@@ -50,16 +48,16 @@ RUN apt-get update && apt-get install -y \
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
-USER nginx
-
-USER root
-
-# IPv6 리스닝 비활성화
-RUN sed -i '/listen \[::\]:80 ipv6only=on;/d' /etc/nginx/nginx.conf
-
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/build .
 COPY nginx.conf /etc/nginx/nginx.conf
+
+USER root
+
+# Remove the IPv6 script
+RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
+
+RUN sed -i '/listen \[::\]:80 ipv6only=on;/d' /etc/nginx/nginx.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
