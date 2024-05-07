@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase";
-import { addDoc, collection } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 
 const Wrapper = styled.div`
   display: flex;
@@ -173,7 +173,8 @@ const Signup = () => {
         displayName: data.username,
         photoURL: "/img/user.jpeg",
       });
-      await addDoc(collection(db, "users"), {
+      const userRef = doc(db, "users", credentials.user.uid);
+      await setDoc(userRef, {
         username: data.username,
         isAdmin: true,
         createdAt: Date.now(),

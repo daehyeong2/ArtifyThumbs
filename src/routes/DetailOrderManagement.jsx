@@ -308,6 +308,11 @@ const DetailOrderManagement = () => {
         drafts.items.forEach(async (itemRef) => {
           await deleteObject(itemRef);
         });
+        const chatsRef = ref(storage, `chats/${orderId}/`);
+        const chats = await listAll(chatsRef);
+        chats.items.forEach(async (itemRef) => {
+          await deleteObject(itemRef);
+        });
         if (apply.isCompleted) {
           const resultRef = ref(storage, `results/${orderId}`);
           await deleteObject(resultRef);

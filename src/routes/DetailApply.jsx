@@ -160,6 +160,7 @@ const DetailApply = () => {
   const [applyDeleteIsLoading, setApplyDeleteLoading] = useState(false);
   const [chatFile, setChatFile] = useState(null);
   const [file, setFile] = useState("");
+  const [draftFile, setDraftFile] = useState("");
   const [openChat, setOpenChat] = useState(null);
 
   const onSubmit = (data) => {
@@ -294,6 +295,7 @@ const DetailApply = () => {
         console.error(e);
       } finally {
         setLoading(false);
+        setDraftFile("");
       }
     }
   };
@@ -345,6 +347,11 @@ const DetailApply = () => {
         const draftsRef = ref(storage, `drafts/${applyId}/`);
         const drafts = await listAll(draftsRef);
         drafts.items.forEach(async (itemRef) => {
+          await deleteObject(itemRef);
+        });
+        const chatsRef = ref(storage, `chats/${applyId}/`);
+        const chats = await listAll(chatsRef);
+        chats.items.forEach(async (itemRef) => {
           await deleteObject(itemRef);
         });
         const resultRef = ref(storage, `results/${applyId}`);
@@ -596,7 +603,7 @@ const DetailApply = () => {
                 {newDrafts?.map((draft, idx) => {
                   return (
                     <Draft
-                      key={idx}
+                      key={draft.imageUrl + idx + ""}
                       onClick={() => {
                         setDraftPath(draft.path);
                         setOpenDraft(draft.title);
@@ -632,6 +639,7 @@ const DetailApply = () => {
                   <TooltipContainer initial="initial" whileHover="hover">
                     <UploadIcon icon={faUpload} />
                     <FileInput
+                      value={draftFile}
                       onChange={onChangeFile}
                       id="uploadInput"
                       type="file"
