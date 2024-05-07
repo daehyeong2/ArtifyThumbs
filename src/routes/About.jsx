@@ -10,10 +10,6 @@ const Container = styled.div`
   padding: 0 25vw;
   padding-top: 140px;
   gap: 80px;
-  background-image: url("/img/background/about.jpeg");
-  background-size: 120%;
-  background-position: center left 54%;
-  background-repeat: no-repeat;
 `;
 
 const TopBar = styled.div`
@@ -262,7 +258,7 @@ const About = () => {
                 </WorkerName>
               </WorkerProfile>
               <WorkerIntroduction>
-                <span>소개글:</span> 좋은 아침입니다. 음.. 밤인가?
+                <span>소개글:</span> 편하게 신청해주세요~
               </WorkerIntroduction>
             </Worker>
           </WorkerList>

@@ -4,11 +4,18 @@ import { useForm } from "react-hook-form";
 import { AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
-import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import {
+  faDownload,
+  faUpload,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  ApplyManage,
   Back,
   BigImage,
   Chat,
+  DeleteApply,
+  DeleteImage,
   Detail,
   DetailData,
   DetailDesc,
@@ -28,6 +35,7 @@ import {
   DraftList,
   DraftTitle,
   Drafts,
+  ImageButtons,
   ImageDownload,
   ImageDownloadIcon,
   ImageViewer,
@@ -37,6 +45,7 @@ import {
   MessageList,
   Notification,
   Overlay,
+  Title,
   Tooltip,
   TooltipContainer,
   Wrapper,
@@ -46,6 +55,7 @@ import {
 } from "../components/detailApply";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -58,7 +68,13 @@ import { auth, db, storage } from "../firebase";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../atom";
 import styled from "styled-components";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import {
+  deleteObject,
+  getDownloadURL,
+  listAll,
+  ref,
+  uploadBytes,
+} from "firebase/storage";
 
 const Message = styled.li`
   display: flex;
@@ -89,6 +105,7 @@ const DetailOrderManagement = () => {
   const [apply, setApply] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setLoading] = useState(false);
+  const [openDraft, setOpenDraft] = useState(false);
   const navigate = useNavigate();
   const fetchOrder = useCallback(async () => {
     if (!user) return;
@@ -123,6 +140,8 @@ const DetailOrderManagement = () => {
   }, [fetchOrder]);
   const [chats, setChats] = useState([]);
   const [currentImage, setCurrentImage] = useState(null);
+  const [deleteIsLoading, setDeleteLoading] = useState(false);
+  const [applyDeleteIsLoading, setApplyDeleteLoading] = useState(false);
 
   const onSubmit = (data) => {
     setValue("message", "");
@@ -171,7 +190,6 @@ const DetailOrderManagement = () => {
           alert(`에러 발생: ${error}`);
         });
         socket.on("chats", (data) => {
-          console.log("recieve a data", data);
           setChats(data);
           setTimeout(() => {
             scrollDown();
@@ -218,6 +236,68 @@ const DetailOrderManagement = () => {
       }
     }
   };
+  const onDownload = async () => {
+    try {
+      const response = await fetch(currentImage);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = `${openDraft} (ArtifyThumbs 참고사진).jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+  const onDelete = async () => {
+    if (!user || !userData.isAdmin) return;
+    try {
+      setDeleteLoading(true);
+      const locationRef = ref(storage, `results/${orderId}`);
+      await deleteObject(locationRef);
+      const docRef = doc(db, `orders/${orderId}`);
+      await updateDoc(docRef, {
+        isCompleted: false,
+        result: "/img/preparing.jpeg",
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setDeleteLoading(false);
+      setCurrentImage(null);
+      setImageUrl("/img/preparing.jpeg");
+    }
+  };
+  const onCancel = async () => {
+    if (applyDeleteIsLoading || !user || !userData.isAdmin) return;
+    try {
+      const ok = window.confirm(
+        "신청을 삭제하시겠습니까? (삭제하시면 복구하실 수 없습니다.)"
+      );
+      if (ok) {
+        setApplyDeleteLoading(true);
+        const draftsRef = ref(storage, `drafts/${orderId}/`);
+        const drafts = await listAll(draftsRef);
+        drafts.items.forEach(async (itemRef) => {
+          await deleteObject(itemRef);
+        });
+        if (apply.isCompleted) {
+          const resultRef = ref(storage, `results/${orderId}`);
+          await deleteObject(resultRef);
+        }
+        const docRef = doc(db, `orders/${orderId}`);
+        await deleteDoc(docRef);
+        navigate("/order-management");
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setApplyDeleteLoading(false);
+    }
+  };
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -227,20 +307,49 @@ const DetailOrderManagement = () => {
             <Overlay
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setCurrentImage(null)}
+              onClick={() => {
+                setOpenDraft(false);
+                setCurrentImage(null);
+              }}
             />
             <ImageViewer layoutId={currentImage}>
               <BigImage src={currentImage} alt="bigImage" />
-              <ImageDownload htmlFor="bigUploadInput">
-                <ImageDownloadIcon icon={faUpload} />
-                <span>{isLoading ? "업로드 중.." : "업로드"}</span>
-                <FileInput
-                  onChange={onChangeFile}
-                  id="bigUploadInput"
-                  type="file"
-                  accept="image/*"
-                />
-              </ImageDownload>
+              <Title>
+                {openDraft
+                  ? `설명: ${openDraft}`
+                  : apply.title.length > 15
+                  ? `제목: ${apply.title.slice(0, 15)}...`
+                  : `제목: ${apply.title}`}
+              </Title>
+              <ImageButtons>
+                {!openDraft && (
+                  <DeleteImage onClick={onDelete}>
+                    <ImageDownloadIcon icon={faXmark} />
+                    <span>
+                      {deleteIsLoading ? "삭제하는 중.." : "삭제하기"}
+                    </span>
+                  </DeleteImage>
+                )}
+                <ImageDownload
+                  onClick={openDraft ? onDownload : null}
+                  htmlFor={openDraft ? "" : "bigUploadInput"}
+                >
+                  <ImageDownloadIcon icon={openDraft ? faDownload : faUpload} />
+                  <span>
+                    {openDraft
+                      ? "다운로드"
+                      : isLoading
+                      ? "업로드 중.."
+                      : "업로드"}
+                  </span>
+                  <FileInput
+                    onChange={onChangeFile}
+                    id="bigUploadInput"
+                    type="file"
+                    accept="image/*"
+                  />
+                </ImageDownload>
+              </ImageButtons>
             </ImageViewer>
           </>
         )}
@@ -252,9 +361,13 @@ const DetailOrderManagement = () => {
             <Detail>
               <DetailResult>
                 <DetailImage
-                  $isCompleted={imageUrl ? true : apply.isCompleted}
+                  $isCompleted={
+                    imageUrl && imageUrl !== "/img/preparing.jpeg"
+                      ? true
+                      : apply.isCompleted
+                  }
                   onClick={
-                    imageUrl
+                    imageUrl && imageUrl !== "/img/preparing.jpeg"
                       ? () => setCurrentImage(imageUrl)
                       : apply.isCompleted
                       ? () => setCurrentImage(apply.result)
@@ -301,6 +414,13 @@ const DetailOrderManagement = () => {
                 </DetailData>
                 <DetailData>신청인: {apply.orderer.username}</DetailData>
               </DetailMetaData>
+              <ApplyManage>
+                <DeleteApply onClick={onCancel}>
+                  {applyDeleteIsLoading
+                    ? "신청 삭제하는 중.."
+                    : "신청 삭제하기"}
+                </DeleteApply>
+              </ApplyManage>
             </Detail>
             <Chat>
               <MessageList ref={ulRef}>
@@ -350,11 +470,15 @@ const DetailOrderManagement = () => {
                 {apply.plan === "pro" ? "12" : "6"})
               </DraftTitle>
               <DraftList>
-                {apply.drafts.map((draft) => {
+                {apply.drafts.map((draft, idx) => {
                   return (
                     <Draft
-                      onClick={() => setCurrentImage(draft.imageUrl)}
+                      onClick={() => {
+                        setOpenDraft(draft.title);
+                        setCurrentImage(draft.imageUrl);
+                      }}
                       layoutId={draft.imageUrl}
+                      key={idx}
                     >
                       <DraftImage src={draft.imageUrl} alt="draftImage" />
                       <DraftDesc>{draft.title}</DraftDesc>

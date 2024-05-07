@@ -49,6 +49,7 @@ export const DetailImage = styled(motion.img)`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
   border-radius: 15px;
   cursor: ${(props) => (props.$isCompleted ? "pointer" : "default")};
 `;
@@ -287,7 +288,7 @@ export const Overlay = styled(motion.div)`
 
 export const ImageViewer = styled(motion.div)`
   position: fixed;
-  height: 68vh;
+  height: 70vh;
   width: 58vw;
   right: 0;
   left: 0;
@@ -299,8 +300,7 @@ export const ImageViewer = styled(motion.div)`
   align-items: center;
   z-index: 4;
   background-color: white;
-  padding: 25px;
-  padding-bottom: 60px;
+  padding: 60px 25px;
   box-sizing: border-box;
   border-radius: 15px;
 `;
@@ -314,8 +314,18 @@ export const BigImage = styled.img`
   border: 2px solid #1b9cfc;
 `;
 
-export const ImageDownload = styled.label`
+export const ImageButtons = styled.div`
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 15px;
+  right: 25px;
+  bottom: 12px;
+  width: 100%;
+`;
+
+export const ImageDownload = styled.label`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -323,9 +333,21 @@ export const ImageDownload = styled.label`
   font-size: 18px;
   color: white;
   gap: 15px;
-  right: 25px;
-  bottom: 12px;
   background-color: #0984e3;
+  padding: 8px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+`;
+
+export const DeleteImage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  gap: 15px;
+  background-color: #ea2027;
   padding: 8px 13px;
   border-radius: 10px;
   cursor: pointer;
@@ -353,7 +375,7 @@ export function parseISOString(string) {
   return `${y}년 ${+m}월 ${+d}일`;
 }
 
-export const DraftUploadButton = styled.div`
+export const DraftUploadButton = styled.label`
   position: absolute;
   right: 38px;
   bottom: 30px;
@@ -365,5 +387,29 @@ export const UploadIcon = styled(FontAwesomeIcon)`
   padding: 8px;
   font-size: 2.2rem;
   background-color: white;
+  cursor: pointer;
+`;
+
+export const Title = styled.h1`
+  position: absolute;
+  left: 30px;
+  top: 15px;
+  font-size: 28px;
+  font-weight: bold;
+`;
+
+export const ApplyManage = styled.div`
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+  width: 100%;
+`;
+
+export const DeleteApply = styled.div`
+  padding: 8px 13px;
+  font-weight: bold;
+  background-color: #ea2027;
+  border-radius: 10px;
+  color: white;
   cursor: pointer;
 `;

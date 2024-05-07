@@ -18,6 +18,19 @@ const Container = styled.div`
   padding-top: 120px;
 `;
 
+const Overlay = styled.div`
+  top: 0;
+  z-index: -1;
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("/img/smallLogo.jpeg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 250px;
+  opacity: 0.2;
+`;
+
 const Title = styled.h1`
   font-size: 2.5rem;
   padding: 0 40px;
@@ -39,6 +52,18 @@ const ApplyLink = styled(Link)`
   color: inherit;
 `;
 
+const ApplyImage = styled.div`
+  width: 100%;
+  height: 205px;
+  background-image: url(${(props) => props.$src});
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 10px 10px 0 0;
+  transition: scale 0.2s ease-in-out;
+  background-color: white;
+`;
+
 const Apply = styled.li`
   overflow: hidden;
   height: 300px;
@@ -51,20 +76,18 @@ const Apply = styled.li`
   cursor: pointer;
   &:hover {
     transform: translateY(-5px);
+    ${ApplyImage} {
+      scale: 1.1;
+    }
   }
-`;
-
-const ApplyImage = styled.img`
-  width: 100%;
-  height: 205px;
-  object-fit: cover;
-  border-radius: 10px 10px 0 0;
 `;
 
 const ApplyDesc = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  z-index: 10;
+  background-color: white;
   gap: 20px;
   padding: 20px;
 `;
@@ -101,7 +124,7 @@ const ApplyMessage = styled.h2`
   display: flex;
   width: 300px;
   flex-direction: column;
-  margin-top: 110px;
+  margin-top: 120px;
   align-items: center;
   gap: 10px;
 `;
@@ -170,6 +193,7 @@ const ApplyList = () => {
     <>
       <Seo title="신청 목록" />
       <Container>
+        <Overlay />
         <Title>내 신청 목록</Title>
         {orders && (
           <List $isExist={orders.length > 0}>
@@ -178,7 +202,7 @@ const ApplyList = () => {
                 return (
                   <ApplyLink key={index} to={`/apply-list/${apply.id}`}>
                     <Apply>
-                      <ApplyImage src={apply.result} alt="result" />
+                      <ApplyImage $src={apply.result} alt="result" />
                       <ApplyDesc>
                         <ApplyHeader>
                           <ApplyTitle>
