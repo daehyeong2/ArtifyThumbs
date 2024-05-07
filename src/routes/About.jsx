@@ -258,7 +258,7 @@ const About = () => {
                 </WorkerName>
               </WorkerProfile>
               <WorkerIntroduction>
-                <span>소개글:</span> 편하게 신청해주세요~
+                <span>소개글:</span> 편하게 신청해 주세요~
               </WorkerIntroduction>
             </Worker>
           </WorkerList>

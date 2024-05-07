@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import {
   faDownload,
+  faPlus,
   faUpload,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -31,7 +32,6 @@ import {
   DownloadContainer,
   Draft,
   DraftDesc,
-  DraftImage,
   DraftList,
   DraftTitle,
   Drafts,
@@ -40,16 +40,24 @@ import {
   ImageDownloadIcon,
   ImageViewer,
   MessageButton,
+  MessageFile,
   MessageForm,
+  MessageImage,
+  MessageImageContainer,
+  MessageImageTitle,
   MessageInput,
   MessageList,
+  MessageUpload,
+  MessageUploadIcon,
   Notification,
   Overlay,
   Title,
   Tooltip,
   TooltipContainer,
   Wrapper,
+  cutString,
   messageButtonVariants,
+  messageImageVariants,
   parseISOString,
   tooltipVariants,
 } from "../components/detailApply";
@@ -75,11 +83,18 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
+import ChatLazyImage from "../components/ChatLazyImage";
+import DraftLazyImage from "../components/DraftLazyImage";
 
 const Message = styled.li`
   display: flex;
   justify-content: ${(props) => (props.$isMe ? "flex-start" : "flex-end")};
   span {
+    display: flex;
+    flex-direction: column;
+    word-break: break-all;
+    line-height: 1.1;
+    gap: 10px;
     font-size: 1.1rem;
     padding: 10px 15px;
     border-radius: 15px;
@@ -142,6 +157,9 @@ const DetailOrderManagement = () => {
   const [currentImage, setCurrentImage] = useState(null);
   const [deleteIsLoading, setDeleteLoading] = useState(false);
   const [applyDeleteIsLoading, setApplyDeleteLoading] = useState(false);
+  const [chatFile, setChatFile] = useState(null);
+  const [file, setFile] = useState("");
+  const [openChat, setOpenChat] = useState(null);
 
   const onSubmit = (data) => {
     setValue("message", "");
@@ -152,16 +170,18 @@ const DetailOrderManagement = () => {
     }
     socket.emit(
       "chat_message",
-      { message: data.message, isMe: false },
+      { message: data.message, isMe: false, imageUrl: chatFile?.imageUrl },
       orderId
     );
-    paint_message(data.message, false);
+    paint_message(data.message, false, chatFile?.imageUrl);
   };
 
   const paint_message = useCallback(
-    (message, isMe) => {
-      setChats((prev) => [...prev, { message, isMe }]);
+    (message, isMe, imageUrl) => {
+      setChats((prev) => [...prev, { message, isMe, imageUrl }]);
       const ulElement = ulRef.current;
+      setFile("");
+      setChatFile(null);
       setTimeout(() => {
         if (
           !isMe ||
@@ -243,7 +263,11 @@ const DetailOrderManagement = () => {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `${openDraft} (ArtifyThumbs 참고사진).jpg`;
+      if (openChat) {
+        link.download = `${openChat} (ArtifyThumbs 채팅사진).jpg`;
+      } else {
+        link.download = `${openDraft} (ArtifyThumbs 참고사진).jpg`;
+      }
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -298,6 +322,41 @@ const DetailOrderManagement = () => {
       setApplyDeleteLoading(false);
     }
   };
+  const onUpload = async (e) => {
+    const { files } = e.target;
+    if (files && files.length === 1) {
+      const file = files[0];
+      try {
+        const locationRef = ref(storage, `chats/${orderId}/${Date.now()}`);
+        const result = await uploadBytes(locationRef, file);
+        const resultUrl = await getDownloadURL(result.ref);
+        setChatFile({
+          ref: locationRef,
+          imageUrl: resultUrl,
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+  const onDeleteImage = useCallback(async () => {
+    if (chatFile) {
+      await deleteObject(chatFile.ref);
+      setFile("");
+      return setChatFile(null);
+    }
+  }, [chatFile]);
+  useEffect(() => {
+    const deleteFunction = () => {
+      onDeleteImage();
+    };
+    if (chatFile) {
+      window.addEventListener("beforeunload", deleteFunction);
+    }
+    return () => {
+      window.removeEventListener("beforeunload", deleteFunction);
+    };
+  }, [onDeleteImage, chatFile]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -309,6 +368,7 @@ const DetailOrderManagement = () => {
               exit={{ opacity: 0 }}
               onClick={() => {
                 setOpenDraft(false);
+                setOpenChat(false);
                 setCurrentImage(null);
               }}
             />
@@ -316,13 +376,13 @@ const DetailOrderManagement = () => {
               <BigImage src={currentImage} alt="bigImage" />
               <Title>
                 {openDraft
-                  ? `설명: ${openDraft}`
-                  : apply.title.length > 15
-                  ? `제목: ${apply.title.slice(0, 15)}...`
-                  : `제목: ${apply.title}`}
+                  ? `설명: ${cutString(openDraft, 20)}`
+                  : openChat
+                  ? `채팅: ${cutString(openChat, 20)}`
+                  : `제목: ${cutString(apply.title, 20)}`}
               </Title>
               <ImageButtons>
-                {!openDraft && (
+                {!openChat && !openDraft && (
                   <DeleteImage onClick={onDelete}>
                     <ImageDownloadIcon icon={faXmark} />
                     <span>
@@ -331,12 +391,14 @@ const DetailOrderManagement = () => {
                   </DeleteImage>
                 )}
                 <ImageDownload
-                  onClick={openDraft ? onDownload : null}
-                  htmlFor={openDraft ? "" : "bigUploadInput"}
+                  onClick={openDraft || openChat ? onDownload : null}
+                  htmlFor={openDraft || openChat ? "" : "bigUploadInput"}
                 >
-                  <ImageDownloadIcon icon={openDraft ? faDownload : faUpload} />
+                  <ImageDownloadIcon
+                    icon={openDraft || openChat ? faDownload : faUpload}
+                  />
                   <span>
-                    {openDraft
+                    {openDraft || openChat
                       ? "다운로드"
                       : isLoading
                       ? "업로드 중.."
@@ -429,14 +491,36 @@ const DetailOrderManagement = () => {
                     {apply.chats.map((chat, index) => {
                       return (
                         <Message key={index} $isMe={chat.isMe}>
-                          <span>{chat.message}</span>
+                          <span>
+                            {chat.message}
+                            {chat.imageUrl && (
+                              <ChatLazyImage
+                                onClick={() => {
+                                  setOpenChat(chat.message);
+                                  setCurrentImage(chat.imageUrl);
+                                }}
+                                src={chat.imageUrl}
+                              />
+                            )}
+                          </span>
                         </Message>
                       );
                     })}
                     {chats.map((chat, index) => {
                       return (
                         <Message key={index} $isMe={chat.isMe}>
-                          <span>{chat.message}</span>
+                          <span>
+                            {chat.message}
+                            {chat.imageUrl && (
+                              <ChatLazyImage
+                                onClick={() => {
+                                  setOpenChat(chat.message);
+                                  setCurrentImage(chat.imageUrl);
+                                }}
+                                src={chat.imageUrl}
+                              />
+                            )}
+                          </span>
                         </Message>
                       );
                     })}
@@ -448,6 +532,34 @@ const DetailOrderManagement = () => {
                 )}
               </MessageList>
               <MessageForm onSubmit={handleSubmit(onSubmit)}>
+                <AnimatePresence>
+                  {chatFile && (
+                    <MessageImageContainer
+                      variants={messageImageVariants}
+                      initial="initial"
+                      animate="animate"
+                      whileHover="hover"
+                      exit="exit"
+                    >
+                      <MessageImageTitle>함께 전송할 사진</MessageImageTitle>
+                      <MessageImage $src={chatFile.imageUrl} />
+                    </MessageImageContainer>
+                  )}
+                </AnimatePresence>
+                <MessageUpload
+                  $added={Boolean(chatFile)}
+                  onClick={chatFile ? onDeleteImage : null}
+                  htmlFor={chatFile ? "" : "chatImage"}
+                >
+                  <MessageUploadIcon icon={chatFile ? faXmark : faPlus} />
+                </MessageUpload>
+                <MessageFile
+                  value={file}
+                  onChange={onUpload}
+                  type="file"
+                  accept="image/*"
+                  id="chatImage"
+                />
                 <MessageInput
                   {...register("message", { required: true })}
                   type="text"
@@ -480,7 +592,7 @@ const DetailOrderManagement = () => {
                       layoutId={draft.imageUrl}
                       key={idx}
                     >
-                      <DraftImage src={draft.imageUrl} alt="draftImage" />
+                      <DraftLazyImage src={draft.imageUrl} alt="draftImage" />
                       <DraftDesc>{draft.title}</DraftDesc>
                     </Draft>
                   );

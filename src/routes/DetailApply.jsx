@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import {
   faDownload,
+  faPlus,
   faUpload,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -40,7 +41,6 @@ import {
   DownloadContainer,
   Draft,
   DraftDesc,
-  DraftImage,
   DraftList,
   DraftTitle,
   Drafts,
@@ -66,6 +66,14 @@ import {
   Title,
   ApplyManage,
   DeleteApply,
+  MessageUpload,
+  MessageUploadIcon,
+  MessageFile,
+  MessageImage,
+  MessageImageContainer,
+  MessageImageTitle,
+  cutString,
+  messageImageVariants,
 } from "../components/detailApply";
 import styled from "styled-components";
 import {
@@ -75,11 +83,19 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage";
+import ChatLazyImage from "../components/ChatLazyImage";
+import DraftLazyImage from "../components/DraftLazyImage";
 
 const Message = styled.li`
   display: flex;
   justify-content: ${(props) => (!props.$isMe ? "flex-start" : "flex-end")};
   span {
+    display: flex;
+    flex-direction: column;
+    word-break: break-all;
+    line-height: 1.1;
+    gap: 10px;
+    max-width: 400px;
     font-size: 1.1rem;
     padding: 10px 15px;
     border-radius: 15px;
@@ -142,6 +158,9 @@ const DetailApply = () => {
   const [deleteIsLoading, setDeleteIsLoading] = useState(false);
   const [draftPath, setDraftPath] = useState(null);
   const [applyDeleteIsLoading, setApplyDeleteLoading] = useState(false);
+  const [chatFile, setChatFile] = useState(null);
+  const [file, setFile] = useState("");
+  const [openChat, setOpenChat] = useState(null);
 
   const onSubmit = (data) => {
     if (!data.message) return;
@@ -151,13 +170,19 @@ const DetailApply = () => {
       alert("권한 없음");
       return navigate("/");
     }
-    socket.emit("chat_message", { message: data.message, isMe: true }, applyId);
-    paint_message(data.message, true);
+    socket.emit(
+      "chat_message",
+      { message: data.message, isMe: true, imageUrl: chatFile?.imageUrl },
+      applyId
+    );
+    paint_message(data.message, true, chatFile?.imageUrl);
   };
 
   const paint_message = useCallback(
-    (message, isMe) => {
-      setChats((prev) => [...prev, { message, isMe }]);
+    (message, isMe, imageUrl) => {
+      setChats((prev) => [...prev, { message, isMe, imageUrl }]);
+      setFile("");
+      setChatFile(null);
       const ulElement = ulRef.current;
       setTimeout(() => {
         if (
@@ -211,12 +236,16 @@ const DetailApply = () => {
   }, [apply]);
   const onDownload = async () => {
     try {
-      const response = await fetch(openDraft ? currentImage : apply.result);
+      const response = await fetch(
+        openDraft || openChat ? currentImage : apply.result
+      );
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      if (openDraft) {
+      if (openChat) {
+        link.download = `${openChat} (ArtifyThumbs 채팅사진).jpg`;
+      } else if (openDraft) {
         link.download = `${openDraft} (ArtifyThumbs 참고사진).jpg`;
       } else {
         link.download = `${apply.title} (ArtifyThumbs 완성본).jpg`;
@@ -330,6 +359,41 @@ const DetailApply = () => {
       setApplyDeleteLoading(false);
     }
   };
+  const onUpload = async (e) => {
+    const { files } = e.target;
+    if (files && files.length === 1) {
+      const file = files[0];
+      try {
+        const locationRef = ref(storage, `chats/${applyId}/${Date.now()}`);
+        const result = await uploadBytes(locationRef, file);
+        const resultUrl = await getDownloadURL(result.ref);
+        setChatFile({
+          ref: locationRef,
+          imageUrl: resultUrl,
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+  const onDeleteImage = useCallback(async () => {
+    if (chatFile) {
+      await deleteObject(chatFile.ref);
+      setFile("");
+      return setChatFile(null);
+    }
+  }, [chatFile]);
+  useEffect(() => {
+    const deleteFunction = () => {
+      onDeleteImage();
+    };
+    if (chatFile) {
+      window.addEventListener("beforeunload", deleteFunction);
+    }
+    return () => {
+      window.removeEventListener("beforeunload", deleteFunction);
+    };
+  }, [onDeleteImage, chatFile]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -341,6 +405,7 @@ const DetailApply = () => {
               exit={{ opacity: 0 }}
               onClick={() => {
                 setOpenDraft(false);
+                setOpenChat(false);
                 setCurrentImage(null);
               }}
             />
@@ -348,10 +413,10 @@ const DetailApply = () => {
               <BigImage src={currentImage} alt="bigImage" />
               <Title>
                 {openDraft
-                  ? `설명: ${openDraft}`
-                  : apply.title.length > 15
-                  ? `제목: ${apply.title.slice(0, 15)}...`
-                  : `제목: ${apply.title}`}
+                  ? `설명: ${cutString(openDraft, 20)}`
+                  : openChat
+                  ? `채팅: ${cutString(openChat, 20)}`
+                  : `제목: ${cutString(apply.title, 20)}`}
               </Title>
               <ImageButtons>
                 {openDraft && (
@@ -437,14 +502,36 @@ const DetailApply = () => {
                     {apply.chats.map((chat, index) => {
                       return (
                         <Message key={index} $isMe={chat.isMe}>
-                          <span>{chat.message}</span>
+                          <span>
+                            {chat.message}
+                            {chat.imageUrl && (
+                              <ChatLazyImage
+                                onClick={() => {
+                                  setOpenChat(chat.message);
+                                  setCurrentImage(chat.imageUrl);
+                                }}
+                                src={chat.imageUrl}
+                              />
+                            )}
+                          </span>
                         </Message>
                       );
                     })}
                     {chats.map((chat, index) => {
                       return (
                         <Message key={index} $isMe={chat.isMe}>
-                          <span>{chat.message}</span>
+                          <span>
+                            {chat.message}
+                            {chat.imageUrl && (
+                              <ChatLazyImage
+                                onClick={() => {
+                                  setOpenChat(chat.message);
+                                  setCurrentImage(chat.imageUrl);
+                                }}
+                                src={chat.imageUrl}
+                              />
+                            )}
+                          </span>
                         </Message>
                       );
                     })}
@@ -456,6 +543,34 @@ const DetailApply = () => {
                 )}
               </MessageList>
               <MessageForm onSubmit={handleSubmit(onSubmit)}>
+                <AnimatePresence>
+                  {chatFile && (
+                    <MessageImageContainer
+                      variants={messageImageVariants}
+                      initial="initial"
+                      animate="animate"
+                      whileHover="hover"
+                      exit="exit"
+                    >
+                      <MessageImageTitle>함께 전송할 사진</MessageImageTitle>
+                      <MessageImage $src={chatFile.imageUrl} />
+                    </MessageImageContainer>
+                  )}
+                </AnimatePresence>
+                <MessageUpload
+                  $added={Boolean(chatFile)}
+                  onClick={chatFile ? onDeleteImage : null}
+                  htmlFor={chatFile ? "" : "chatImage"}
+                >
+                  <MessageUploadIcon icon={chatFile ? faXmark : faPlus} />
+                </MessageUpload>
+                <MessageFile
+                  value={file}
+                  onChange={onUpload}
+                  type="file"
+                  accept="image/*"
+                  id="chatImage"
+                />
                 <MessageInput
                   {...register("message", { required: true })}
                   type="text"
@@ -489,7 +604,7 @@ const DetailApply = () => {
                       }}
                       layoutId={draft.imageUrl}
                     >
-                      <DraftImage src={draft.imageUrl} alt="draftImage" />
+                      <DraftLazyImage src={draft.imageUrl} alt="draftImage" />
                       <DraftDesc>{draft.title}</DraftDesc>
                     </Draft>
                   );
@@ -505,7 +620,7 @@ const DetailApply = () => {
                       }}
                       layoutId={draft.imageUrl}
                     >
-                      <DraftImage src={draft.imageUrl} alt="draftImage" />
+                      <DraftLazyImage src={draft.imageUrl} alt="draftImage" />
                       <DraftDesc>{draft.title}</DraftDesc>
                     </Draft>
                   );

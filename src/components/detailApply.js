@@ -143,8 +143,9 @@ export const MessageList = styled.ul`
 export const MessageForm = styled.form`
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
   padding: 10px;
+  position: relative;
 `;
 
 export const MessageInput = styled.input`
@@ -413,3 +414,97 @@ export const DeleteApply = styled.div`
   color: white;
   cursor: pointer;
 `;
+
+export const MessageFile = styled.input`
+  display: none;
+`;
+
+export const MessageUpload = styled.label`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 7px;
+  border-radius: 50%;
+  border: 1px solid
+    ${(props) => (props.$added ? "white" : "rgba(0, 0, 0, 0.2)")};
+  background-color: ${(props) => (props.$added ? "#ea2027" : "white")};
+  color: ${(props) => (props.$added ? "white" : "black")};
+  cursor: pointer;
+  transition: border 0.1s ease-in-out;
+  &:hover {
+    border: 1px solid ${(props) => (props.$added ? "white" : "#0097e6")};
+  }
+`;
+
+export const MessageUploadIcon = styled(FontAwesomeIcon)`
+  width: 27px;
+  height: 27px;
+`;
+
+export const MessageImageContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: absolute;
+  top: -310px;
+  height: 300px;
+  width: fit-content;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  padding: 30px;
+  padding-top: 15px;
+  gap: 15px;
+  border-radius: 15px;
+  box-sizing: border-box;
+  background-color: #efefef;
+`;
+
+export const MessageImageTitle = styled.h2`
+  font-size: 20px;
+  font-weight: bold;
+`;
+
+export const MessageImage = styled.div`
+  border-radius: 15px;
+  width: 200px;
+  height: 100%;
+  background-image: url(${(props) => props.$src});
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border: 1px solid #0097e6;
+  transition: 0.1s ease-in-out;
+  opacity: 1;
+`;
+
+export const ImageMessage = styled(motion.div)`
+  background-image: url(${(props) => props.$src});
+  background-position: center;
+  background-size: cover;
+  width: 400px;
+  height: 200px;
+  border-radius: 15px;
+  cursor: pointer;
+`;
+export const cutString = (text, index) => {
+  if (text.length > index) {
+    return `${text.slice(0, index)}...`;
+  }
+  return text;
+};
+
+export const messageImageVariants = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
+  },
+  exit: {
+    opacity: 0,
+  },
+  hover: {
+    opacity: 0.8,
+  },
+};
