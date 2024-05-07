@@ -45,6 +45,9 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     wget
 
+ENV NODE_ENV ${NODE_ENV}
+ENV REACT_APP_BACKEND_URL ${REACT_APP_BACKEND_URL}
+
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
