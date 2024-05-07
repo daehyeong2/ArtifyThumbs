@@ -188,7 +188,10 @@ const Signup = () => {
   };
   return (
     <>
-      <Seo title="회원가입" />
+      <Seo
+        title="회원가입"
+        description="ArtifyThumbs의 계정을 만들어서 원하는 그림을 신청해 보세요!"
+      />
       <Wrapper>
         <Overlay />
         <Form onSubmit={handleSubmit(onSubmit)}>

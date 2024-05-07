@@ -15,6 +15,7 @@ import DetailOrderManagement from "./routes/DetailOrderManagement";
 import SecurePage from "./components/SecurePage";
 import InquiryList from "./routes/InquiryList";
 import DetailInquiry from "./routes/DetailInquiry";
+import Profile from "./routes/Profile";
 
 const router = createBrowserRouter([
   {
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
             element: <DetailInquiry />,
           },
         ],
+      },
+      {
+        path: "profile",
+        element: <SecurePage element={<Profile />} authenticatedOnly />,
       },
     ],
   },

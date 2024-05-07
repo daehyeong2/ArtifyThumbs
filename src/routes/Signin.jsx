@@ -169,7 +169,10 @@ const Signin = () => {
   };
   return (
     <>
-      <Seo title="로그인" />
+      <Seo
+        title="로그인"
+        description="ArtifyThumbs의 계정에 로그인해서 원하는 그림을 요청해 보세요!"
+      />
       <Wrapper>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <FormTitle>로그인</FormTitle>

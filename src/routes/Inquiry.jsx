@@ -209,7 +209,10 @@ const Inquiry = () => {
   };
   return (
     <>
-      <Seo title="문의하기" />
+      <Seo
+        title="문의하기"
+        description="ArtifyThumbs에 대해 모르는 것을 문의해 보세요."
+      />
       <Wrapper>
         <InquirySection>
           <Container>

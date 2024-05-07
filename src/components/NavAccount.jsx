@@ -94,13 +94,13 @@ const MenuItem = styled(Link)`
 `;
 
 const MenuProfile = styled.section`
-  width: 100px;
+  min-width: 100px;
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 7px;
 `;
 
 const AvatarImage = styled.img`
@@ -113,6 +113,7 @@ const AvatarImage = styled.img`
 
 const Username = styled.h2`
   font-weight: bold;
+  width: max-content;
 `;
 
 const signInVariants = {
@@ -233,7 +234,9 @@ const NavAccount = () => {
                     <Username>{user.displayName}님</Username>
                   </MenuProfile>
                   <MenuList className="MenuList">
-                    <MenuItem className="MenuItem">프로필</MenuItem>
+                    <MenuItem to="/profile" className="MenuItem">
+                      프로필
+                    </MenuItem>
                     <MenuItem className="MenuItem">설정</MenuItem>
                     <MenuItem onClick={onClick} className="MenuItem">
                       로그아웃
