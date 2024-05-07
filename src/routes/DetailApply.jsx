@@ -189,7 +189,7 @@ const DetailApply = () => {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = "downloaded_image.jpg";
+      link.download = "완성본 (ArtifyThumbs).jpg";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

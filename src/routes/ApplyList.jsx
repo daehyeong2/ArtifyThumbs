@@ -146,6 +146,7 @@ const ApplyList = () => {
     const orderQuery = query(
       collection(db, "orders"),
       where("orderer", "==", user.uid),
+      orderBy("isCompleted", "asc"),
       orderBy("applyedAt", "desc"),
       limit(20)
     );
