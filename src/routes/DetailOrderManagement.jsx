@@ -51,12 +51,14 @@ import {
   getDocs,
   limit,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../atom";
 import styled from "styled-components";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Message = styled.li`
   display: flex;
@@ -72,6 +74,10 @@ const Message = styled.li`
   }
 `;
 
+const FileInput = styled.input`
+  display: none;
+`;
+
 let socket = null;
 
 const DetailOrderManagement = () => {
@@ -81,6 +87,8 @@ const DetailOrderManagement = () => {
   const { register, handleSubmit, setValue, setFocus } = useForm();
   const { orderId } = useParams();
   const [apply, setApply] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
   const fetchOrder = useCallback(async () => {
     if (!user) return;
@@ -88,7 +96,7 @@ const DetailOrderManagement = () => {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
-      if (data.orderer === user.uid) {
+      if (userData.isAdmin || data.orderer === user.uid) {
         const userQuery = query(
           collection(db, "users"),
           where("userId", "==", data.orderer),
@@ -109,7 +117,7 @@ const DetailOrderManagement = () => {
       alert("없는 주문입니다.");
       navigate("/");
     }
-  }, [orderId, navigate, user]);
+  }, [orderId, navigate, user, userData]);
   useEffect(() => {
     fetchOrder();
   }, [fetchOrder]);
@@ -187,6 +195,29 @@ const DetailOrderManagement = () => {
       scrollDown();
     }
   }, [apply]);
+  const onChangeFile = async (e) => {
+    const { files } = e.target;
+    if (isLoading || !user || !userData.isAdmin) return;
+    if (files && files.length === 1) {
+      try {
+        setLoading(true);
+        const file = files[0];
+        const locatoinRef = ref(storage, `results/${orderId}`);
+        const result = await uploadBytes(locatoinRef, file);
+        const resultUrl = await getDownloadURL(result.ref);
+        setImageUrl(resultUrl);
+        if (currentImage) {
+          setCurrentImage(resultUrl);
+        }
+        const docRef = doc(db, "orders", orderId);
+        await updateDoc(docRef, { result: resultUrl, isCompleted: true });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -200,9 +231,15 @@ const DetailOrderManagement = () => {
             />
             <ImageViewer layoutId={currentImage}>
               <BigImage src={currentImage} alt="bigImage" />
-              <ImageDownload>
+              <ImageDownload htmlFor="bigUploadInput">
                 <ImageDownloadIcon icon={faUpload} />
-                <span>업로드</span>
+                <span>{isLoading ? "업로드 중.." : "업로드"}</span>
+                <FileInput
+                  onChange={onChangeFile}
+                  id="bigUploadInput"
+                  type="file"
+                  accept="image/*"
+                />
               </ImageDownload>
             </ImageViewer>
           </>
@@ -215,24 +252,33 @@ const DetailOrderManagement = () => {
             <Detail>
               <DetailResult>
                 <DetailImage
-                  $isCompleted={apply.isCompleted}
+                  $isCompleted={imageUrl ? true : apply.isCompleted}
                   onClick={
-                    apply.isCompleted
+                    imageUrl
+                      ? () => setCurrentImage(imageUrl)
+                      : apply.isCompleted
                       ? () => setCurrentImage(apply.result)
                       : null
                   }
-                  layoutId={apply.result}
-                  src={apply.result}
+                  key={imageUrl ?? apply.result}
+                  layoutId={imageUrl ?? apply.result}
+                  src={imageUrl ?? apply.result}
                   alt="ApplyImage"
                 ></DetailImage>
-                <DownloadContainer>
+                <DownloadContainer htmlFor="uploadInput">
                   <TooltipContainer initial="initial" whileHover="hover">
                     <Download icon={faUpload} />
+                    <FileInput
+                      onChange={onChangeFile}
+                      id="uploadInput"
+                      type="file"
+                      accept="image/*"
+                    />
                     <Tooltip
                       transition={{ duration: 0.2 }}
                       variants={tooltipVariants}
                     >
-                      업로드
+                      {isLoading ? "업로드 중.." : "업로드"}
                     </Tooltip>
                   </TooltipContainer>
                 </DownloadContainer>

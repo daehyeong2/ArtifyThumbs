@@ -154,8 +154,8 @@ const InquiryManagement = () => {
     try {
       const inquiryQuery = query(
         collection(db, "inquiries"),
-        orderBy("createdAt", "desc"),
         orderBy("isAnswered", "asc"),
+        orderBy("createdAt", "desc"),
         limit(25)
       );
       const inquirySnap = await getDocs(inquiryQuery);

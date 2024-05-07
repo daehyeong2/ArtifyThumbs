@@ -223,7 +223,7 @@ export const DraftDesc = styled.p`
   font-size: 1.2rem;
 `;
 
-export const DownloadContainer = styled.div`
+export const DownloadContainer = styled.label`
   position: absolute;
   bottom: 10px;
   right: 10px;
@@ -314,7 +314,7 @@ export const BigImage = styled.img`
   border: 2px solid #1b9cfc;
 `;
 
-export const ImageDownload = styled.div`
+export const ImageDownload = styled.label`
   position: absolute;
   display: flex;
   justify-content: center;

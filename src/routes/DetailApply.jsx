@@ -182,6 +182,22 @@ const DetailApply = () => {
       scrollDown();
     }
   }, [apply]);
+  const onDownload = async () => {
+    try {
+      const response = await fetch(apply.result);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = "downloaded_image.jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -195,7 +211,7 @@ const DetailApply = () => {
             />
             <ImageViewer layoutId={currentImage}>
               <BigImage src={currentImage} alt="bigImage" />
-              <ImageDownload>
+              <ImageDownload onClick={onDownload}>
                 <ImageDownloadIcon icon={faDownload} />
                 <span>다운로드</span>
               </ImageDownload>
@@ -221,9 +237,9 @@ const DetailApply = () => {
                   alt="ApplyImage"
                 ></DetailImage>
                 {apply.isCompleted && (
-                  <DownloadContainer>
+                  <DownloadContainer onClick={onDownload}>
                     <TooltipContainer initial="initial" whileHover="hover">
-                      <Download className="fa-solid fa-download" />
+                      <Download icon={faDownload} />
                       <Tooltip
                         transition={{ duration: 0.2 }}
                         variants={tooltipVariants}
