@@ -57,7 +57,5 @@ USER root
 # Remove the IPv6 script
 RUN rm /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
 
-ENV REACT_APP_BACKEND_URL ${REACT_APP_BACKEND_URL}
-
 EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
