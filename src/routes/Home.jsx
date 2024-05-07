@@ -244,7 +244,7 @@ const Home = () => {
       <Wrapper>
         <Container id="main">
           <ContainerTitle>
-            {process.env.REACT_APP_BACKEND_URL}, <span>{label}</span>
+            쉽고, <span>{label}</span>
             <Pipe variants={PipeVariants} initial="initial" animate="animate" />
           </ContainerTitle>
           <ContainerSubtitle>
