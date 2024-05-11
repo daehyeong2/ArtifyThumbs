@@ -6,16 +6,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faSignOut, faUser } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
-  height: 100vh;
-  width: 100vw;
+  min-height: 100vh;
+  width: 1000px;
   display: flex;
-  justify-content: center;
-  padding-top: 140px;
+  flex-direction: column;
+  gap: 40px;
+  padding: 140px 0;
+  box-sizing: border-box;
+  margin: 0 auto;
+`;
+
+const Title = styled.h1`
+  font-size: 50px;
+  font-weight: bold;
 `;
 
 const Container = styled.div`
-  width: 1000px;
-  height: 600px;
+  width: 100%;
+  flex: 1;
   display: grid;
   grid-template-columns: 180px 1fr;
   gap: 10px;
@@ -26,6 +34,7 @@ const SideBar = styled.section`
   flex-direction: column;
   gap: 5px;
   position: relative;
+  height: 100%;
 `;
 
 const SideButton = styled(Link)`
@@ -42,7 +51,10 @@ const SideButton = styled(Link)`
   }
 `;
 
-const Main = styled.section``;
+const Main = styled.section`
+  padding-bottom: 100px;
+  height: 100%;
+`;
 
 const LogOut = styled.button`
   display: flex;
@@ -53,7 +65,7 @@ const LogOut = styled.button`
   padding: 10px 15px;
   border-radius: 7px;
   position: absolute;
-  bottom: 0;
+  bottom: 5px;
   width: 100%;
   border: none;
   background: none;
@@ -92,6 +104,7 @@ const Settings = () => {
   };
   return (
     <Wrapper>
+      <Title>설정</Title>
       <Container>
         <SideBar>
           <SideButton to="/settings/profile">

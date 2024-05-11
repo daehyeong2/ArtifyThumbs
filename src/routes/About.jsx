@@ -28,7 +28,7 @@ const ContainerTitle = styled.h1`
   span {
     background: linear-gradient(to right top, #6c5ce7, #74b9ff);
     padding-bottom: 15px;
-    -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline;
     @supports not (

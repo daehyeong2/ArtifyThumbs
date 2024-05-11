@@ -8,3 +8,7 @@ export const userIsLoadedAtom = atom({
   key: "userIsLoaded",
   default: false,
 });
+export const reRenderAtom = atom({
+  key: "reRender",
+  default: false,
+});

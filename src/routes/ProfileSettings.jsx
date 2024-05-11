@@ -4,11 +4,15 @@ import styled from "styled-components";
 import { auth, db, storage } from "../firebase";
 import { faCheck, faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { reRenderAtom, userAtom } from "../atom";
 import Seo from "../components/Seo";
 import { doc, updateDoc } from "firebase/firestore";
-import { updateEmail, updateProfile } from "firebase/auth";
+import {
+  sendEmailVerification,
+  updateEmail,
+  updateProfile,
+} from "firebase/auth";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const Wrapper = styled.div`
@@ -18,7 +22,7 @@ const Wrapper = styled.div`
   padding: 10px;
   box-sizing: border-box;
   position: relative;
-  min-height: 100%;
+  height: 100%;
 `;
 
 const SettingBox = styled.div`
@@ -28,8 +32,26 @@ const SettingBox = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
     div {
       gap: 3px;
+      position: relative;
+    }
+  }
+`;
+
+const SettingInfo = styled.span`
+  position: absolute;
+  bottom: -23px;
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  span {
+    color: #0984e3;
+    text-decoration: none;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
     }
   }
 `;
@@ -44,6 +66,7 @@ const SettingInput = styled.input`
   border-radius: 5px;
   outline: none;
   transition: border 0.1s ease-in-out;
+  background-color: ${(props) => (props.$disabled ? "rgba(0,0,0,0.08)" : "")};
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   &:focus {
@@ -155,6 +178,7 @@ const saveTextVariants = {
 const ProfileSettings = () => {
   const user = auth.currentUser;
   const userData = useRecoilValue(userAtom);
+  const setReRender = useSetRecoilState(reRenderAtom);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [isSaved, setIsSaved] = useState(true);
@@ -163,9 +187,14 @@ const ProfileSettings = () => {
   const [avatarFile, setAvatarFile] = useState("");
   const [avatarIsLoading, setAvatarIsLoading] = useState(false);
   const [saveIsHidden, setSaveIsHidden] = useState(true);
+  const [isSended, setIsSended] = useState(false);
+  const [lastEmail, setLastEmail] = useState("");
+  const [lastUsername, setLastUsername] = useState("");
   useEffect(() => {
     if (!user || !userData) return;
     setEmail(user.email);
+    setUsername(user.displayName);
+    setLastEmail(user.email);
     setUsername(user.displayName);
     setAvatar(user.photoURL);
   }, [user, userData]);
@@ -203,15 +232,16 @@ const ProfileSettings = () => {
     if (isSaved || isLoading || !email || !username) return;
     try {
       setLoading(true);
-      if (user.email !== email) {
+      if (lastEmail !== email) {
         await updateEmail(user, email);
+        setLastEmail(email);
       }
-      if (userData.username !== username) {
+      if (lastUsername !== username) {
         await updateProfile(user, { displayName: username });
         const userRef = doc(db, "users", user.uid);
         await updateDoc(userRef, { username });
+        setLastUsername(username);
       }
-      setAvatarFile("");
       setIsSaved(true);
     } catch (e) {
       console.error(e);
@@ -233,6 +263,7 @@ const ProfileSettings = () => {
         setAvatar(avatarUrl);
         setAvatarFile("");
         setSaveIsHidden(false);
+        setReRender((prev) => !prev);
         setTimeout(() => {
           setSaveIsHidden(true);
         }, 3000);
@@ -243,6 +274,17 @@ const ProfileSettings = () => {
       }
     }
   };
+  const onSend = async () => {
+    try {
+      await sendEmailVerification(user);
+      alert("이메일을 전송했습니다.");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsSended(true);
+    }
+  };
+  console.log(isSaved);
   return (
     <Wrapper>
       <Seo
@@ -252,24 +294,40 @@ const ProfileSettings = () => {
       <SettingBox>
         <div>
           <div>
-            <SettingLabel htmlFor="username">Username</SettingLabel>
+            <SettingLabel htmlFor="username">이름</SettingLabel>
             <SettingInput
               value={username}
               type="text"
               id="username"
               autoComplete="off"
+              placeholder="이름을 입력해 주세요."
               onChange={onChange}
+              disabled={isLoading}
+              $disabled={isLoading}
             />
           </div>
           <div>
-            <SettingLabel htmlFor="email">Email</SettingLabel>
+            <SettingLabel htmlFor="email">이메일</SettingLabel>
             <SettingInput
               value={email}
               type="email"
               id="email"
               autoComplete="off"
+              placeholder="이메일을 입력해 주세요."
               onChange={onChange}
+              disabled={isLoading || !user?.emailVerified}
+              $disabled={isLoading || !user?.emailVerified}
             />
+            {!user?.emailVerified && (
+              <SettingInfo>
+                이메일 인증이 필요합니다.{" "}
+                <span onClick={onSend}>
+                  {isSended
+                    ? "인증 링크가 전송되지 않았나요?"
+                    : "이메일 인증 링크 보내기"}
+                </span>
+              </SettingInfo>
+            )}
           </div>
         </div>
         <AvatarContainer

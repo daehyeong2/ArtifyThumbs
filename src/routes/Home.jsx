@@ -17,7 +17,7 @@ const Container = styled.div`
   background-position: right 8% bottom 13%;
   background-size: 400px;
   background-repeat: no-repeat;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@ const ContainerTitle = styled.h1`
   span {
     margin-left: 15px;
     background: linear-gradient(to right top, #55efc4, #6c5ce7);
-    -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     display: inline;
     @supports not (

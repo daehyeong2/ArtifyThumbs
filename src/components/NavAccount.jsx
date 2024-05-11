@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../firebase";
+import { useRecoilValue } from "recoil";
+import { reRenderAtom } from "../atom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -158,7 +160,7 @@ const menuVariants = {
 const NavAccount = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const user = auth.currentUser;
-  const navigate = useNavigate();
+  const reRender = useRecoilValue(reRenderAtom);
   const onClickProfile = (event) => {
     if (event.target.closest(".Menu")) return;
     setIsMenuOpen(!isMenuOpen);
@@ -168,7 +170,7 @@ const NavAccount = () => {
   };
   const onClick = async () => {
     await auth.signOut();
-    navigate(0);
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -190,7 +192,7 @@ const NavAccount = () => {
     };
   }, [isMenuOpen]);
   return (
-    <Wrapper>
+    <Wrapper key={reRender}>
       {!user ? (
         <>
           <Link to="/signin">
