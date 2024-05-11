@@ -17,7 +17,8 @@ const Container = styled.div`
   background-position: right 8% bottom 13%;
   background-size: 400px;
   background-repeat: no-repeat;
-  height: 100%;
+  height: 100vh;
+  margin-bottom: 100px;
   width: 100%;
   display: flex;
   flex-direction: column;

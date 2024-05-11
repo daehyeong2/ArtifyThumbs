@@ -277,7 +277,7 @@ const ProfileSettings = () => {
   const onSend = async () => {
     try {
       await sendEmailVerification(user);
-      alert("이메일을 전송했습니다.");
+      alert("이메일을 전송했습니다. (인증 후 새로고침 해주세요.)");
     } catch (e) {
       console.error(e);
     } finally {
