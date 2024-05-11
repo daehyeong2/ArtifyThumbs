@@ -237,7 +237,9 @@ const NavAccount = () => {
                     <MenuItem to="/profile" className="MenuItem">
                       프로필
                     </MenuItem>
-                    <MenuItem className="MenuItem">설정</MenuItem>
+                    <MenuItem to="/settings/profile" className="MenuItem">
+                      설정
+                    </MenuItem>
                     <MenuItem onClick={onClick} className="MenuItem">
                       로그아웃
                     </MenuItem>

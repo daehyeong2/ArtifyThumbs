@@ -29,6 +29,8 @@ const Avatar = styled.img`
   width: 100px;
   height: 100px;
   border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
   border: 1px solid rgba(0, 0, 0, 0.2);
 `;
 const AvatarOverlay = styled(motion.div)`

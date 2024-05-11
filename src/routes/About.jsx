@@ -28,8 +28,17 @@ const ContainerTitle = styled.h1`
   span {
     background: linear-gradient(to right top, #6c5ce7, #74b9ff);
     padding-bottom: 15px;
-    color: transparent;
-    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline;
+    @supports not (
+      (-webkit-background-clip: text) and (-webkit-text-fill-color: transparent)
+    ) {
+      h1 {
+        background: none;
+        color: #0984e3; /* 글자 색상을 원래 단색으로 설정 */
+      }
+    }
   }
 `;
 

@@ -16,6 +16,9 @@ import SecurePage from "./components/SecurePage";
 import InquiryList from "./routes/InquiryList";
 import DetailInquiry from "./routes/DetailInquiry";
 import Profile from "./routes/Profile";
+import Settings from "./routes/Settings";
+import ProfileSettings from "./routes/ProfileSettings";
+import AccountSettings from "./routes/AccountSettings";
 
 const router = createBrowserRouter([
   {
@@ -102,6 +105,20 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: <SecurePage element={<Profile />} authenticatedOnly />,
+      },
+      {
+        path: "settings",
+        element: <SecurePage element={<Settings />} authenticatedOnly />,
+        children: [
+          {
+            path: "profile",
+            element: <ProfileSettings />,
+          },
+          {
+            path: "account",
+            element: <AccountSettings />,
+          },
+        ],
       },
     ],
   },
