@@ -19,6 +19,7 @@ import Profile from "./routes/Profile";
 import Settings from "./routes/Settings";
 import ProfileSettings from "./routes/ProfileSettings";
 import AccountSettings from "./routes/AccountSettings";
+import SuccessVerification from "./routes/SuccessVerification";
 
 const router = createBrowserRouter([
   {
@@ -119,6 +120,10 @@ const router = createBrowserRouter([
             element: <AccountSettings />,
           },
         ],
+      },
+      {
+        path: "success-email-verification",
+        element: <SuccessVerification />,
       },
     ],
   },

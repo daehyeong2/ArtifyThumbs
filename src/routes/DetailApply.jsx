@@ -182,9 +182,9 @@ const DetailApply = () => {
   const paint_message = useCallback(
     (message, isMe, imageUrl) => {
       setChats((prev) => [...prev, { message, isMe, imageUrl }]);
+      const ulElement = ulRef.current;
       setFile("");
       setChatFile(null);
-      const ulElement = ulRef.current;
       setTimeout(() => {
         if (
           isMe ||

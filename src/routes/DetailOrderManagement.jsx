@@ -162,6 +162,7 @@ const DetailOrderManagement = () => {
   const [openChat, setOpenChat] = useState(null);
 
   const onSubmit = (data) => {
+    if (!data.message) return;
     setValue("message", "");
     setFocus("message");
     if (!user || !userData.isAdmin) {

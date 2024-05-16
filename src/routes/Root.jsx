@@ -10,6 +10,7 @@ import LoadingScreen from "../components/LoadingScreen";
 import { useSetRecoilState } from "recoil";
 import { userAtom, userIsLoadedAtom } from "../atom";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import EmailVerification from "../components/EmailVerification";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -17,6 +18,7 @@ const Wrapper = styled.div`
 
 const Root = () => {
   pageScrollTop();
+  const user = auth.currentUser;
   const [isLoading, setLoading] = useState(false);
   const setUser = useSetRecoilState(userAtom);
   const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
@@ -41,7 +43,7 @@ const Root = () => {
     <>
       {isLoading ? (
         <LoadingScreen />
-      ) : (
+      ) : !user || user.emailVerified ? (
         <>
           <NavBar />
           <Wrapper>
@@ -50,6 +52,8 @@ const Root = () => {
           <MainFooter />
           <TopButton />
         </>
+      ) : (
+        <EmailVerification />
       )}
     </>
   );
