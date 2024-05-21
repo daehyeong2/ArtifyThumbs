@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import Seo from "../components/Seo";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -68,6 +69,7 @@ const InfoTitle = styled.h1`
 const InfoContent = styled.p`
   font-weight: 700px;
   font-size: 1.1rem;
+  line-height: 1.2;
 `;
 
 const WorkersTitle = styled.h1`
@@ -83,11 +85,13 @@ const Workers = styled.section`
   gap: 50px;
 `;
 
-const Worker = styled(motion.article)`
+const Worker = styled(motion(Link))`
   display: flex;
   flex-direction: column;
   gap: 30px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  color: black;
+  text-decoration: none;
   border-radius: 10px;
   padding: 20px;
   height: 100%;
@@ -99,6 +103,7 @@ const Worker = styled(motion.article)`
   background: none;
   overflow: hidden;
   z-index: 99;
+  cursor: pointer;
 `;
 
 const WorkerList = styled.ul`
@@ -218,7 +223,7 @@ const About = () => {
         <Workers>
           <WorkersTitle>ArtifyThumbs 팀</WorkersTitle>
           <WorkerList>
-            <Worker initial="initial" whileHover="hover">
+            <Worker to="/workers/dawn" initial="initial" whileHover="hover">
               <WorkerBackground
                 variants={getWorkerVariants("purple")}
                 transition={{ duration: 0.3 }}
@@ -236,7 +241,7 @@ const About = () => {
                 믿고 맡겨주세요.
               </WorkerIntroduction>
             </Worker>
-            <Worker initial="initial" whileHover="hover">
+            <Worker to="/workers/baram" initial="initial" whileHover="hover">
               <WorkerBackground
                 variants={getWorkerVariants("yellow")}
                 transition={{ duration: 0.3 }}
@@ -252,7 +257,12 @@ const About = () => {
                 산다면 50년을 자는겁니다.
               </WorkerIntroduction>
             </Worker>
-            <Worker $isBig={true} initial="initial" whileHover="hover">
+            <Worker
+              to="/workers/gorani"
+              $isBig={true}
+              initial="initial"
+              whileHover="hover"
+            >
               <WorkerBackground
                 variants={getWorkerVariants("blue")}
                 transition={{ duration: 0.3 }}

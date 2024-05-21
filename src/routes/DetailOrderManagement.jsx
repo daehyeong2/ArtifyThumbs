@@ -41,6 +41,7 @@ import {
   ImageDownload,
   ImageDownloadIcon,
   ImageViewer,
+  MessageAvatar,
   MessageButton,
   MessageContainer,
   MessageContent,
@@ -54,6 +55,8 @@ import {
   MessageList,
   MessageUpload,
   MessageUploadIcon,
+  MessageUser,
+  MessageUsername,
   Notification,
   Overlay,
   Title,
@@ -95,7 +98,13 @@ import _ from "lodash";
 
 const Message = styled.li`
   display: flex;
+  gap: 8px;
   justify-content: ${(props) => (props.$isMe ? "flex-start" : "flex-end")};
+  ${MessageContent} {
+    margin-top: ${(props) =>
+      !props.$removeAvatar ? (!props.$isMe ? "0" : "20px") : "0"};
+    margin-left: ${(props) => (props.$removeAvatar ? "48px" : "0")};
+  }
 `;
 
 const FileInput = styled.input`
@@ -107,6 +116,7 @@ let socket = null;
 const DetailOrderManagement = () => {
   const user = auth.currentUser;
   const userData = useRecoilValue(userAtom);
+  const [orderer, setOrderer] = useState(null);
   const ulRef = useRef(null);
   const { register, handleSubmit, setValue, setFocus } = useForm();
   const { orderId } = useParams();
@@ -129,7 +139,14 @@ const DetailOrderManagement = () => {
         );
         const userSnap = await getDocs(userQuery);
         if (userSnap.docs.length !== 0) {
-          setApply({ ...data, orderer: userSnap.docs[0].data() });
+          const applyData = { ...data, orderer: userSnap.docs[0].data() };
+          const userQuery = query(
+            collection(db, "users"),
+            where("userId", "==", applyData.orderer.userId)
+          );
+          const user = (await getDocs(userQuery)).docs[0].data();
+          setOrderer(user);
+          setApply(applyData);
         } else {
           alert("신청인 정보가 없습니다.");
           navigate("/");
@@ -545,7 +562,26 @@ const DetailOrderManagement = () => {
                   <>
                     {apply.chats.map((chat, index) => {
                       return (
-                        <Message key={index} $isMe={chat.isMe}>
+                        <Message
+                          key={index}
+                          $isMe={chat.isMe}
+                          $removeAvatar={
+                            index === 0 ? false : apply.chats[index - 1].isMe
+                          }
+                        >
+                          {(index === 0
+                            ? true
+                            : !apply.chats[index - 1].isMe) &&
+                            chat.isMe && (
+                              <MessageUser>
+                                <MessageAvatar
+                                  src={orderer.photoURL ?? "/img/user.jpeg"}
+                                />
+                                <MessageUsername>
+                                  {apply.orderer.username}
+                                </MessageUsername>
+                              </MessageUser>
+                            )}
                           <MessageContainer>
                             {!chat.isMe ? (
                               <MessageDate>
@@ -581,7 +617,24 @@ const DetailOrderManagement = () => {
                     })}
                     {chats.map((chat, index) => {
                       return (
-                        <Message key={index} $isMe={chat.isMe}>
+                        <Message
+                          key={index}
+                          $isMe={chat.isMe}
+                          $removeAvatar={
+                            index === 0 ? false : chats[index - 1].isMe
+                          }
+                        >
+                          {(index === 0 ? true : !chats[index - 1].isMe) &&
+                            chat.isMe && (
+                              <MessageUser>
+                                <MessageAvatar
+                                  src={orderer.photoURL ?? "/img/user.jpeg"}
+                                />
+                                <MessageUsername>
+                                  {apply.orderer.username}
+                                </MessageUsername>
+                              </MessageUser>
+                            )}
                           <MessageContainer>
                             {!chat.isMe ? (
                               <MessageDate>

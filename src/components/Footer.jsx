@@ -136,6 +136,16 @@ const MainFooter = () => {
                 소개
               </MotionLink>
             </li>
+            <li>
+              <MotionLink
+                variants={linkVariants}
+                whileHover="hover"
+                initial="initial"
+                to="/inquiry"
+              >
+                문의하기
+              </MotionLink>
+            </li>
           </ul>
         </FooterItem>
         <FooterItem>

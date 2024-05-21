@@ -200,6 +200,7 @@ const Signup = () => {
         isAdmin: true,
         createdAt: Date.now(),
         userId: credentials.user.uid,
+        photoURL: "/img/user.jpeg",
       });
       window.location.href = "/";
     } catch (e) {
@@ -229,7 +230,7 @@ const Signup = () => {
                 pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
               })}
               placeholder="이메일"
-              autoComplete="off"
+              autoComplete="username"
               id="email"
               name="email"
             ></Input>

@@ -1,13 +1,11 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { AnimatePresence, motion } from "framer-motion";
 import styled from "styled-components";
 import { auth, db, storage } from "../firebase";
-import { faCheck, faUserEdit } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { isBlockedAtom, reRenderAtom, userAtom } from "../atom";
 import Seo from "../components/Seo";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
@@ -67,41 +65,8 @@ const Avatar = styled.img`
   object-fit: cover;
   object-position: center;
   border: 1px solid rgba(0, 0, 0, 0.2);
-`;
-const AvatarOverlay = styled(motion.div)`
-  position: absolute;
-  width: 152px;
-  height: 152px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  top: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  border: 1px solid rgba(0, 0, 0, 0.2);
   cursor: pointer;
 `;
-
-const AvatarIcon = styled(motion(FontAwesomeIcon))`
-  margin-left: 10px;
-  color: black;
-  font-size: 50px;
-`;
-
-const avatarVariants = {
-  initial: {
-    opacity: 0,
-  },
-  hover: {
-    opacity: 1,
-    transition: {
-      duration: 0.2,
-    },
-  },
-};
 
 const SaveButton = styled.button`
   position: absolute;
@@ -124,29 +89,23 @@ const AvatarInput = styled.input`
   display: none;
 `;
 
-const SaveText = styled(motion.span)`
+const AvatarTooltip = styled(motion.span)`
   position: absolute;
-  bottom: -30px;
+  bottom: -40px;
   left: 0;
   right: 0;
   margin: 0 auto;
-  padding: 5px 8px;
-  border-radius: 8px;
-  width: max-content;
-  font-size: 14px;
+  background-color: #969fa5;
   color: white;
-  border: 2px solid #138d4c9d;
-  background-color: #1ec25a;
-  display: flex;
-  gap: 5px;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  width: fit-content;
 `;
 
-const saveTextVariants = {
+const tooltipVariants = {
   initial: {
     opacity: 0,
-    transition: {
-      duration: 0.2,
-    },
   },
   animate: {
     opacity: 1,
@@ -166,8 +125,8 @@ const ProfileSettings = () => {
   const [avatar, setAvatar] = useState("");
   const [avatarFile, setAvatarFile] = useState("");
   const [avatarIsLoading, setAvatarIsLoading] = useState(false);
-  const [saveIsHidden, setSaveIsHidden] = useState(true);
   const [lastUsername, setLastUsername] = useState("");
+  const [isHover, setIsHover] = useState(false);
   const setIsBlocked = useSetRecoilState(isBlockedAtom);
   useEffect(() => {
     if (!user || !userData) return;
@@ -221,13 +180,14 @@ const ProfileSettings = () => {
         const result = await uploadBytes(locationRef, file);
         const avatarUrl = await getDownloadURL(result.ref);
         await updateProfile(user, { photoURL: avatarUrl });
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          ...userData,
+          photoURL: avatarUrl,
+        });
         setAvatar(avatarUrl);
         setAvatarFile("");
-        setSaveIsHidden(false);
         setReRender((prev) => !prev);
-        setTimeout(() => {
-          setSaveIsHidden(true);
-        }, 3000);
       } catch (e) {
         console.error(e);
       } finally {
@@ -263,27 +223,24 @@ const ProfileSettings = () => {
           initial="initial"
           whileHover="hover"
         >
-          <Avatar src={avatar} />
+          <Avatar
+            src={avatar}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+            alt={userData?.username}
+          />
           <AnimatePresence>
-            {!saveIsHidden && (
-              <SaveText
-                variants={saveTextVariants}
+            {isHover && (
+              <AvatarTooltip
+                variants={tooltipVariants}
                 initial="initial"
                 animate="animate"
-                transition={{ duration: 0.2 }}
                 exit="exit"
               >
-                <FontAwesomeIcon icon={faCheck} />
-                저장됨
-              </SaveText>
+                프로필 사진 변경하기
+              </AvatarTooltip>
             )}
           </AnimatePresence>
-          <AvatarOverlay
-            transition={{ duration: 0.2 }}
-            variants={avatarVariants}
-          >
-            <AvatarIcon icon={faUserEdit} />
-          </AvatarOverlay>
         </AvatarContainer>
         <AvatarInput
           disabled={avatarIsLoading}

@@ -156,6 +156,12 @@ const Message = styled(motion.div)`
   }
 `;
 
+const ErrorMessage = styled.span`
+  color: #ff3838;
+  font-size: 14px;
+  font-weight: bold;
+`;
+
 const MessageVariants = {
   initial: {
     y: 20,
@@ -178,7 +184,11 @@ const MessageVariants = {
 };
 
 const Inquiry = () => {
-  const { register, handleSubmit } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const { scrollY } = useScroll();
   const navigate = useNavigate();
@@ -188,7 +198,14 @@ const Inquiry = () => {
   }, []);
   useMotionValueEvent(scrollY, "change", handleScroll);
   const onSubmit = async (data) => {
-    if (isLoading || !data.title || !data.email || !data.content) return;
+    if (
+      isLoading ||
+      !data.title ||
+      !data.email ||
+      !data.content ||
+      data.content.length > 2500
+    )
+      return;
     try {
       setLoading(true);
       const now = new Date();
@@ -223,12 +240,14 @@ const Inquiry = () => {
                   type="text"
                   autoComplete="off"
                   placeholder="문의 제목을 입력하세요."
+                  required
                   {...register("title", { required: true })}
                 />
                 <Input
                   type="email"
                   autoComplete="off"
                   placeholder="이메일을 입력하세요."
+                  required
                   {...register("email", {
                     required: true,
                     match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
@@ -238,8 +257,14 @@ const Inquiry = () => {
               <TextArea
                 autoComplete="off"
                 placeholder="문의 내용을 입력해주세요."
-                {...register("content", { required: true })}
+                required
+                {...register("content", { required: true, maxLength: 2500 })}
               />
+              {errors.content && (
+                <ErrorMessage>
+                  문의 내용은 최대 2,500자 이내로 작성해 주세요.
+                </ErrorMessage>
+              )}
               <Button>
                 {isLoading ? "문의를 등록하는 중.." : "문의 등록하기"}
               </Button>
@@ -270,8 +295,8 @@ const Inquiry = () => {
             <QnAItem>
               <Q>Q. 어떤 종류의 문의를 해야하나요?</Q>
               <A>
-                A. 궁금한 점이나 서비스 피드백 등 무엇이든 문의 하실 수
-                있습니다.
+                A. 궁금한 점이나 서비스 피드백, 에러 신고 등 무엇이든 문의 하실
+                수 있습니다.
               </A>
             </QnAItem>
             <QnAItem>

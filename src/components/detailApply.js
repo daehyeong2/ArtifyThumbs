@@ -133,7 +133,7 @@ export const MessageList = styled.ul`
   padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   overflow-y: auto;
   &::-webkit-scrollbar {
     display: none;
@@ -400,7 +400,7 @@ export const Title = styled.h1`
 `;
 
 export const ApplyManage = styled.div`
-  margin-top: 20px;
+  margin-top: 15px;
   display: flex;
   gap: 15px;
   width: 100%;
@@ -565,4 +565,27 @@ export const DeleteMessage = styled.button`
     font-size: 18px;
     color: white;
   }
+`;
+
+export const MessageUser = styled.div`
+  position: relative;
+`;
+
+export const MessageAvatar = styled.img`
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+`;
+
+export const MessageUsername = styled.span`
+  font-size: 14px;
+  position: absolute;
+  top: 0;
+  margin-left: 10px;
+  width: max-content;
+  direction: rtl;
+  text-align: left;
 `;

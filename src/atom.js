@@ -16,3 +16,7 @@ export const isBlockedAtom = atom({
   key: "isBlocked",
   default: false,
 });
+export const widthAtom = atom({
+  key: "width",
+  default: window.innerWidth,
+});

@@ -63,82 +63,50 @@ const Title = styled.h1`
 const OrderList = styled.ul`
   display: flex;
   flex-direction: column;
-  border-top: 1px solid rgba(0, 0, 0, 0.15);
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  height: 600px;
+  max-height: 100%;
+  height: fit-content;
+  gap: 10px;
 `;
 
-const OrderNumber = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  background-color: white;
-  padding: 10px 10px;
-  display: flex;
-  justify-content: center;
-`;
-
-const OrderTitle = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  background-color: white;
-  padding: 10px 15px;
-  color: ${(props) =>
-    props.$isComplete === "header"
-      ? "black"
-      : props.$isComplete
-      ? "#00b894"
-      : "#ff7675"};
-`;
-
-const OrderDate = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  background-color: white;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: center;
-`;
-
-const OrderStatus = styled.div`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${(props) =>
-    props.$isComplete === "header"
-      ? "black"
-      : props.$isComplete
-      ? "green"
-      : "red"};
-  background-color: white;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: center;
-`;
-
-const OrderHeader = styled.li`
+const OrderHeader = styled.header`
   display: grid;
-  grid-template-columns: 60px 3fr 170px 100px;
-  background-color: #d9d9d9;
-  padding: 0 1px;
-  padding-bottom: 1px;
-  gap: 1px;
-  box-sizing: border-box;
-  position: sticky;
-  top: 0;
+  grid-template-columns: 60px 2fr 1fr 70px;
+  place-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  font-weight: bold;
 `;
 
-const OrderLink = styled(Link)`
+const OrderNumber = styled.span`
+  font-size: 16px;
+  font-weight: bold;
+`;
+
+const OrderDate = styled.span`
+  font-size: 15px;
+  font-weight: bold;
+`;
+
+const OrderStatus = styled.span`
+  font-size: 16px;
+  color: ${(props) => (props.$isCompleted ? "#20bf6b" : "#ff3838")};
+  font-weight: bold;
+`;
+
+const OrderItem = styled(Link)`
   display: grid;
-  grid-template-columns: 60px 3fr 170px 100px;
-  background-color: rgba(0, 0, 0, 0.15);
-  padding: 0 1px;
-  padding-bottom: 1px;
-  gap: 1px;
-  box-sizing: border-box;
-  text-decoration: none;
+  grid-template-columns: 60px 2fr 1fr 70px;
   color: black;
+  text-decoration: none;
+  place-items: center;
+  padding-top: 5px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+`;
+
+const OrderTitle = styled.h2`
+  font-size: 16px;
 `;
 
 function parseISOString(string) {
@@ -205,30 +173,30 @@ const InquiryManagement = () => {
                 </>
               )}
             </OrderPreview>
-            <OrderList>
+            <OrderList onMouseLeave={() => setHoverItem(null)}>
               <OrderHeader>
                 <OrderNumber>번호</OrderNumber>
-                <OrderTitle $isComplete="header">제목</OrderTitle>
-                <OrderDate>문의 날짜</OrderDate>
-                <OrderStatus $isComplete="header">상태</OrderStatus>
+                <OrderTitle>제목</OrderTitle>
+                <OrderDate>주문 날짜</OrderDate>
+                <span>상태</span>
               </OrderHeader>
-              {inquiries?.map((inquiry, index) => (
-                <li
-                  key={inquiry.id}
-                  onMouseEnter={() => setHoverItem(inquiry.id)}
-                  onMouseLeave={() => setHoverItem(null)}
+              {inquiries.map((order, idx) => (
+                <OrderItem
+                  onMouseEnter={() => setHoverItem(order.id)}
+                  key={order.id}
+                  to={`/inquiry-management/${order.id}`}
                 >
-                  <OrderLink to={`/inquiry-management/${inquiry.id}`}>
-                    <OrderNumber>{inquiries.length - index}</OrderNumber>
-                    <OrderTitle $isComplete={inquiry.isAnswered}>
-                      {inquiry.title}
-                    </OrderTitle>
-                    <OrderDate>{parseISOString(inquiry.createdAt)}</OrderDate>
-                    <OrderStatus $isComplete={inquiry.isAnswered}>
-                      {inquiry.isAnswered ? "답변 됨" : "대기 중"}
-                    </OrderStatus>
-                  </OrderLink>
-                </li>
+                  <OrderNumber>{inquiries.length - idx}</OrderNumber>
+                  <OrderTitle>
+                    {order.title.length > 15
+                      ? `${order.title.slice(0, 15)}...`
+                      : order.title}
+                  </OrderTitle>
+                  <OrderDate>{parseISOString(order.createdAt)}</OrderDate>
+                  <OrderStatus $isCompleted={order.isAnswered}>
+                    {order.isAnswered ? "완료됨" : "준비 중"}
+                  </OrderStatus>
+                </OrderItem>
               ))}
             </OrderList>
           </Order>

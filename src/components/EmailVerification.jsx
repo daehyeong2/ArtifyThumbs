@@ -187,7 +187,9 @@ const EmailVerification = () => {
         {isSent && (
           <span>
             인증 링크가 전송되지 않았나요?{" "}
-            <ReSend onClick={onSend}>재전송하기</ReSend>
+            <ReSend onClick={onSend}>
+              재전송하기 {isCooldown && "(대기 중)"}
+            </ReSend>
           </span>
         )}
       </Verification>

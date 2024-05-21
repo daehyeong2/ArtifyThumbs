@@ -79,6 +79,9 @@ import {
   MessageContent,
   MessageContainer,
   DeleteMessage,
+  MessageUser,
+  MessageAvatar,
+  MessageUsername,
 } from "../components/detailApply";
 import styled from "styled-components";
 import {
@@ -95,7 +98,13 @@ import _ from "lodash";
 
 const Message = styled.li`
   display: flex;
+  gap: 8px;
   justify-content: ${(props) => (!props.$isMe ? "flex-start" : "flex-end")};
+  ${MessageContent} {
+    margin-top: ${(props) =>
+      !props.$removeAvatar ? (props.$isMe ? "0" : "20px") : "0"};
+    margin-left: ${(props) => (props.$removeAvatar ? "48px" : "0")};
+  }
 `;
 
 const FileInput = styled.input`
@@ -311,7 +320,13 @@ const DetailApply = () => {
     }
   };
   const onDelete = async () => {
-    if (deleteIsLoading || !user || !draftPath) return;
+    if (
+      deleteIsLoading ||
+      !user ||
+      !draftPath ||
+      !window.confirm("정말로 해당 참고사진을 삭제하시겠습니까?")
+    )
+      return;
     try {
       setDeleteIsLoading(true);
       const locationRef = ref(storage, draftPath);
@@ -555,7 +570,20 @@ const DetailApply = () => {
                   <>
                     {apply.chats.map((chat, index) => {
                       return (
-                        <Message key={index} $isMe={chat.isMe}>
+                        <Message
+                          key={index}
+                          $isMe={chat.isMe}
+                          $removeAvatar={
+                            index === 0 ? false : !apply.chats[index - 1].isMe
+                          }
+                        >
+                          {(index === 0 ? true : apply.chats[index - 1].isMe) &&
+                            !chat.isMe && (
+                              <MessageUser>
+                                <MessageAvatar src="/img/user.jpeg" />
+                                <MessageUsername>화가</MessageUsername>
+                              </MessageUser>
+                            )}
                           <MessageContainer>
                             {chat.isMe ? (
                               <MessageDate>
@@ -591,7 +619,20 @@ const DetailApply = () => {
                     })}
                     {chats.map((chat, index) => {
                       return (
-                        <Message key={index} $isMe={chat.isMe}>
+                        <Message
+                          key={index}
+                          $isMe={chat.isMe}
+                          $removeAvatar={
+                            index === 0 ? false : !chats[index - 1].isMe
+                          }
+                        >
+                          {(index === 0 ? true : chats[index - 1].isMe) &&
+                            !chat.isMe && (
+                              <MessageUser>
+                                <MessageAvatar src="/img/user.jpeg" />
+                                <MessageUsername>화가</MessageUsername>
+                              </MessageUser>
+                            )}
                           <MessageContainer>
                             {chat.isMe ? (
                               <MessageDate>

@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRotateBack } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
   padding: 100px;
@@ -36,18 +38,19 @@ const Container = styled.div`
 const Back = styled(Link)`
   position: absolute;
   top: -20px;
-  left: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  background-color: white;
+  left: 2px;
+  color: white;
+  background-color: #0984e3;
   padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 18px;
+  border-radius: 6px;
+  font-size: 17px;
   cursor: pointer;
   transition: 0.1s;
-  color: black;
   text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.1s ease-in-out;
   &:hover {
-    border: 1px solid #0984e3;
+    background-color: #3b9cfd;
   }
 `;
 
@@ -208,7 +211,9 @@ const Procedure = () => {
       <Seo title="신청하기" />
       <Wrapper>
         <Container>
-          <Back to="/apply">&larr; 뒤로가기</Back>
+          <Back to="/apply">
+            <FontAwesomeIcon icon={faRotateBack} /> 뒤로가기
+          </Back>
           <Title>신청하기</Title>
           <Form onSubmit={handleSubmit(onSubmit)}>
             <InputContainer>

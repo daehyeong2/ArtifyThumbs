@@ -4,7 +4,14 @@ import { auth, db } from "../firebase";
 import { userAtom } from "../atom";
 import { useState } from "react";
 import { useEffect } from "react";
-import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import styled from "styled-components";
 import { useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -82,6 +89,7 @@ const AvatarImage = styled.img`
   object-position: center;
   max-width: 200px;
   width: 90%;
+  aspect-ratio: 1/1;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -104,6 +112,9 @@ const UserInfo = styled.li`
   line-height: 1.3;
   span {
     color: #0984e3;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 `;
 
@@ -115,6 +126,25 @@ const Orders = styled.ul`
   gap: 1px;
   background-color: rgba(0, 0, 0, 0.2);
   overflow-y: auto;
+`;
+
+const ApplyMessage = styled.h2`
+  font-size: 18px;
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+`;
+
+const GoApply = styled(Link)`
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const parseISOString = (string) => {
@@ -149,7 +179,9 @@ const Profile = () => {
     const orderQuery = query(
       collection(db, "orders"),
       where("orderer", "==", userData.userId),
-      orderBy("appliedAt", "desc")
+      orderBy("isCompleted", "desc"),
+      orderBy("appliedAt", "desc"),
+      limit(20)
     );
     const orderSnap = await getDocs(orderQuery);
     if (!orderSnap.empty) {
@@ -211,11 +243,18 @@ const Profile = () => {
               </UserInfo>
             </UserInfoes>
           </Account>
-          <Orders>
-            {orders.map((order) => (
-              <ListOrder key={order.id} order={order} />
-            ))}
-          </Orders>
+          {orders?.length > 0 ? (
+            <Orders>
+              {orders.map((order) => (
+                <ListOrder key={order.id} order={order} />
+              ))}
+            </Orders>
+          ) : (
+            <ApplyMessage>
+              🪄 이런! 신청한 그림이 없어요!
+              <GoApply to="/apply">🚀 신청하러 가기 🚀</GoApply>
+            </ApplyMessage>
+          )}
         </Container>
       </Wrapper>
     </>

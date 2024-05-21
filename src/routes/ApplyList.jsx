@@ -20,10 +20,14 @@ const Container = styled.div`
 
 const Overlay = styled.div`
   top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
   z-index: -1;
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 250px;
+  height: 250px;
   background-image: url("/img/smallLogo.jpeg");
   background-position: center;
   background-repeat: no-repeat;
@@ -111,7 +115,7 @@ const ApplyStatus = styled.div`
 
 const Status = styled.span`
   color: ${(props) => (props.$isComplete ? "green" : "red")};
-  font-weight: 700;
+  font-weight: bold;
 `;
 
 const ApplyDate = styled.span`
@@ -169,7 +173,7 @@ const ApplyList = () => {
     const orderQuery = query(
       collection(db, "orders"),
       where("orderer", "==", user.uid),
-      orderBy("isCompleted", "asc"),
+      orderBy("isCompleted", "desc"),
       orderBy("appliedAt", "desc"),
       limit(20)
     );
@@ -206,8 +210,8 @@ const ApplyList = () => {
                       <ApplyDesc>
                         <ApplyHeader>
                           <ApplyTitle>
-                            {apply.title.length > 10
-                              ? `${apply.title.slice(0, 10)}...`
+                            {apply.title.length > 9
+                              ? `${apply.title.slice(0, 9)}...`
                               : apply.title}
                           </ApplyTitle>
                           <ApplyPlan $isPro={apply.plan === "pro"}>

@@ -21,6 +21,9 @@ import ProfileSettings from "./routes/ProfileSettings";
 import AccountSettings from "./routes/AccountSettings";
 import SuccessVerification from "./routes/SuccessVerification";
 import PasswordReset from "./routes/PasswordReset";
+import Dawn from "./routes/AT_teams/Dawn";
+import Gorani from "./routes/AT_teams/Gorani";
+import Baram from "./routes/AT_teams/Baram";
 
 const router = createBrowserRouter([
   {
@@ -129,6 +132,23 @@ const router = createBrowserRouter([
       {
         path: "password-reset",
         element: <SecurePage element={<PasswordReset />} guestOnly />,
+      },
+      {
+        path: "workers",
+        children: [
+          {
+            path: "dawn",
+            element: <Dawn />,
+          },
+          {
+            path: "gorani",
+            element: <Gorani />,
+          },
+          {
+            path: "baram",
+            element: <Baram />,
+          },
+        ],
       },
     ],
   },

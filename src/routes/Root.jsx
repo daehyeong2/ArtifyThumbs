@@ -8,8 +8,8 @@ import { useCallback, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import LoadingScreen from "../components/LoadingScreen";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { isBlockedAtom, userAtom, userIsLoadedAtom } from "../atom";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { isBlockedAtom, userAtom, userIsLoadedAtom, widthAtom } from "../atom";
+import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import EmailVerification from "../components/EmailVerification";
 import usePrompt from "../components/usePrompt";
 
@@ -24,20 +24,36 @@ const Root = () => {
   const isBlocked = useRecoilValue(isBlockedAtom);
   const setUser = useSetRecoilState(userAtom);
   const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
+  const setWidth = useSetRecoilState(widthAtom);
   const init = useCallback(async () => {
     setLoading(true);
     await auth.authStateReady();
     if (auth.currentUser) {
       const userQuery = query(
         collection(db, "users"),
-        where("userId", "==", auth.currentUser.uid)
+        where("userId", "==", auth.currentUser.uid),
+        limit(1)
       );
-      const user = (await getDocs(userQuery)).docs[0].data();
-      setUser(user);
+      const userSnap = await getDocs(userQuery);
+      if (!userSnap.empty) {
+        const user = userSnap.docs[0].data();
+        setUser(user);
+      }
     }
     setLoading(false);
     setUserIsLoaded(true);
   }, [setUser, setUserIsLoaded]);
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [setWidth]);
   useEffect(() => {
     init();
   }, [init]);
