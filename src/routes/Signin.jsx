@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
   display: flex;
@@ -97,6 +98,7 @@ const SignUpLink = styled(Link)`
   color: rgba(0, 0, 0, 0.6);
   text-decoration: none;
   transition: 0.1s;
+  width: fit-content;
   &:hover {
     color: #0097e6;
     text-decoration: underline;
@@ -143,6 +145,30 @@ const Login = styled.div`
   width: 100%;
 `;
 
+const PasswordReset = styled(Link)`
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 14px;
+  text-decoration: none;
+  width: fit-content;
+`;
+
+const Password = styled.div`
+  position: relative;
+`;
+
+const PasswordShow = styled.label`
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  top: 0;
+  bottom: 0;
+  user-select: none;
+  svg {
+    cursor: pointer;
+  }
+`;
+
 const errorMap = {
   "auth/invalid-credential": "이메일 또는 비밀번호가 일치하지 않습니다.",
 };
@@ -155,6 +181,7 @@ const Signin = () => {
   } = useForm();
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [passwordShow, setPasswordShow] = useState(false);
   const onSubmit = async (data) => {
     if (isLoading) return;
     try {
@@ -166,6 +193,9 @@ const Signin = () => {
     } finally {
       setLoading(false);
     }
+  };
+  const toggleShow = () => {
+    setPasswordShow((prev) => !prev);
   };
   return (
     <>
@@ -192,22 +222,33 @@ const Signin = () => {
           </InputContainer>
           <InputContainer>
             <Label htmlFor="password">비밀번호를 입력하세요.</Label>
-            <Input
-              {...register("password", { required: true, minLength: 8 })}
-              placeholder="비밀번호"
-              autoComplete="off"
-              id="password"
-              name="password"
-              type="password"
-            ></Input>
+            <Password>
+              <Input
+                {...register("password", { required: true, minLength: 8 })}
+                placeholder="비밀번호"
+                autoComplete="off"
+                id="password"
+                name="password"
+                type={passwordShow ? "text" : "password"}
+              ></Input>
+              <PasswordShow>
+                <FontAwesomeIcon
+                  onClick={toggleShow}
+                  icon={passwordShow ? faEyeSlash : faEye}
+                />
+              </PasswordShow>
+            </Password>
+            <PasswordReset to="/password-reset">
+              비밀번호를 잊으셨나요?
+            </PasswordReset>
             {errors.password && (
               <ErrorMessage>
                 비밀번호는 최소 8자 이상이어야 합니다.
               </ErrorMessage>
             )}
+            {error && <ErrorMessage>{error}</ErrorMessage>}
           </InputContainer>
           <Login>
-            {error && <ErrorMessage>{error}</ErrorMessage>}
             <SignInButton>{isLoading ? "로그인 중.." : "로그인"}</SignInButton>
           </Login>
           <SignUpLink to="/signup">

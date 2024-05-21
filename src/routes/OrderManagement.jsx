@@ -176,7 +176,7 @@ const OrderManagement = () => {
       const orderQuery = query(
         collection(db, "orders"),
         orderBy("isCompleted", "asc"),
-        orderBy("applyedAt", "desc"),
+        orderBy("appliedAt", "desc"),
         limit(25)
       );
       const orderSnap = await getDocs(orderQuery);
@@ -254,7 +254,7 @@ const OrderManagement = () => {
                     <OrderTitle $isComplete={order.isCompleted}>
                       {order.title}
                     </OrderTitle>
-                    <OrderDate>{parseISOString(order.applyedAt)}</OrderDate>
+                    <OrderDate>{parseISOString(order.appliedAt)}</OrderDate>
                     <OrderStatus $isComplete={order.isCompleted}>
                       {order.isCompleted ? "완료 됨" : "준비 중"}
                     </OrderStatus>

@@ -1,9 +1,12 @@
 import { Outlet, useMatch } from "react-router";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { auth } from "../firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear, faSignOut, faUser } from "@fortawesome/free-solid-svg-icons";
+import CustomLink from "../components/CustomLink";
+import usePrompt from "../components/usePrompt";
+import { useRecoilValue } from "recoil";
+import { isBlockedAtom } from "../atom";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -37,7 +40,7 @@ const SideBar = styled.section`
   height: 100%;
 `;
 
-const SideButton = styled(Link)`
+const SideButton = styled(CustomLink)`
   display: flex;
   position: relative;
   text-decoration: none;
@@ -96,12 +99,17 @@ const Indicator = styled.div`
 const SettingIcon = styled(FontAwesomeIcon)``;
 
 const Settings = () => {
+  const isBlocked = useRecoilValue(isBlockedAtom);
   const profileMatch = useMatch("/settings/profile");
   const accountMatch = useMatch("/settings/account");
   const onLogOut = () => {
     auth.signOut();
     window.location.href = "/";
   };
+  usePrompt(
+    "아직 저장되지 않았습니다. 정말로 페이지를 떠나시겠습니까?",
+    isBlocked
+  );
   return (
     <Wrapper>
       <Title>설정</Title>

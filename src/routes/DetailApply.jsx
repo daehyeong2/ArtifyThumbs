@@ -7,6 +7,7 @@ import io from "socket.io-client";
 import {
   faDownload,
   faPlus,
+  faTrashCan,
   faUpload,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -74,6 +75,10 @@ import {
   MessageImageTitle,
   cutString,
   messageImageVariants,
+  MessageDate,
+  MessageContent,
+  MessageContainer,
+  DeleteMessage,
 } from "../components/detailApply";
 import styled from "styled-components";
 import {
@@ -85,25 +90,12 @@ import {
 } from "firebase/storage";
 import ChatLazyImage from "../components/ChatLazyImage";
 import DraftLazyImage from "../components/DraftLazyImage";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import _ from "lodash";
 
 const Message = styled.li`
   display: flex;
   justify-content: ${(props) => (!props.$isMe ? "flex-start" : "flex-end")};
-  span {
-    display: flex;
-    flex-direction: column;
-    word-break: break-all;
-    line-height: 1.1;
-    gap: 10px;
-    max-width: 400px;
-    font-size: 1.1rem;
-    padding: 10px 15px;
-    border-radius: 15px;
-    width: fit-content;
-    background-color: ${(props) =>
-      !props.$isMe ? "rgba(0, 0, 0, 0.06)" : "#0984e3"};
-    color: ${(props) => (!props.$isMe ? "black" : "white")};
-  }
 `;
 
 const FileInput = styled.input`
@@ -171,17 +163,23 @@ const DetailApply = () => {
       alert("권한 없음");
       return navigate("/");
     }
+    const now = new Date().toISOString();
     socket.emit(
       "chat_message",
-      { message: data.message, isMe: true, imageUrl: chatFile?.imageUrl },
+      {
+        message: data.message,
+        isMe: true,
+        imageUrl: chatFile?.imageUrl ?? "",
+        timestamp: now,
+      },
       applyId
     );
-    paint_message(data.message, true, chatFile?.imageUrl);
+    paint_message(data.message, true, chatFile?.imageUrl ?? "", now);
   };
 
   const paint_message = useCallback(
-    (message, isMe, imageUrl) => {
-      setChats((prev) => [...prev, { message, isMe, imageUrl }]);
+    (message, isMe, imageUrl, timestamp) => {
+      setChats((prev) => [...prev, { message, isMe, imageUrl, timestamp }]);
       const ulElement = ulRef.current;
       setFile("");
       setChatFile(null);
@@ -206,7 +204,7 @@ const DetailApply = () => {
         });
         socket.emit("chat_room", applyId);
         socket.on("chat_message", (data) => {
-          paint_message(data.message, data.isMe);
+          paint_message(data.message, data.isMe, data.imageUrl, data.timestamp);
         });
         socket.on("error", (error) => {
           alert(`에러 발생: ${error}`);
@@ -216,6 +214,19 @@ const DetailApply = () => {
           setTimeout(() => {
             scrollDown();
           }, 10);
+        });
+        socket.on("delete_message", async (chat) => {
+          setChats((prevChats) => {
+            if (prevChats.some((item) => _.isEqual(item, chat))) {
+              return prevChats.filter((item) => !_.isEqual(item, chat));
+            } else {
+              setApply((prevApply) => ({
+                ...prevApply,
+                chats: prevApply.chats.filter((item) => !_.isEqual(item, chat)),
+              }));
+              return prevChats;
+            }
+          });
         });
       });
       return () => {
@@ -401,6 +412,42 @@ const DetailApply = () => {
       window.removeEventListener("beforeunload", deleteFunction);
     };
   }, [onDeleteImage, chatFile]);
+  const onDeleteMessage = async (chat) => {
+    if (!window.confirm("이 메시지를 정말로 삭제하시겠습니까?")) return;
+    socket.emit("delete_message", chat);
+    if (chats.includes(chat)) {
+      setChats((prev) => prev.filter((item) => item !== chat));
+      if (typeof chat.imageUrl === "string" && chat.imageUrl !== "") {
+        try {
+          const baseUrl =
+            "https://firebasestorage.googleapis.com/v0/b/artifythumbs-37528.appspot.com/o/";
+          const path = chat.imageUrl.replace(baseUrl, "").split("?")[0];
+          const decodedPath = decodeURIComponent(path);
+          const imageRef = ref(storage, decodedPath);
+          await deleteObject(imageRef);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    } else if (apply.chats.includes(chat)) {
+      setApply((prev) => ({
+        ...prev,
+        chats: prev.chats.filter((item) => item !== chat),
+      }));
+      if (typeof chat.imageUrl === "string" && chat.imageUrl !== "") {
+        try {
+          const baseUrl =
+            "https://firebasestorage.googleapis.com/v0/b/artifythumbs-37528.appspot.com/o/";
+          const path = chat.imageUrl.replace(baseUrl, "").split("?")[0];
+          const decodedPath = decodeURIComponent(path);
+          const imageRef = ref(storage, decodedPath);
+          await deleteObject(imageRef);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  };
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -488,7 +535,7 @@ const DetailApply = () => {
               </DetailDesc>
               <DetailMetaData>
                 <DetailData>
-                  신청 날짜: {parseISOString(apply.applyedAt)}
+                  신청 날짜: {parseISOString(apply.appliedAt)}
                 </DetailData>
                 <DetailData>신청인: {apply.orderer.username}</DetailData>
               </DetailMetaData>
@@ -509,36 +556,72 @@ const DetailApply = () => {
                     {apply.chats.map((chat, index) => {
                       return (
                         <Message key={index} $isMe={chat.isMe}>
-                          <span>
-                            {chat.message}
-                            {chat.imageUrl && (
-                              <ChatLazyImage
-                                onClick={() => {
-                                  setOpenChat(chat.message);
-                                  setCurrentImage(chat.imageUrl);
-                                }}
-                                src={chat.imageUrl}
-                              />
+                          <MessageContainer>
+                            {chat.isMe ? (
+                              <MessageDate>
+                                {parseISOString(chat.timestamp)}
+                              </MessageDate>
+                            ) : null}
+                            <MessageContent $isMe={chat.isMe}>
+                              {chat.message}
+                              {chat.imageUrl && (
+                                <ChatLazyImage
+                                  onClick={() => {
+                                    setOpenChat(chat.message);
+                                    setCurrentImage(chat.imageUrl);
+                                  }}
+                                  src={chat.imageUrl}
+                                />
+                              )}
+                            </MessageContent>
+                            {!chat.isMe ? (
+                              <MessageDate>
+                                {parseISOString(chat.timestamp)}
+                              </MessageDate>
+                            ) : (
+                              <DeleteMessage
+                                onClick={() => onDeleteMessage(chat)}
+                              >
+                                <FontAwesomeIcon icon={faTrashCan} />
+                              </DeleteMessage>
                             )}
-                          </span>
+                          </MessageContainer>
                         </Message>
                       );
                     })}
                     {chats.map((chat, index) => {
                       return (
                         <Message key={index} $isMe={chat.isMe}>
-                          <span>
-                            {chat.message}
-                            {chat.imageUrl && (
-                              <ChatLazyImage
-                                onClick={() => {
-                                  setOpenChat(chat.message);
-                                  setCurrentImage(chat.imageUrl);
-                                }}
-                                src={chat.imageUrl}
-                              />
+                          <MessageContainer>
+                            {chat.isMe ? (
+                              <MessageDate>
+                                {parseISOString(chat.timestamp)}
+                              </MessageDate>
+                            ) : null}
+                            <MessageContent $isMe={chat.isMe}>
+                              {chat.message}
+                              {chat.imageUrl && (
+                                <ChatLazyImage
+                                  onClick={() => {
+                                    setOpenChat(chat.message);
+                                    setCurrentImage(chat.imageUrl);
+                                  }}
+                                  src={chat.imageUrl}
+                                />
+                              )}
+                            </MessageContent>
+                            {!chat.isMe ? (
+                              <MessageDate>
+                                {parseISOString(chat.timestamp)}
+                              </MessageDate>
+                            ) : (
+                              <DeleteMessage
+                                onClick={() => onDeleteMessage(chat)}
+                              >
+                                <FontAwesomeIcon icon={faTrashCan} />
+                              </DeleteMessage>
                             )}
-                          </span>
+                          </MessageContainer>
                         </Message>
                       );
                     })}

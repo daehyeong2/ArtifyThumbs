@@ -170,7 +170,7 @@ const ApplyList = () => {
       collection(db, "orders"),
       where("orderer", "==", user.uid),
       orderBy("isCompleted", "asc"),
-      orderBy("applyedAt", "desc"),
+      orderBy("appliedAt", "desc"),
       limit(20)
     );
     const querySnapshot = await getDocs(orderQuery);
@@ -222,7 +222,7 @@ const ApplyList = () => {
                             </Status>
                           </ApplyStatus>
                           <ApplyDate>
-                            신청 날짜: {parseISOString(apply.applyedAt)}
+                            신청 날짜: {parseISOString(apply.appliedAt)}
                           </ApplyDate>
                         </ApplyInfoes>
                       </ApplyDesc>

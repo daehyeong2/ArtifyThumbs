@@ -508,3 +508,61 @@ export const messageImageVariants = {
     opacity: 0.8,
   },
 };
+
+export const MessageDate = styled.p`
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.4);
+  height: fit-content;
+  margin: 6px 5px;
+  opacity: 0;
+  transition: opacity 0.1s ease-in-out;
+`;
+
+export const MessageContent = styled.span`
+  display: flex;
+  flex-direction: column;
+  word-break: break-all;
+  line-height: 1.1;
+  gap: 10px;
+  max-width: 400px;
+  font-size: 1.1rem;
+  padding: 10px 15px;
+  border-radius: 15px;
+  width: fit-content;
+  background-color: ${(props) =>
+    !props.$isMe ? "rgba(0, 0, 0, 0.06)" : "#0984e3"};
+  color: ${(props) => (!props.$isMe ? "black" : "white")};
+`;
+
+export const MessageContainer = styled(motion.div)`
+  display: flex;
+  align-items: end;
+  &:hover p {
+    opacity: 1;
+  }
+  &:hover button {
+    width: 40px;
+    padding: 0px 13px;
+    opacity: 1;
+    margin-left: 3px;
+  }
+`;
+
+export const DeleteMessage = styled.button`
+  border: none;
+  background-color: #d63031;
+  border-radius: 6px;
+  height: 100%;
+  width: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+  svg {
+    font-size: 18px;
+    color: white;
+  }
+`;

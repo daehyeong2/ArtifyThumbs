@@ -20,6 +20,7 @@ import Settings from "./routes/Settings";
 import ProfileSettings from "./routes/ProfileSettings";
 import AccountSettings from "./routes/AccountSettings";
 import SuccessVerification from "./routes/SuccessVerification";
+import PasswordReset from "./routes/PasswordReset";
 
 const router = createBrowserRouter([
   {
@@ -124,6 +125,10 @@ const router = createBrowserRouter([
       {
         path: "success-email-verification",
         element: <SuccessVerification />,
+      },
+      {
+        path: "password-reset",
+        element: <SecurePage element={<PasswordReset />} guestOnly />,
       },
     ],
   },

@@ -8,6 +8,7 @@ import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Wrapper = styled.div`
   display: flex;
@@ -20,7 +21,7 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   border: 1px solid rgba(0, 0, 0, 0.2);
   padding: 35px 50px;
   border-radius: 30px;
@@ -81,6 +82,7 @@ const SignUpButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s;
+  margin-top: 5px;
   &:hover {
     background-color: #0097e6;
   }
@@ -99,6 +101,7 @@ const LoginLink = styled(Link)`
   color: rgba(0, 0, 0, 0.6);
   text-decoration: none;
   transition: 0.1s;
+  width: fit-content;
   &:hover {
     color: #0097e6;
     text-decoration: underline;
@@ -138,6 +141,23 @@ const ErrorMessage = styled.p`
   color: #d63031;
 `;
 
+const Password = styled.div`
+  position: relative;
+`;
+
+const PasswordShow = styled.label`
+  position: absolute;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  top: 0;
+  bottom: 0;
+  user-select: none;
+  svg {
+    cursor: pointer;
+  }
+`;
+
 const errorMap = {
   "auth/email-already-in-use": "이미 등록된 이메일입니다.",
 };
@@ -150,6 +170,7 @@ const Signup = () => {
     setError: setFormError,
   } = useForm();
   const [isLoading, setLoading] = useState(false);
+  const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState(false);
   const onSubmit = async (data) => {
     if (isLoading) return;
@@ -186,6 +207,9 @@ const Signup = () => {
     } finally {
       setLoading(false);
     }
+  };
+  const toggleShow = () => {
+    setPasswordShow((prev) => !prev);
   };
   return (
     <>
@@ -226,7 +250,6 @@ const Signup = () => {
               autoComplete="off"
               id="username"
               name="username"
-              error={errors.username}
             ></Input>
             {errors.username && (
               <ErrorMessage>
@@ -236,25 +259,32 @@ const Signup = () => {
           </InputContainer>
           <InputContainer>
             <Label htmlFor="password">비밀번호를 입력해 주세요.</Label>
-            <Input
-              {...register(
-                "password",
-                {
-                  required: true,
-                  pattern: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
-                },
-                { maxLength: 16 },
-                { minLength: 8 }
-              )}
-              placeholder="비밀번호"
-              autoComplete="off"
-              id="password"
-              name="password"
-              type="password"
-            ></Input>
+            <Password>
+              <Input
+                {...register(
+                  "password",
+                  {
+                    required: true,
+                    pattern: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/,
+                  },
+                  { minLength: 8 }
+                )}
+                placeholder="비밀번호"
+                autoComplete="off"
+                id="password"
+                name="password"
+                type={passwordShow ? "text" : "password"}
+              ></Input>
+              <PasswordShow>
+                <FontAwesomeIcon
+                  onClick={toggleShow}
+                  icon={passwordShow ? faEyeSlash : faEye}
+                />
+              </PasswordShow>
+            </Password>
             {errors.password && (
               <ErrorMessage>
-                비밀번호는 영문 대소문자와 숫자를 포함한 8~16자로 입력해주세요.
+                비밀번호는 영어, 숫자를 포함하고 최소 8자 이상이어야 합니다.
               </ErrorMessage>
             )}
           </InputContainer>

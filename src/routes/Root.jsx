@@ -7,10 +7,11 @@ import styled from "styled-components";
 import { useCallback, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import LoadingScreen from "../components/LoadingScreen";
-import { useSetRecoilState } from "recoil";
-import { userAtom, userIsLoadedAtom } from "../atom";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { isBlockedAtom, userAtom, userIsLoadedAtom } from "../atom";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import EmailVerification from "../components/EmailVerification";
+import usePrompt from "../components/usePrompt";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -20,6 +21,7 @@ const Root = () => {
   pageScrollTop();
   const user = auth.currentUser;
   const [isLoading, setLoading] = useState(false);
+  const isBlocked = useRecoilValue(isBlockedAtom);
   const setUser = useSetRecoilState(userAtom);
   const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
   const init = useCallback(async () => {
@@ -39,6 +41,7 @@ const Root = () => {
   useEffect(() => {
     init();
   }, [init]);
+  usePrompt("정말로 떠나시겠습니까?", isBlocked);
   return (
     <>
       {isLoading ? (

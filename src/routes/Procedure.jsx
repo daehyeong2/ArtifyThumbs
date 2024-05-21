@@ -189,7 +189,7 @@ const Procedure = () => {
         description: data.content,
         plan: data.plan,
         tags: [tagMap[data.kind]],
-        applyedAt: now.toISOString(),
+        appliedAt: now.toISOString(),
         chats: [],
         drafts: [],
         isCompleted: false,

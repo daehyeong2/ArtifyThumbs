@@ -7,113 +7,114 @@ import { useEffect } from "react";
 import { collection, getDocs, orderBy, query, where } from "firebase/firestore";
 import styled from "styled-components";
 import { useCallback } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faUserEdit } from "@fortawesome/free-solid-svg-icons";
+import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
+import ListOrder from "../components/list-order";
 
 const Wrapper = styled.div`
-  padding-top: 140px;
+  padding-top: 160px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
+  justify-content: center;
   height: 100vh;
 `;
 
-const AvatarContainer = styled(motion(Link))`
+const Container = styled.div`
+  display: grid;
+  grid-template-rows: 100px 1fr;
+  grid-template-columns: 1fr 3fr;
+  gap: 0 10px;
+  min-width: 600px;
+  min-height: 400px;
+  width: 65vw;
+  height: 70vh;
+`;
+
+const Title = styled.h1`
+  font-size: 43px;
+  font-weight: bold;
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+`;
+
+const Account = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+`;
+
+const User = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+`;
+
+const AvatarContainer = styled.div`
+  width: 100%;
+  display: flex;
+  gap: 5px;
   position: relative;
 `;
 
-const Avatar = styled.img`
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-`;
-const AvatarOverlay = styled(motion.div)`
+const AvatarTooltip = styled(motion.span)`
   position: absolute;
-  width: 102px;
-  height: 102px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-  top: 0;
+  bottom: -40px;
   left: 0;
   right: 0;
   margin: 0 auto;
+  background-color: #969fa5;
+  color: white;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  width: fit-content;
+`;
+
+const Avatar = styled(Link)`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const AvatarImage = styled.img`
+  object-fit: cover;
+  object-position: center;
+  max-width: 200px;
+  width: 90%;
+  border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.2);
   cursor: pointer;
 `;
 
-const AvatarIcon = styled(motion(FontAwesomeIcon))`
-  margin-left: 10px;
-  color: black;
-  font-size: 42px;
-`;
-
-const Username = styled.h1`
-  display: flex;
-  gap: 13px;
-  font-size: 30px;
-  font-weight: bold;
-  align-items: center;
-  margin-bottom: 20px;
-  svg {
-    font-size: 28px;
-    color: black;
-    cursor: pointer;
-    &:hover {
-      color: #0984e3;
-    }
-  }
-`;
-const Role = styled.div`
-  padding: 8px 10px;
-  background-color: ${(props) => (props.$isAdmin ? "#ff7675" : "#0984e3")};
-  color: white;
-  border-radius: 15px;
+const Username = styled.h2`
+  width: 100%;
   font-size: 22px;
+  font-weight: bold;
 `;
 
-const Infoes = styled.section`
+const UserInfoes = styled.ul`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 20px;
+  gap: 15px;
 `;
 
-const InfoBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 35px;
-  background-color: rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  gap: 40px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
-`;
-
-const InfoBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-`;
-
-const InfoTitle = styled.h3``;
-
-const InfoValue = styled.span`
-  font-size: 20px;
+const UserInfo = styled.li`
+  font-size: 16px;
+  line-height: 1.3;
   span {
-    background: linear-gradient(to right top, #2e86de, #f368e0);
-    color: transparent;
-    background-clip: text;
-    font-weight: bold;
+    color: #0984e3;
   }
+`;
+
+const Orders = styled.ul`
+  max-height: 55vh;
+  height: min-content;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background-color: rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
 `;
 
 const parseISOString = (string) => {
@@ -126,15 +127,15 @@ const parseISOString = (string) => {
   );
 };
 
-const avatarVariants = {
+const tooltipVariants = {
   initial: {
     opacity: 0,
   },
-  hover: {
+  animate: {
     opacity: 1,
-    transition: {
-      duration: 0.2,
-    },
+  },
+  exit: {
+    opacity: 0,
   },
 };
 
@@ -142,16 +143,20 @@ const Profile = () => {
   const user = auth.currentUser;
   const userData = useRecoilValue(userAtom);
   const [orders, setOrders] = useState([]);
+  const [isHover, setIsHover] = useState(false);
   const fetchOrders = useCallback(async () => {
     if (!user || !userData) return;
     const orderQuery = query(
       collection(db, "orders"),
       where("orderer", "==", userData.userId),
-      orderBy("applyedAt", "desc")
+      orderBy("appliedAt", "desc")
     );
     const orderSnap = await getDocs(orderQuery);
     if (!orderSnap.empty) {
-      const orderData = orderSnap.docs.map((doc) => doc.data());
+      const orderData = orderSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       setOrders(orderData);
     }
   }, [user, userData]);
@@ -162,48 +167,56 @@ const Profile = () => {
     <>
       <Seo title="프로필" description="당신의 계정 프로필을 확인해 보세요!" />
       <Wrapper>
-        {user && userData && (
-          <>
-            <AvatarContainer
-              to="/settings/profile"
-              initial="initial"
-              whileHover="hover"
-            >
-              <Avatar src={user.photoURL} />
-              <AvatarOverlay
-                transition={{ duration: 0.2 }}
-                variants={avatarVariants}
-              >
-                <AvatarIcon icon={faUserEdit} />
-              </AvatarOverlay>
-            </AvatarContainer>
-            <Username>
-              {user.displayName}{" "}
-              <Link to="/settings/profile">
-                <FontAwesomeIcon icon={faEdit} />
-              </Link>
-              <Role $isAdmin={userData.isAdmin}>
-                {userData.isAdmin ? "운영자" : "유저"}
-              </Role>
-            </Username>
-            <Infoes>
-              <InfoBar>
-                <InfoBox>
-                  <InfoTitle>주문 수</InfoTitle>
-                  <InfoValue>
-                    <span>{orders.length}</span>건
-                  </InfoValue>
-                </InfoBox>
-                <InfoBox>
-                  <InfoTitle>가입일</InfoTitle>
-                  <InfoValue>
-                    {parseISOString(new Date(userData.createdAt).toISOString())}
-                  </InfoValue>
-                </InfoBox>
-              </InfoBar>
-            </Infoes>
-          </>
-        )}
+        <Container>
+          <Title>프로필</Title>
+          <Account>
+            <User>
+              {user && (
+                <>
+                  <AvatarContainer>
+                    <Avatar to="/settings/profile">
+                      <AvatarImage
+                        onMouseEnter={() => setIsHover(true)}
+                        onMouseLeave={() => setIsHover(false)}
+                        src={user.photoURL}
+                        alt={user.displayName}
+                      />
+                    </Avatar>
+                    <AnimatePresence>
+                      {isHover && (
+                        <AvatarTooltip
+                          variants={tooltipVariants}
+                          initial="initial"
+                          animate="animate"
+                          exit="exit"
+                        >
+                          프로필 사진 변경하기
+                        </AvatarTooltip>
+                      )}
+                    </AnimatePresence>
+                  </AvatarContainer>
+                  <Username>{user.displayName}</Username>
+                </>
+              )}
+            </User>
+            <UserInfoes>
+              <UserInfo>
+                총 주문 수: <span>{orders.length}</span>건
+              </UserInfo>
+              <UserInfo>
+                계정 가입일:
+                <br />
+                {userData &&
+                  parseISOString(new Date(userData.createdAt).toISOString())}
+              </UserInfo>
+            </UserInfoes>
+          </Account>
+          <Orders>
+            {orders.map((order) => (
+              <ListOrder key={order.id} order={order} />
+            ))}
+          </Orders>
+        </Container>
       </Wrapper>
     </>
   );

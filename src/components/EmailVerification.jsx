@@ -130,7 +130,7 @@ const EmailVerification = () => {
     }
     try {
       await sendEmailVerification(user, {
-        url: `http://localhost:3000/success-email-verification`,
+        url: `http://localhost:3000/success-email-verification?type=verification`,
       });
       alert(`이메일(${user.email})로 인증 링크가 전송됐습니다.`);
       setIsSent(true);

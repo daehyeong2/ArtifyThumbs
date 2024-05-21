@@ -1,10 +1,12 @@
 import styled from "styled-components";
 import NavAccount from "./NavAccount";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { Link, useMatch } from "react-router-dom";
+import { useMatch } from "react-router-dom";
 import { useCallback, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../atom";
+import CustomLink from "./CustomLink";
+import MotionLink from "./MotionLink";
 
 const Logo = styled.div`
   background-image: url("/img/Logo.jpeg");
@@ -111,8 +113,6 @@ const BorderNavVariants = {
   },
 };
 
-const MotionLink = motion(Link);
-
 const NavBar = () => {
   const userData = useRecoilValue(userAtom);
   const [currentScrollY, setCurrentScrollY] = useState(0);
@@ -136,7 +136,7 @@ const NavBar = () => {
     setCurrentScrollY(latest);
   }, []);
   useMotionValueEvent(scrollY, "change", handleScroll);
-  const isBorderExist = signinMatch || signupMatch || aboutMatch;
+  const isBorderExist = signinMatch || signupMatch;
   return (
     <Nav
       $isBorderExist={isBorderExist}
@@ -145,9 +145,9 @@ const NavBar = () => {
       animate={currentScrollY > 80 ? "scrolled" : "initial"}
       transition={{ duration: 0.2 }}
     >
-      <Link to="/">
+      <CustomLink to="/">
         <Logo alt="logo" />
-      </Link>
+      </CustomLink>
       <NavList>
         <NavItem
           initial="initial"

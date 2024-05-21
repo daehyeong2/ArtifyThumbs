@@ -12,3 +12,7 @@ export const reRenderAtom = atom({
   key: "reRender",
   default: false,
 });
+export const isBlockedAtom = atom({
+  key: "isBlocked",
+  default: false,
+});
