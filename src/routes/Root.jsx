@@ -48,6 +48,8 @@ const Root = () => {
       setWidth(window.innerWidth);
     };
 
+    handleResize();
+
     window.addEventListener("resize", handleResize);
 
     return () => {

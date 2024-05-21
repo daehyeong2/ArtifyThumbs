@@ -30,12 +30,16 @@ const Nav = styled(motion.nav)`
   padding: 20px 75px;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 250px minmax(450px, 1fr) 40px;
+  grid-template-columns: 250px minmax(340px, 1fr) ${(props) =>
+      props.$isLoggedIn ? "40px" : "170px"};
   width: 100vw;
   position: fixed;
   z-index: 2;
   border: ${(props) =>
     props.$isBorderExist ? "1px solid rgba(0, 0, 0, 0.1)" : "none"};
+  > *:not(:first-child) {
+    display: ${(props) => (props.$isMobile ? "none" : "flex")};
+  }
   @media only screen and (max-width: 850px) {
     padding: 10px 75px;
     grid-template-columns: 1fr;
@@ -73,8 +77,12 @@ const NavFolder = styled(motion.li)`
   font-weight: 600;
   display: flex;
   justify-content: center;
+  transition: color 0.1s ease-in-out;
   color: ${(props) =>
     props.$isActive ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.25)"};
+  &:hover {
+    color: rgba(0, 0, 0, 1);
+  }
 `;
 
 const NavFolderList = styled(motion.ul)`
@@ -206,11 +214,13 @@ const NavBar = () => {
   const isBorderExist = signinMatch || signupMatch;
   const [isFolderOpen, setIsFolderOpen] = useState(false);
   const [isApplyOpen, setIsApplyOpen] = useState(false);
-  const isMobile = !(width > 850);
-  console.log(width);
+  const isClient = document.visibilityState === "visible";
+  const isMobile = isClient && !(width > 850);
   return (
     <Nav
       $isBorderExist={isBorderExist}
+      $isLoggedIn={userData}
+      $isMobile={isMobile}
       variants={isBorderExist ? BorderNavVariants : NavVariants}
       initial="initial"
       animate={currentScrollY > 80 ? "scrolled" : "initial"}
@@ -219,179 +229,169 @@ const NavBar = () => {
       <CustomLink to="/">
         <Logo />
       </CustomLink>
-      {!isMobile && (
-        <>
-          <NavList>
-            <NavItem
-              initial="initial"
-              animate={homeMatch ? "animate" : "initial"}
-              whileHover="hover"
-            >
-              <div>
-                <MotionLink to="/" variants={NavItemVariants}>
-                  홈
-                </MotionLink>
-              </div>
-              <UnderLine variants={UnderLineVariants} />
-            </NavItem>
-            <NavItem
-              initial="initial"
-              animate={aboutMatch ? "animate" : "initial"}
-              whileHover="hover"
-            >
-              <div>
-                <MotionLink to="/about" variants={NavItemVariants}>
-                  소개
-                </MotionLink>
-              </div>
-              <UnderLine variants={UnderLineVariants} />
-            </NavItem>
-            <NavItem
-              initial="initial"
-              animate={inquiryMatch ? "animate" : "initial"}
-              whileHover="hover"
-            >
-              <div>
-                <MotionLink to="/inquiry" variants={NavItemVariants}>
-                  문의하기
-                </MotionLink>
-              </div>
-              <UnderLine variants={UnderLineVariants} />
-            </NavItem>
-            {userData && (
+      <NavList>
+        <NavItem
+          initial="initial"
+          animate={homeMatch ? "animate" : "initial"}
+          whileHover="hover"
+        >
+          <div>
+            <MotionLink to="/" variants={NavItemVariants}>
+              홈
+            </MotionLink>
+          </div>
+          <UnderLine variants={UnderLineVariants} />
+        </NavItem>
+        <NavItem
+          initial="initial"
+          animate={aboutMatch ? "animate" : "initial"}
+          whileHover="hover"
+        >
+          <div>
+            <MotionLink to="/about" variants={NavItemVariants}>
+              소개
+            </MotionLink>
+          </div>
+          <UnderLine variants={UnderLineVariants} />
+        </NavItem>
+        <NavItem
+          initial="initial"
+          animate={inquiryMatch ? "animate" : "initial"}
+          whileHover="hover"
+        >
+          <div>
+            <MotionLink to="/inquiry" variants={NavItemVariants}>
+              문의하기
+            </MotionLink>
+          </div>
+          <UnderLine variants={UnderLineVariants} />
+        </NavItem>
+        {userData && (
+          <>
+            {width > 1220 ? (
               <>
-                {width > 1220 ? (
-                  <>
-                    <NavItem
-                      initial="initial"
-                      animate={
-                        applyListMatch || DetailApplyMatch
-                          ? "animate"
-                          : "initial"
-                      }
-                      whileHover="hover"
-                    >
-                      <div>
-                        <MotionLink to="/apply-list" variants={NavItemVariants}>
-                          신청 목록
-                        </MotionLink>
-                      </div>
-                      <UnderLine variants={UnderLineVariants} />
-                    </NavItem>
-                    <NavItem
-                      initial="initial"
-                      animate={
-                        applyMatch || applyProcedureMatch
-                          ? "animate"
-                          : "initial"
-                      }
-                      whileHover="hover"
-                    >
-                      <div>
-                        <MotionLink to="/apply" variants={NavItemVariants}>
-                          신청하기
-                        </MotionLink>
-                      </div>
-                      <UnderLine variants={UnderLineVariants} />
-                    </NavItem>
-                  </>
-                ) : (
-                  <NavFolder
-                    onMouseEnter={() => setIsApplyOpen(true)}
-                    onMouseLeave={() => setIsApplyOpen(false)}
-                    $isActive={applyListMatch || applyMatch}
-                  >
-                    그림
-                    <AnimatePresence>
-                      {isApplyOpen ? (
-                        <NavFolderList
-                          variants={FolderVariants}
-                          initial="initial"
-                          animate="animate"
-                          exit="exit"
-                        >
-                          <NavFolderItem to="/apply-list">
-                            신청 목록
-                          </NavFolderItem>
-                          <NavFolderItem to="/apply">신청하기</NavFolderItem>
-                        </NavFolderList>
-                      ) : null}
-                    </AnimatePresence>
-                  </NavFolder>
-                )}
-                {userData?.isAdmin && width > 1740 ? (
-                  <>
-                    <NavItem
-                      initial="initial"
-                      animate={
-                        orderManagementMatch || orderManagementDetailMatch
-                          ? "animate"
-                          : "initial"
-                      }
-                      whileHover="hover"
-                    >
-                      <div>
-                        <MotionLink
-                          to="/order-management"
-                          variants={NavItemVariants}
-                        >
-                          주문 관리
-                        </MotionLink>
-                      </div>
-                      <UnderLine variants={UnderLineVariants} />
-                    </NavItem>
-                    <NavItem
-                      initial="initial"
-                      animate={
-                        inquiryManagementMatch || inquiryManagementDetailMatch
-                          ? "animate"
-                          : "initial"
-                      }
-                      whileHover="hover"
-                    >
-                      <div>
-                        <MotionLink
-                          to="/inquiry-management"
-                          variants={NavItemVariants}
-                        >
-                          문의 목록
-                        </MotionLink>
-                      </div>
-                      <UnderLine variants={UnderLineVariants} />
-                    </NavItem>
-                  </>
-                ) : (
-                  <NavFolder
-                    onMouseEnter={() => setIsFolderOpen(true)}
-                    onMouseLeave={() => setIsFolderOpen(false)}
-                    $isActive={orderManagementMatch || inquiryManagementMatch}
-                  >
-                    관리
-                    <AnimatePresence>
-                      {isFolderOpen ? (
-                        <NavFolderList
-                          variants={FolderVariants}
-                          initial="initial"
-                          animate="animate"
-                          exit="exit"
-                        >
-                          <NavFolderItem to="/order-management">
-                            주문 관리
-                          </NavFolderItem>
-                          <NavFolderItem to="/inquiry-management">
-                            문의 관리
-                          </NavFolderItem>
-                        </NavFolderList>
-                      ) : null}
-                    </AnimatePresence>
-                  </NavFolder>
-                )}
+                <NavItem
+                  initial="initial"
+                  animate={
+                    applyListMatch || DetailApplyMatch ? "animate" : "initial"
+                  }
+                  whileHover="hover"
+                >
+                  <div>
+                    <MotionLink to="/apply-list" variants={NavItemVariants}>
+                      신청 목록
+                    </MotionLink>
+                  </div>
+                  <UnderLine variants={UnderLineVariants} />
+                </NavItem>
+                <NavItem
+                  initial="initial"
+                  animate={
+                    applyMatch || applyProcedureMatch ? "animate" : "initial"
+                  }
+                  whileHover="hover"
+                >
+                  <div>
+                    <MotionLink to="/apply" variants={NavItemVariants}>
+                      신청하기
+                    </MotionLink>
+                  </div>
+                  <UnderLine variants={UnderLineVariants} />
+                </NavItem>
               </>
+            ) : (
+              <NavFolder
+                onMouseEnter={() => setIsApplyOpen(true)}
+                onMouseLeave={() => setIsApplyOpen(false)}
+                $isActive={applyListMatch || applyMatch}
+              >
+                그림
+                <AnimatePresence>
+                  {isApplyOpen ? (
+                    <NavFolderList
+                      variants={FolderVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                    >
+                      <NavFolderItem to="/apply-list">신청 목록</NavFolderItem>
+                      <NavFolderItem to="/apply">신청하기</NavFolderItem>
+                    </NavFolderList>
+                  ) : null}
+                </AnimatePresence>
+              </NavFolder>
             )}
-          </NavList>
-          <NavAccount />
-        </>
-      )}
+            {userData?.isAdmin && width > 1740 ? (
+              <>
+                <NavItem
+                  initial="initial"
+                  animate={
+                    orderManagementMatch || orderManagementDetailMatch
+                      ? "animate"
+                      : "initial"
+                  }
+                  whileHover="hover"
+                >
+                  <div>
+                    <MotionLink
+                      to="/order-management"
+                      variants={NavItemVariants}
+                    >
+                      주문 관리
+                    </MotionLink>
+                  </div>
+                  <UnderLine variants={UnderLineVariants} />
+                </NavItem>
+                <NavItem
+                  initial="initial"
+                  animate={
+                    inquiryManagementMatch || inquiryManagementDetailMatch
+                      ? "animate"
+                      : "initial"
+                  }
+                  whileHover="hover"
+                >
+                  <div>
+                    <MotionLink
+                      to="/inquiry-management"
+                      variants={NavItemVariants}
+                    >
+                      문의 목록
+                    </MotionLink>
+                  </div>
+                  <UnderLine variants={UnderLineVariants} />
+                </NavItem>
+              </>
+            ) : (
+              <NavFolder
+                onMouseEnter={() => setIsFolderOpen(true)}
+                onMouseLeave={() => setIsFolderOpen(false)}
+                $isActive={orderManagementMatch || inquiryManagementMatch}
+              >
+                관리
+                <AnimatePresence>
+                  {isFolderOpen ? (
+                    <NavFolderList
+                      variants={FolderVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                    >
+                      <NavFolderItem to="/order-management">
+                        주문 관리
+                      </NavFolderItem>
+                      <NavFolderItem to="/inquiry-management">
+                        문의 관리
+                      </NavFolderItem>
+                    </NavFolderList>
+                  ) : null}
+                </AnimatePresence>
+              </NavFolder>
+            )}
+          </>
+        )}
+      </NavList>
+      <NavAccount />
     </Nav>
   );
 };
