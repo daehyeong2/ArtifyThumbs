@@ -8,7 +8,13 @@ import { useCallback, useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import LoadingScreen from "../components/LoadingScreen";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { isBlockedAtom, userAtom, userIsLoadedAtom, widthAtom } from "../atom";
+import {
+  isBlockedAtom,
+  userAtom,
+  userIsLoadedAtom,
+  widthAtom,
+  isMobileAtom,
+} from "../atom";
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import EmailVerification from "../components/EmailVerification";
 import usePrompt from "../components/usePrompt";
@@ -25,6 +31,7 @@ const Root = () => {
   const setUser = useSetRecoilState(userAtom);
   const setUserIsLoaded = useSetRecoilState(userIsLoadedAtom);
   const setWidth = useSetRecoilState(widthAtom);
+  const setIsMobile = useSetRecoilState(isMobileAtom);
   const init = useCallback(async () => {
     setLoading(true);
     await auth.authStateReady();
@@ -43,8 +50,11 @@ const Root = () => {
     setLoading(false);
     setUserIsLoaded(true);
   }, [setUser, setUserIsLoaded]);
+  const isClient = document.visibilityState === "visible";
   useEffect(() => {
     const handleResize = () => {
+      const isMobile = isClient && !(window.innerWidth > 850);
+      setIsMobile(isMobile);
       setWidth(window.innerWidth);
     };
 
@@ -55,7 +65,7 @@ const Root = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [setWidth]);
+  }, [setWidth, isClient, setIsMobile]);
   useEffect(() => {
     init();
   }, [init]);

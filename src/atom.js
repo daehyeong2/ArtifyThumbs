@@ -20,3 +20,7 @@ export const widthAtom = atom({
   key: "width",
   default: window.innerWidth,
 });
+export const isMobileAtom = atom({
+  key: "isMobile",
+  default: false,
+});

@@ -2,26 +2,34 @@ import styled from "styled-components";
 import Seo from "../components/Seo";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { isMobileAtom } from "../atom";
+
+const Wrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-top: ${(props) => (props.$isMobile ? "100px" : "140px")};
+`;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  padding: 0 25vw;
-  padding-top: 140px;
   gap: 80px;
 `;
 
 const TopBar = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 20px;
 `;
 
 const ContainerTitle = styled.h1`
   width: 100%;
-  font-size: 4rem;
+  font-size: ${(props) => (props.$isMobile ? "2.3rem" : "4rem")};
   font-weight: 900;
   display: flex;
   justify-content: center;
@@ -47,6 +55,8 @@ const ContainerSubtitle = styled.h2`
   font-size: 1.1rem;
   font-weight: 900;
   line-height: 25px;
+  word-break: break-all;
+  max-width: 95vw;
 `;
 
 const Introduction = styled.div`
@@ -63,19 +73,25 @@ const Info = styled.div`
 
 const InfoTitle = styled.h1`
   font-weight: bold;
-  font-size: 2rem;
+  max-width: 95vw;
+  word-break: break-all;
+  font-size: ${(props) => (props.$isMobile ? "1.3rem" : "2rem")};
+  line-height: 1.3;
 `;
 
 const InfoContent = styled.p`
   font-weight: 700px;
-  font-size: 1.1rem;
-  line-height: 1.2;
+  max-width: 95vw;
+  word-break: break-all;
+  font-size: ${(props) => (props.$isMobile ? "1rem" : "1.1rem")};
+  line-height: 1.3;
 `;
 
 const WorkersTitle = styled.h1`
   margin-top: 50px;
   font-size: 30px;
   font-weight: bold;
+  text-align: ${(props) => (props.$isMobile ? "center" : "start")};
 `;
 
 const Workers = styled.section`
@@ -94,23 +110,25 @@ const Worker = styled(motion(Link))`
   text-decoration: none;
   border-radius: 10px;
   padding: 20px;
-  height: 100%;
+  min-height: fit-content;
+  height: ${(props) => (props.$isMobile ? "fit-content" : "100%")};
   box-sizing: border-box;
   grid-column: ${(props) => props.$isBig && "span 2"};
-  width: ${(props) => (props.$isBig ? "390px" : "390px")};
+  width: ${(props) => (props.$isMobile ? "95vw" : "390px")};
   place-self: center;
   position: relative;
   background: none;
   overflow: hidden;
-  z-index: 99;
   cursor: pointer;
 `;
 
 const WorkerList = styled.ul`
-  display: grid;
+  display: ${(props) => (props.$isMobile ? "flex" : "grid")};
+  flex-direction: column;
+  width: ${(props) => (props.$isMobile ? "100vw" : "800px")};
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 20px;
-  width: 800px;
 `;
 
 const WorkerProfile = styled.div`
@@ -182,12 +200,13 @@ function getWorkerVariants(type) {
 }
 
 const About = () => {
+  const isMobile = useRecoilValue(isMobileAtom);
   return (
-    <>
+    <Wrapper $isMobile={isMobile}>
       <Seo title="소개" description="ArtifyThumbs에 대해 알아보세요!" />
       <Container>
         <TopBar>
-          <ContainerTitle>
+          <ContainerTitle $isMobile={isMobile}>
             <span>ArtifyThumbs</span>에 대해
           </ContainerTitle>
           <ContainerSubtitle>
@@ -197,33 +216,38 @@ const About = () => {
         </TopBar>
         <Introduction>
           <Info>
-            <InfoTitle>무엇을 할 수 있나요?</InfoTitle>
-            <InfoContent>
+            <InfoTitle $isMobile={isMobile}>무엇을 할 수 있나요?</InfoTitle>
+            <InfoContent $isMobile={isMobile}>
               ArtifyThumbs에서는 저렴한 가격에 원하는 사진을 신청하고 금방
               받아볼 수 있어요.
             </InfoContent>
           </Info>
           <Info>
-            <InfoTitle>
+            <InfoTitle $isMobile={isMobile}>
               AritfyThumbs를 이용해야 하는 이유는 무엇인가요?
             </InfoTitle>
-            <InfoContent>
+            <InfoContent $isMobile={isMobile}>
               저희는 가격이 저렴하고 신청도 간편해요! 게다가 좋은 퀄리티의
               사진을 빠르게 받아볼 수 있어요.
             </InfoContent>
           </Info>
           <Info>
-            <InfoTitle>어떻게 이용하나요?</InfoTitle>
-            <InfoContent>
+            <InfoTitle $isMobile={isMobile}>어떻게 이용하나요?</InfoTitle>
+            <InfoContent $isMobile={isMobile}>
               ArtifyThumbs에 가입하고 원하는 사진을 신청하면 됩니다. 자세한
               내용은 신청 페이지에 있습니다.
             </InfoContent>
           </Info>
         </Introduction>
         <Workers>
-          <WorkersTitle>ArtifyThumbs 팀</WorkersTitle>
-          <WorkerList>
-            <Worker to="/workers/dawn" initial="initial" whileHover="hover">
+          <WorkersTitle $isMobile={isMobile}>ArtifyThumbs 팀</WorkersTitle>
+          <WorkerList $isMobile={isMobile}>
+            <Worker
+              $isMobile={isMobile}
+              to="/workers/dawn"
+              initial="initial"
+              whileHover="hover"
+            >
               <WorkerBackground
                 variants={getWorkerVariants("purple")}
                 transition={{ duration: 0.3 }}
@@ -236,12 +260,15 @@ const About = () => {
               </WorkerProfile>
               <WorkerIntroduction>
                 <span>소개글:</span> 어쩌다가 여기에 끌려왔을까요? 살려주세요
-                ㅠㅠ 하지만 퀄리티는 보장 해드립니다.
-                <br />
-                믿고 맡겨주세요.
+                ㅠㅠ 하지만 퀄리티는 보장 해드립니다. 믿고 맡겨주세요.
               </WorkerIntroduction>
             </Worker>
-            <Worker to="/workers/baram" initial="initial" whileHover="hover">
+            <Worker
+              $isMobile={isMobile}
+              to="/workers/baram"
+              initial="initial"
+              whileHover="hover"
+            >
               <WorkerBackground
                 variants={getWorkerVariants("yellow")}
                 transition={{ duration: 0.3 }}
@@ -258,6 +285,7 @@ const About = () => {
               </WorkerIntroduction>
             </Worker>
             <Worker
+              $isMobile={isMobile}
               to="/workers/gorani"
               $isBig={true}
               initial="initial"
@@ -283,7 +311,7 @@ const About = () => {
           </WorkerList>
         </Workers>
       </Container>
-    </>
+    </Wrapper>
   );
 };
 

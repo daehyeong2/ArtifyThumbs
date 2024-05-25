@@ -9,19 +9,32 @@ import {
 import { Link, useMatch } from "react-router-dom";
 import { useCallback, useState } from "react";
 import { useRecoilValue } from "recoil";
-import { userAtom, widthAtom } from "../atom";
+import { isMobileAtom, userAtom, widthAtom } from "../atom";
 import CustomLink from "./CustomLink";
 import MotionLink from "./MotionLink";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import MenuAccount from "./MenuAccount";
+
+const MenuContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const LogoLink = styled(CustomLink)`
+  height: 100%;
+  margin-left: 10px;
+`;
 
 const Logo = styled.div`
   background-image: url("/img/Logo.jpeg");
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
+  margin: 0 auto;
   width: 250px;
   height: 100%;
-  width: 100%;
-  place-self: center;
   cursor: pointer;
 `;
 
@@ -41,7 +54,7 @@ const Nav = styled(motion.nav)`
     display: ${(props) => (props.$isMobile ? "none" : "flex")};
   }
   @media only screen and (max-width: 850px) {
-    padding: 10px 75px;
+    padding: 10px 0;
     grid-template-columns: 1fr;
   }
 `;
@@ -77,7 +90,9 @@ const NavFolder = styled(motion.li)`
   font-weight: 600;
   display: flex;
   justify-content: center;
+  user-select: none;
   transition: color 0.1s ease-in-out;
+
   color: ${(props) =>
     props.$isActive ? "rgba(0, 0, 0, 1)" : "rgba(0, 0, 0, 0.25)"};
   &:hover {
@@ -108,6 +123,95 @@ const NavFolderItem = styled(Link)`
   &:hover {
     opacity: 1;
   }
+`;
+
+const Menu = styled.section`
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  @media only screen and (max-width: 850px) {
+    display: block;
+  }
+`;
+
+const MenuIcon = styled(FontAwesomeIcon)`
+  position: absolute;
+  left: ${(props) => (props.$isRight ? "" : "23px")};
+  right: ${(props) => (props.$isRight ? "25px" : "")};
+  top: ${(props) => (props.$isRight ? "42px" : "32px")};
+  font-size: 24px;
+  cursor: pointer;
+`;
+
+const MenuList = styled(motion.ul)`
+  padding: 20px 10px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: 80px repeat(auto-fill, 35px);
+  gap: 3px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: white;
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  z-index: 99;
+`;
+
+const MenuHeader = styled.div`
+  display: flex;
+  align-items: center;
+  padding-left: 30px;
+  gap: 8px;
+  margin-bottom: 20px;
+  span {
+    font-size: 22px;
+    font-weight: bold;
+    transform: translateY(3px);
+  }
+`;
+
+const MenuItem = styled(Link)`
+  font-size: 16px;
+  border-radius: 7px;
+  color: black;
+  text-decoration: none;
+  transition: background-color 0.1s ease-in-out;
+  display: flex;
+  padding: 0 30px;
+  align-items: center;
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+`;
+
+const MenuLogo = styled.div`
+  background-image: url("/img/smallLogo.jpeg");
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 90%;
+  aspect-ratio: 1 / 1;
+`;
+
+const Overylay = styled(motion.div)`
+  position: fixed;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+`;
+
+const MenuTitle = styled.h3`
+  font-size: 17px;
+  font-weight: bold;
+  padding-left: 17px;
+  padding-bottom: 5px;
+  display: flex;
+  align-items: flex-end;
+  color: rgba(0, 0, 0, 0.5);
 `;
 
 const NavItemVariants = {
@@ -187,8 +291,41 @@ const FolderVariants = {
   },
 };
 
+const MenuVariants = {
+  initial: {
+    x: "-100%",
+  },
+  animate: {
+    x: 0,
+    transition: {
+      type: "linear",
+      duration: 0.2,
+    },
+  },
+  exit: {
+    x: "-100%",
+    transition: {
+      type: "linear",
+      duration: 0.2,
+    },
+  },
+};
+
+const OverylayVariants = {
+  initial: {
+    opacity: 0,
+  },
+  animate: {
+    opacity: 1,
+  },
+  exit: {
+    opacity: 0,
+  },
+};
+
 const NavBar = () => {
   const userData = useRecoilValue(userAtom);
+  const isMobile = useRecoilValue(isMobileAtom);
   const [currentScrollY, setCurrentScrollY] = useState(0);
   const width = useRecoilValue(widthAtom);
   const homeMatch = useMatch("/");
@@ -214,8 +351,15 @@ const NavBar = () => {
   const isBorderExist = signinMatch || signupMatch;
   const [isFolderOpen, setIsFolderOpen] = useState(false);
   const [isApplyOpen, setIsApplyOpen] = useState(false);
-  const isClient = document.visibilityState === "visible";
-  const isMobile = isClient && !(width > 850);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuToggle = () => {
+    if (menuOpen) {
+      document.body.style.overflow = "unset";
+    } else {
+      document.body.style.overflow = "hidden";
+    }
+    setMenuOpen((prev) => !prev);
+  };
   return (
     <Nav
       $isBorderExist={isBorderExist}
@@ -226,9 +370,79 @@ const NavBar = () => {
       animate={currentScrollY > 80 ? "scrolled" : "initial"}
       transition={{ duration: 0.2 }}
     >
-      <CustomLink to="/">
-        <Logo />
-      </CustomLink>
+      <MenuContainer>
+        <Menu>
+          <MenuIcon onClick={menuToggle} icon={faBars} />
+          <AnimatePresence>
+            {menuOpen ? (
+              <>
+                <MenuList
+                  variants={MenuVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <MenuHeader>
+                    <MenuLogo />
+                    <span>메뉴</span>
+                    <MenuIcon
+                      $isRight={true}
+                      onClick={menuToggle}
+                      icon={faBars}
+                    />
+                  </MenuHeader>
+                  <MenuTitle>일반</MenuTitle>
+                  <MenuItem to="/" onClick={menuToggle}>
+                    홈
+                  </MenuItem>
+                  <MenuItem to="/about" onClick={menuToggle}>
+                    소개
+                  </MenuItem>
+                  <MenuItem to="/inquiry" onClick={menuToggle}>
+                    문의하기
+                  </MenuItem>
+                  {userData && (
+                    <>
+                      <MenuTitle>그림</MenuTitle>
+                      <MenuItem to="/apply-list" onClick={menuToggle}>
+                        신청 목록
+                      </MenuItem>
+                      <MenuItem to="/apply" onClick={menuToggle}>
+                        신청하기
+                      </MenuItem>
+                      {userData.isAdmin && (
+                        <>
+                          <MenuTitle>관리</MenuTitle>
+                          <MenuItem to="/order-management" onClick={menuToggle}>
+                            주문 관리
+                          </MenuItem>
+                          <MenuItem
+                            to="/inquiry-management"
+                            onClick={menuToggle}
+                          >
+                            문의 관리
+                          </MenuItem>
+                        </>
+                      )}
+                    </>
+                  )}
+                  <MenuAccount menuToggle={menuToggle} />
+                </MenuList>
+                <Overylay
+                  variants={OverylayVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  onClick={menuToggle}
+                />
+              </>
+            ) : null}
+          </AnimatePresence>
+        </Menu>
+        <LogoLink to="/">
+          <Logo />
+        </LogoLink>
+      </MenuContainer>
       <NavList>
         <NavItem
           initial="initial"

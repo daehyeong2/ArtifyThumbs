@@ -90,7 +90,7 @@ const ApplyDesc = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  z-index: 10;
+  z-index: 1;
   background-color: white;
   gap: 20px;
   padding: 20px;

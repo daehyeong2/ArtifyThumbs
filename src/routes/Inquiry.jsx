@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown } from "@fortawesome/free-solid-svg-icons";
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../firebase";
+import { useRecoilValue } from "recoil";
+import { isMobileAtom } from "../atom";
 
 const Wrapper = styled.div`
   display: flex;
@@ -23,6 +25,10 @@ const InquirySection = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  max-width: 800px;
+  width: 100%;
+  padding: 0 15px;
+  box-sizing: border-box;
 `;
 
 const Container = styled.div`
@@ -30,9 +36,9 @@ const Container = styled.div`
   flex-direction: column;
   gap: 30px;
   height: 500px;
+  width: 100%;
   padding: 50px;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  width: 800px;
   box-sizing: border-box;
   border-radius: 20px;
   transition: 0.1s;
@@ -42,20 +48,16 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 40px;
+  font-size: ${(props) => (props.$isMobile ? "35px" : "40px")};
   font-weight: 600;
 `;
 
 const Form = styled.form`
-  display: flex;
+  display: grid;
   height: 100%;
-  flex-direction: column;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 45px ${(props) => (props.$isMobile ? "45px" : "")} 1fr 45px;
   gap: 13px;
-`;
-
-const InputContainer = styled.div`
-  display: flex;
-  gap: 10px;
 `;
 
 const Input = styled.input`
@@ -67,6 +69,7 @@ const Input = styled.input`
   border-radius: 10px;
   outline: none;
   box-sizing: border-box;
+  grid-column: ${(props) => (props.$isMobile ? "span 2" : "")};
   &:focus-within {
     border: 1px solid #0984e3;
   }
@@ -74,7 +77,7 @@ const Input = styled.input`
 
 const TextArea = styled.textarea`
   width: 100%;
-  height: 70%;
+  height: 100%;
   box-sizing: border-box;
   font-size: 16px;
   padding: 10px 15px;
@@ -82,6 +85,7 @@ const TextArea = styled.textarea`
   border-radius: 10px;
   outline: none;
   resize: none;
+  grid-column: span 2;
   &:focus-within {
     border: 1px solid #0984e3;
   }
@@ -99,6 +103,7 @@ const Button = styled.button`
   transition: 0.1s;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  grid-column: span 2;
   cursor: pointer;
   &:hover {
     background-color: #0097e6;
@@ -110,8 +115,10 @@ const QnA = styled.div`
   flex-direction: column;
   gap: 60px;
   min-height: 100vh;
+  padding: 0 10px;
   padding-top: 200px;
-  width: 700px;
+  max-width: 700px;
+  width: 100%;
   box-sizing: border-box;
 `;
 
@@ -128,12 +135,12 @@ const QnAItem = styled.div`
 `;
 
 const Q = styled.h2`
-  font-size: 25px;
+  font-size: ${(props) => (props.$isMobile ? "21px" : "25px")};
   font-weight: 600;
 `;
 
 const A = styled.p`
-  font-size: 20px;
+  font-size: ${(props) => (props.$isMobile ? "17px" : "20px")};
   line-height: 1.2;
 `;
 
@@ -224,6 +231,7 @@ const Inquiry = () => {
       setLoading(false);
     }
   };
+  const isMobile = useRecoilValue(isMobileAtom);
   return (
     <>
       <Seo
@@ -234,26 +242,26 @@ const Inquiry = () => {
         <InquirySection>
           <Container>
             <Title>문의하기</Title>
-            <Form onSubmit={handleSubmit(onSubmit)}>
-              <InputContainer>
-                <Input
-                  type="text"
-                  autoComplete="off"
-                  placeholder="문의 제목을 입력하세요."
-                  required
-                  {...register("title", { required: true })}
-                />
-                <Input
-                  type="email"
-                  autoComplete="off"
-                  placeholder="이메일을 입력하세요."
-                  required
-                  {...register("email", {
-                    required: true,
-                    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                  })}
-                />
-              </InputContainer>
+            <Form $isMobile={isMobile} onSubmit={handleSubmit(onSubmit)}>
+              <Input
+                $isMobile={isMobile}
+                type="text"
+                autoComplete="off"
+                placeholder="문의 제목을 입력하세요."
+                required
+                {...register("title", { required: true })}
+              />
+              <Input
+                $isMobile={isMobile}
+                type="email"
+                autoComplete="off"
+                placeholder="이메일을 입력하세요."
+                required
+                {...register("email", {
+                  required: true,
+                  match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                })}
+              />
               <TextArea
                 autoComplete="off"
                 placeholder="문의 내용을 입력해주세요."
@@ -283,25 +291,27 @@ const Inquiry = () => {
           </Link>
         </InquirySection>
         <QnA id="qna">
-          <Title>자주 묻는 질문</Title>
+          <Title $isMobile={isMobile}>자주 묻는 질문</Title>
           <QnAContainer>
             <QnAItem>
-              <Q>Q. 문의한 내용은 어떻게 확인하나요?</Q>
-              <A>
+              <Q $isMobile={isMobile}>Q. 문의한 내용은 어떻게 확인하나요?</Q>
+              <A $isMobile={isMobile}>
                 A. 문의한 내용은 이메일로 확인하실 수 있습니다. 문의한 내용에
                 대한 답변은 최대 7일 이내에 이메일로 보내드립니다.
               </A>
             </QnAItem>
             <QnAItem>
-              <Q>Q. 어떤 종류의 문의를 해야하나요?</Q>
-              <A>
+              <Q $isMobile={isMobile}>Q. 어떤 종류의 문의를 해야하나요?</Q>
+              <A $isMobile={isMobile}>
                 A. 궁금한 점이나 서비스 피드백, 에러 신고 등 무엇이든 문의 하실
                 수 있습니다.
               </A>
             </QnAItem>
             <QnAItem>
-              <Q>Q. 이메일 정보는 안전한가요?</Q>
-              <A>A. 네, 입력하신 이메일은 단순 회신용으로만 사용됩니다.</A>
+              <Q $isMobile={isMobile}>Q. 이메일 정보는 안전한가요?</Q>
+              <A $isMobile={isMobile}>
+                A. 네, 입력하신 이메일은 단순 회신용으로만 사용됩니다.
+              </A>
             </QnAItem>
           </QnAContainer>
         </QnA>

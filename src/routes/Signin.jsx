@@ -18,12 +18,13 @@ const Wrapper = styled.div`
 
 const Overlay = styled.div`
   position: absolute;
+  opacity: 0.5;
   width: 100%;
   height: 100%;
-  filter: blur(2.5px);
-  background-image: url("/img/background/login.jpeg");
-  background-position: center;
-  background-size: cover;
+  background-image: url("/img/background/home.jpeg");
+  background-repeat: no-repeat;
+  background-position: 67vw 50vh;
+  background-size: 400px;
 `;
 
 const Form = styled.form`
@@ -204,6 +205,7 @@ const Signin = () => {
         description="ArtifyThumbs의 계정에 로그인해서 원하는 그림을 요청해 보세요!"
       />
       <Wrapper>
+        <Overlay />
         <Form onSubmit={handleSubmit(onSubmit)}>
           <FormTitle>로그인</FormTitle>
           <InputContainer>
@@ -263,7 +265,6 @@ const Signin = () => {
             </OAuth>
           </OAuthList>
         </Form>
-        <Overlay />
       </Wrapper>
     </>
   );
