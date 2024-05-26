@@ -18,6 +18,7 @@ const About = styled(motion.div)`
   div {
     width: ${(props) => (props.$isMobile ? "fit-content" : "500px")};
     max-width: ${(props) => (props.$isMobile ? "600px" : "")};
+    order: ${(props) => (props.$isMobile ? 1 : props.$messageFirst ? -1 : 1)};
   }
 `;
 
@@ -68,20 +69,13 @@ const AboutMessage = ({ message, title, image, messageFirst, imageAlt }) => {
       whileInView="visible"
       viewport={{ once: true, amount: "all" }}
       $isMobile={isMobile}
+      $messageFirst={messageFirst}
     >
-      {!isMobile && messageFirst && (
-        <AboutInfo>
-          <AboutTitle>{title}</AboutTitle>
-          <AboutContent>{message}</AboutContent>
-        </AboutInfo>
-      )}
       <AboutImage src={image} alt={imageAlt} $isMobile={isMobile} />
-      {(isMobile || !messageFirst) && (
-        <AboutInfo>
-          <AboutTitle>{title}</AboutTitle>
-          <AboutContent>{message}</AboutContent>
-        </AboutInfo>
-      )}
+      <AboutInfo>
+        <AboutTitle>{title}</AboutTitle>
+        <AboutContent>{message}</AboutContent>
+      </AboutInfo>
     </About>
   );
 };
