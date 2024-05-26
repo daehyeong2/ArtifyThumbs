@@ -22,7 +22,7 @@ const About = styled(motion.div)`
 `;
 
 const AboutInfo = styled.div`
-  display: ${(props) => (props.$isVisible ? "flex" : "none")};
+  display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 20px;
@@ -69,15 +69,19 @@ const AboutMessage = ({ message, title, image, messageFirst, imageAlt }) => {
       viewport={{ once: true, amount: "all" }}
       $isMobile={isMobile}
     >
-      <AboutInfo $isVisible={!isMobile && messageFirst}>
-        <AboutTitle>{title}</AboutTitle>
-        <AboutContent>{message}</AboutContent>
-      </AboutInfo>
+      {!isMobile && messageFirst && (
+        <AboutInfo>
+          <AboutTitle>{title}</AboutTitle>
+          <AboutContent>{message}</AboutContent>
+        </AboutInfo>
+      )}
       <AboutImage src={image} alt={imageAlt} $isMobile={isMobile} />
-      <AboutInfo $isVisible={isMobile || !messageFirst}>
-        <AboutTitle>{title}</AboutTitle>
-        <AboutContent>{message}</AboutContent>
-      </AboutInfo>
+      {(isMobile || !messageFirst) && (
+        <AboutInfo>
+          <AboutTitle>{title}</AboutTitle>
+          <AboutContent>{message}</AboutContent>
+        </AboutInfo>
+      )}
     </About>
   );
 };
