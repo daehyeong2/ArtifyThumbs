@@ -53,7 +53,7 @@ const Nav = styled(motion.nav)`
   > *:not(:first-child) {
     display: ${(props) => (props.$isMobile ? "none" : "flex")};
   }
-  @media only screen and (max-width: 850px) {
+  @media only screen and (max-width: 885px) {
     padding: 10px 0;
     grid-template-columns: 1fr;
   }
@@ -130,7 +130,7 @@ const Menu = styled.section`
   position: fixed;
   top: 0;
   left: 0;
-  @media only screen and (max-width: 850px) {
+  @media only screen and (max-width: 885px) {
     display: block;
   }
 `;
@@ -517,7 +517,7 @@ const NavBar = () => {
               <NavFolder
                 onMouseEnter={() => setIsApplyOpen(true)}
                 onMouseLeave={() => setIsApplyOpen(false)}
-                $isActive={applyListMatch || applyMatch}
+                $isActive={applyListMatch || applyMatch || DetailApplyMatch}
               >
                 그림
                 <AnimatePresence>
@@ -580,7 +580,12 @@ const NavBar = () => {
               <NavFolder
                 onMouseEnter={() => setIsFolderOpen(true)}
                 onMouseLeave={() => setIsFolderOpen(false)}
-                $isActive={orderManagementMatch || inquiryManagementMatch}
+                $isActive={
+                  orderManagementMatch ||
+                  inquiryManagementMatch ||
+                  orderManagementDetailMatch ||
+                  inquiryManagementDetailMatch
+                }
               >
                 관리
                 <AnimatePresence>

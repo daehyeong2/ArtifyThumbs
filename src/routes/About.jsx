@@ -52,7 +52,7 @@ const ContainerTitle = styled.h1`
 `;
 
 const ContainerSubtitle = styled.h2`
-  font-size: 1.1rem;
+  font-size: ${(props) => (props.$isMobile ? "1rem" : "1.1rem")};
   font-weight: 900;
   line-height: 25px;
   word-break: break-all;
@@ -75,7 +75,7 @@ const InfoTitle = styled.h1`
   font-weight: bold;
   max-width: 95vw;
   word-break: break-all;
-  font-size: ${(props) => (props.$isMobile ? "1.3rem" : "2rem")};
+  font-size: ${(props) => (props.$isMobile ? "1.4rem" : "2rem")};
   line-height: 1.3;
 `;
 
@@ -125,7 +125,7 @@ const Worker = styled(motion(Link))`
 const WorkerList = styled.ul`
   display: ${(props) => (props.$isMobile ? "flex" : "grid")};
   flex-direction: column;
-  width: ${(props) => (props.$isMobile ? "100vw" : "800px")};
+  width: ${(props) => (props.$isMobile ? "100%" : "800px")};
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 20px;
@@ -209,7 +209,7 @@ const About = () => {
           <ContainerTitle $isMobile={isMobile}>
             <span>ArtifyThumbs</span>에 대해
           </ContainerTitle>
-          <ContainerSubtitle>
+          <ContainerSubtitle $isMobile={isMobile}>
             ArtifyThumbs는 이미지를 신청하고 좋은 퀄리티의 이미지를 빠르게 받을
             수 있는 서비스입니다.
           </ContainerSubtitle>

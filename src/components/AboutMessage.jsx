@@ -5,6 +5,7 @@ import { useRecoilValue } from "recoil";
 
 const About = styled(motion.div)`
   display: flex;
+  max-width: ${(props) => (props.$isMobile ? "500px" : "")};
   width: 100%;
   height: fit-content;
   flex-direction: ${(props) => (props.$isMobile ? "column" : "row")};
@@ -21,7 +22,7 @@ const About = styled(motion.div)`
 `;
 
 const AboutInfo = styled.div`
-  display: flex;
+  display: ${(props) => (props.$isVisible ? "flex" : "none")};
   flex-direction: column;
   justify-content: center;
   gap: 20px;
@@ -68,19 +69,15 @@ const AboutMessage = ({ message, title, image, messageFirst, imageAlt }) => {
       viewport={{ once: true, amount: "all" }}
       $isMobile={isMobile}
     >
-      {!isMobile && messageFirst && (
-        <AboutInfo>
-          <AboutTitle>{title}</AboutTitle>
-          <AboutContent>{message}</AboutContent>
-        </AboutInfo>
-      )}
+      <AboutInfo $isVisible={!isMobile && messageFirst}>
+        <AboutTitle>{title}</AboutTitle>
+        <AboutContent>{message}</AboutContent>
+      </AboutInfo>
       <AboutImage src={image} alt={imageAlt} $isMobile={isMobile} />
-      {(isMobile || !messageFirst) && (
-        <AboutInfo>
-          <AboutTitle>{title}</AboutTitle>
-          <AboutContent>{message}</AboutContent>
-        </AboutInfo>
-      )}
+      <AboutInfo $isVisible={isMobile || !messageFirst}>
+        <AboutTitle>{title}</AboutTitle>
+        <AboutContent>{message}</AboutContent>
+      </AboutInfo>
     </About>
   );
 };

@@ -53,7 +53,7 @@ const Root = () => {
   const isClient = document.visibilityState === "visible";
   useEffect(() => {
     const handleResize = () => {
-      const isMobile = isClient && !(window.innerWidth > 850);
+      const isMobile = isClient && !(window.innerWidth > 885);
       setIsMobile(isMobile);
       setWidth(window.innerWidth);
     };

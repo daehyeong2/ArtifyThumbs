@@ -35,9 +35,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
-  height: 500px;
+  height: ${(props) => (props.$isMobile ? "430px" : "500px")};
   width: 100%;
-  padding: 50px;
+  padding: ${(props) => (props.$isMobile ? "30px" : "50px")};
   border: 1px solid rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
   border-radius: 20px;
@@ -154,7 +154,7 @@ const Message = styled(motion.div)`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-size: 24px;
+  font-size: ${(props) => (props.$isMobile ? "22px" : "24px")};
   font-weight: 600;
   margin-top: 20px;
   cursor: pointer;
@@ -240,8 +240,8 @@ const Inquiry = () => {
       />
       <Wrapper>
         <InquirySection>
-          <Container>
-            <Title>문의하기</Title>
+          <Container $isMobile={isMobile}>
+            <Title $isMobile={isMobile}>문의하기</Title>
             <Form $isMobile={isMobile} onSubmit={handleSubmit(onSubmit)}>
               <Input
                 $isMobile={isMobile}
@@ -283,6 +283,7 @@ const Inquiry = () => {
               variants={MessageVariants}
               initial="initial"
               animate={currentScrollY > 80 ? "scrolled" : "animate"}
+              $isMobile={isMobile}
             >
               <FontAwesomeIcon icon={faArrowDown} />
               자주 묻는 질문

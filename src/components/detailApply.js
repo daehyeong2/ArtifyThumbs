@@ -6,15 +6,22 @@ import { Link } from "react-router-dom";
 export const Wrapper = styled.div`
   min-height: 100vh;
   box-sizing: border-box;
-  padding-top: 140px;
-  display: grid;
-  grid-template-columns: minmax(500px, 1fr) 1.5fr 0.5fr;
+  padding-left: ${(props) => (props.$isXSmall ? "30px" : "40px")};
+  padding-right: ${(props) => (props.$isMobile ? "30px" : 0)};
+  padding-top: 120px;
+  padding-bottom: ${(props) => (props.$isSmall ? "30px" : 0)};
+  display: ${(props) => (props.$isMobile ? "flex" : "grid")};
+  justify-content: center;
+  grid-template-columns: ${(props) =>
+      props.$isXSmall
+        ? ""
+        : props.$isSmall
+        ? "minmax(200px, 1fr)"
+        : "minmax(400px, 500px)"} 1.5fr 0.5fr;
+  grid-template-rows: 1fr ${(props) => (props.$isXSmall ? "200px" : "")};
 `;
 
 export const Back = styled(Link)`
-  position: absolute;
-  top: 108px;
-  left: 100px;
   font-size: 1.1rem;
   text-decoration: none;
   color: black;
@@ -23,13 +30,14 @@ export const Back = styled(Link)`
   }
 `;
 
-export const Detail = styled.div`
-  display: flex;
+export const Detail = styled(motion.div)`
+  display: ${(props) =>
+    !props.$isMobile && props.$isXSmall ? "none" : "flex"};
   flex-direction: column;
   gap: 25px;
   align-items: center;
+  padding: 0 30px;
   box-sizing: border-box;
-  padding: 0 100px;
   position: relative;
 `;
 
@@ -116,11 +124,12 @@ export const DetailDescription = styled.p`
   overflow-y: auto;
 `;
 
-export const Chat = styled.div`
+export const Chat = styled(motion.div)`
   background-color: rgba(0, 0, 0, 0.01);
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 15px;
-  height: 765px;
+  max-height: ${(props) => (props.$isMobile ? "83vh" : "765px")};
+  min-width: ${(props) => (props.$isMobile ? "100%" : "630px")};
   overflow: hidden;
   padding-bottom: 15px;
   display: flex;
@@ -134,6 +143,8 @@ export const MessageList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  max-height: ${(props) =>
+    !props.$isMobile && props.$isXSmall ? "445px" : ""};
   overflow-y: auto;
   &::-webkit-scrollbar {
     display: none;
@@ -153,6 +164,7 @@ export const MessageInput = styled.input`
   padding: 10px 15px;
   border-radius: 15px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  min-width: 100px;
   font-size: 1.1rem;
   &:focus-within {
     outline: none;
@@ -166,8 +178,10 @@ export const MessageButton = styled(motion.button)`
   color: white;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
   border: none;
+  svg {
+    font-size: 18px;
+  }
 `;
 
 export const messageButtonVariants = {
@@ -179,13 +193,16 @@ export const messageButtonVariants = {
   },
 };
 
-export const Drafts = styled.div`
+export const Drafts = styled(motion.div)`
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
-  height: 765px;
+  max-height: ${(props) =>
+    props.$isMobile ? "700px" : props.$isXSmall ? "565px" : "765px"};
+  min-width: 200px;
+  width: 100%;
   box-sizing: border-box;
   &::-webkit-scrollbar {
     display: none;
@@ -289,7 +306,10 @@ export const Overlay = styled(motion.div)`
 
 export const ImageViewer = styled(motion.div)`
   position: fixed;
-  height: 70vh;
+  max-height: 600px;
+  height: 100%;
+  max-width: 900px;
+  min-width: 330px;
   width: 58vw;
   right: 0;
   left: 0;
@@ -297,17 +317,23 @@ export const ImageViewer = styled(motion.div)`
   bottom: 0;
   margin: auto;
   display: flex;
+  gap: 20px;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 4;
   background-color: white;
   padding: 60px 25px;
+  padding-top: 25px;
   box-sizing: border-box;
   border-radius: 15px;
+  @media (max-width: 665px) {
+    min-height: 50vh;
+  }
 `;
 
 export const BigImage = styled.img`
-  height: 100%;
+  height: 90%;
   width: 100%;
   object-fit: cover;
   background-color: white;
@@ -392,11 +418,11 @@ export const UploadIcon = styled(FontAwesomeIcon)`
 `;
 
 export const Title = styled.h1`
-  position: absolute;
-  left: 30px;
-  top: 15px;
   font-size: 28px;
   font-weight: bold;
+  word-break: break-all;
+  width: 100%;
+  text-align: start;
 `;
 
 export const ApplyManage = styled.div`
@@ -411,6 +437,7 @@ export const DeleteApply = styled.div`
   font-weight: bold;
   background-color: #ea2027;
   border-radius: 10px;
+  width: fit-content;
   color: white;
   cursor: pointer;
 `;
@@ -458,6 +485,10 @@ export const MessageImageContainer = styled(motion.div)`
   border-radius: 15px;
   box-sizing: border-box;
   background-color: #efefef;
+  @media (max-width: 665px) {
+    height: 260px;
+    top: -270px;
+  }
 `;
 
 export const MessageImageTitle = styled.h2`
@@ -476,6 +507,9 @@ export const MessageImage = styled.div`
   border: 1px solid #0097e6;
   transition: 0.1s ease-in-out;
   opacity: 1;
+  @media (max-width: 665px) {
+    width: 150px;
+  }
 `;
 
 export const ImageMessage = styled(motion.div)`
@@ -486,6 +520,9 @@ export const ImageMessage = styled(motion.div)`
   height: 200px;
   border-radius: 15px;
   cursor: pointer;
+  @media (max-width: 665px) {
+    width: 200px;
+  }
 `;
 export const cutString = (text, index) => {
   if (text.length > index) {
@@ -516,6 +553,7 @@ export const MessageDate = styled.p`
   margin: 6px 5px;
   opacity: 0;
   transition: opacity 0.1s ease-in-out;
+  writing-mode: ${(props) => (props.$small ? "vertical-rl" : "horizontal-tb")};
 `;
 
 export const MessageContent = styled.span`
@@ -532,6 +570,10 @@ export const MessageContent = styled.span`
   background-color: ${(props) =>
     !props.$isMe ? "rgba(0, 0, 0, 0.06)" : "#0984e3"};
   color: ${(props) => (!props.$isMe ? "black" : "white")};
+  @media (max-width: 665px) {
+    font-size: 1rem;
+    max-width: 200px;
+  }
 `;
 
 export const MessageContainer = styled(motion.div)`
@@ -589,3 +631,133 @@ export const MessageUsername = styled.span`
   direction: rtl;
   text-align: left;
 `;
+
+export const BottomBar = styled.section`
+  grid-column: span 2;
+  display: ${(props) =>
+    !props.$isMobile && props.$isXSmall ? "flex" : "none"};
+  gap: 20px;
+  padding: 15px 0;
+  max-height: 100%;
+`;
+
+export const BottomBarImage = styled(motion.img)`
+  object-fit: cover;
+  object-position: center;
+  height: 100%;
+  width: 300px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: ${(props) => (props.$isCompleted ? "pointer" : "default")};
+`;
+
+export const BottomBarContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+`;
+
+export const BottomBarTitle = styled.h1`
+  font-size: 32px;
+  font-weight: bold;
+  word-break: break-all;
+`;
+
+export const BottomBarDescription = styled.p`
+  line-height: 1.2;
+  font-size: 16px;
+  word-break: break-all;
+  padding-right: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+`;
+
+export const BottomBarImageContainer = styled.div`
+  position: relative;
+`;
+
+export const DetailTags = styled.div`
+  display: flex;
+  gap: 10px;
+  position: relative;
+  width: 100%;
+`;
+
+export const BottomBarPlan = styled.div`
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: white;
+  background-color: ${(props) => (props.$isPro ? "#ff7675" : "#0984e3")};
+  font-size: 16px;
+  position: absolute;
+  right: 15px;
+`;
+
+export const BottomContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 250px;
+  gap: 10px;
+  max-height: 84px;
+`;
+
+export const BottomBarManage = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  padding-right: 15px;
+  box-sizing: border-box;
+  height: fit-content;
+`;
+
+export const BottomBarDetail = styled.span`
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: bold;
+  font-size: 16px;
+`;
+
+export const TopBar = styled.div`
+  display: ${(props) => (props.$isMobile ? "flex" : "block")};
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  left: 0;
+  padding: 0 ${(props) => (props.$isMobile ? "33px" : "73px")};
+  top: ${(props) => (props.$isMobile ? "77px" : "95px")};
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+export const Switch = styled.button`
+  padding: 5px 8px;
+  font-size: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  background-color: #3498ff;
+  color: white;
+  cursor: pointer;
+  display: ${(props) => (props.$isMobile ? "block" : "none")};
+`;
+
+export const screenVariants = {
+  entry: (back) => ({
+    x: back ? -500 : 500,
+    opacity: 0,
+  }),
+  center: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.2,
+    },
+  },
+  exit: (back) => ({
+    x: back ? 500 : -500,
+    opacity: 0,
+    transition: {
+      duration: 0.2,
+    },
+  }),
+};

@@ -215,8 +215,7 @@ const Home = () => {
             <Pipe variants={PipeVariants} initial="initial" animate="animate" />
           </ContainerTitle>
           <ContainerSubtitle>
-            ArtifyThumbs에서 쉽고 빠르게 좋은{isMobile ? <br /> : " "}그림을
-            받아보세요.
+            ArtifyThumbs에서 쉽고 빠르게 좋은 그림을 받아보세요.
           </ContainerSubtitle>
           <Link to={user ? "/apply" : "/signup"}>
             <ContainerStartButton
@@ -229,7 +228,7 @@ const Home = () => {
             </ContainerStartButton>
           </Link>
         </Container>
-        <AboutMessage
+        {/* <AboutMessage
           title="다양한 그림 종류"
           messageFirst={false}
           message="ArtifyThumbs에서는 게임 일러스트, 캐릭터 일러스트, 유튜브 썸네일, 프로필 사진, 프로필 배너 등 많은 그림들을 받을 수 있습니다."
@@ -243,8 +242,7 @@ const Home = () => {
           message="쉽게 가입하고 원하는 그림을 신청하세요. 좋은 퀄리티로 빠르게 받아 볼 수 있습니다."
           image="/img/AboutImage/convenient.jpeg"
           imageAlt="convenient"
-        />
-
+        /> */}
         {/* <AboutMessage
           title="실시간 채팅"
           message="매우 빠른 무제한 실시간 채팅을 이용해 보세요. 간편하게 당신이 원하는 그림에 대해 설명해 보세요."

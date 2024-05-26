@@ -1,9 +1,10 @@
 import { useRecoilValue } from "recoil";
 import { userAtom } from "../atom";
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { auth } from "../firebase";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -91,6 +92,21 @@ const UserMenuItem = styled(Link)`
   }
 `;
 
+const SignOut = styled.button`
+  color: red;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  text-align: start;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 0.1s ease-in-out;
+  &:hover {
+    background-color: rgba(255, 0, 0, 0.06);
+  }
+`;
+
 const menuVariants = {
   initial: {
     opacity: 0,
@@ -115,6 +131,7 @@ const menuVariants = {
 const MenuAccount = ({ menuToggle }) => {
   const userData = useRecoilValue(userAtom);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const navigate = useNavigate();
   useEffect(() => {
     const handleClickOutside = (event) => {
       const isUser = event.target.closest(".user");
@@ -137,6 +154,11 @@ const MenuAccount = ({ menuToggle }) => {
   const onClickOutsideMenu = () => {
     setUserMenuOpen(false);
   };
+  const onLogOut = async () => {
+    await auth.signOut();
+    menuToggle();
+    navigate(0);
+  };
   return (
     <Wrapper>
       {userData ? (
@@ -156,6 +178,7 @@ const MenuAccount = ({ menuToggle }) => {
                 <UserMenuItem to="/settings/profile" onClick={menuToggle}>
                   설정
                 </UserMenuItem>
+                <SignOut onClick={onLogOut}>로그아웃</SignOut>
               </UserMenu>
             )}
           </AnimatePresence>

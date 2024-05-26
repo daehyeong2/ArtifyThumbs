@@ -49,6 +49,7 @@ const List = styled.ul`
   align-items: center;
   gap: 20px;
   padding: 0 40px;
+  padding-bottom: 60px;
 `;
 
 const ApplyLink = styled(Link)`
