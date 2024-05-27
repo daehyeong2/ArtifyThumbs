@@ -29,15 +29,6 @@ const Wrapper = styled.div`
 `;
 
 const Root = () => {
-  useEffect(() => {
-    initializeAppCheck(getApp(), {
-      provider: new ReCaptchaEnterpriseProvider(
-        "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
-      ),
-
-      isTokenAutoRefreshEnabled: true,
-    });
-  }, []);
   pageScrollTop();
   const user = auth.currentUser;
   const [isLoading, setLoading] = useState(false);
@@ -50,6 +41,13 @@ const Root = () => {
     setLoading(true);
     await auth.authStateReady();
     if (auth.currentUser) {
+      initializeAppCheck(getApp(), {
+        provider: new ReCaptchaEnterpriseProvider(
+          "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
+        ),
+
+        isTokenAutoRefreshEnabled: true,
+      });
       const userQuery = query(
         collection(db, "users"),
         where("userId", "==", auth.currentUser.uid),
