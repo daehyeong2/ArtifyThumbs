@@ -524,6 +524,19 @@ const DetailApply = () => {
       }
     }
   }, [apply, screen]);
+  useEffect(() => {
+    if (apply) {
+      if (isXSmall) {
+        setTimeout(() => {
+          scrollDown();
+        }, 300);
+      } else {
+        setTimeout(() => {
+          scrollDown();
+        }, 100);
+      }
+    }
+  }, [apply, isMobile, isSmall, isXSmall]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -597,7 +610,7 @@ const DetailApply = () => {
                 <div style={{ width: "44px" }} />
               )}
             </TopBar>
-            <AnimatePresence mode="wait" custom={isBack}>
+            <AnimatePresence mode="popLayout" custom={isBack}>
               {(!isXSmall && !isMobile) || (isMobile && screen === "detail") ? (
                 <Detail
                   key="detail"

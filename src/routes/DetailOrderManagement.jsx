@@ -59,14 +59,17 @@ import {
   MessageUsername,
   Notification,
   Overlay,
+  Switch,
   Title,
   Tooltip,
   TooltipContainer,
+  TopBar,
   Wrapper,
   cutString,
   messageButtonVariants,
   messageImageVariants,
   parseISOString,
+  screenVariants,
   tooltipVariants,
 } from "../components/detailApply";
 import {
@@ -82,7 +85,7 @@ import {
 } from "firebase/firestore";
 import { auth, db, storage } from "../firebase";
 import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
+import { isMobileAtom, userAtom, widthAtom } from "../atom";
 import styled from "styled-components";
 import {
   deleteObject,
@@ -429,6 +432,62 @@ const DetailOrderManagement = () => {
       }
     }
   };
+  const [screen, setScreen] = useState("chat");
+  const [isBack, setIsBack] = useState(false);
+  const width = useRecoilValue(widthAtom);
+  const isMobile = useRecoilValue(isMobileAtom);
+  const isSmall = !(width > 1295);
+  const isXSmall = !(width > 1140);
+  const switchPrev = () => {
+    setIsBack(true);
+    switch (screen) {
+      case "chat":
+        setScreen("detail");
+        break;
+      case "draft":
+        setScreen("chat");
+        break;
+      default:
+        setScreen("chat");
+        break;
+    }
+  };
+  const switchNext = () => {
+    setIsBack(false);
+    switch (screen) {
+      case "detail":
+        setScreen("chat");
+        break;
+      case "chat":
+        setScreen("draft");
+        break;
+      default:
+        setScreen("chat");
+        break;
+    }
+  };
+  useEffect(() => {
+    if (apply) {
+      if (screen === "chat") {
+        setTimeout(() => {
+          scrollDown();
+        }, 310);
+      }
+    }
+  }, [apply, screen]);
+  useEffect(() => {
+    if (apply) {
+      if (isXSmall) {
+        setTimeout(() => {
+          scrollDown();
+        }, 300);
+      } else {
+        setTimeout(() => {
+          scrollDown();
+        }, 100);
+      }
+    }
+  }, [apply, isMobile, isSmall, isXSmall]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />
@@ -488,261 +547,333 @@ const DetailOrderManagement = () => {
           </>
         )}
       </AnimatePresence>
-      <Wrapper>
+      <Wrapper $isMobile={isMobile} $isSmall={isSmall} $isXSmall={isXSmall}>
         {apply ? (
           <>
-            <Back to="/order-management">&larr; 뒤로가기</Back>
-            <Detail>
-              <DetailResult>
-                <DetailImage
-                  $isCompleted={
-                    imageUrl && imageUrl !== "/img/preparing.jpeg"
-                      ? true
-                      : apply.isCompleted
-                  }
-                  onClick={
-                    imageUrl && imageUrl !== "/img/preparing.jpeg"
-                      ? () => setCurrentImage(imageUrl)
-                      : apply.isCompleted
-                      ? () => setCurrentImage(apply.result)
-                      : null
-                  }
-                  key={imageUrl ?? apply.result}
-                  layoutId={imageUrl ?? apply.result}
-                  src={imageUrl ?? apply.result}
-                  alt="ApplyImage"
-                ></DetailImage>
-                <DownloadContainer htmlFor="uploadInput">
-                  <TooltipContainer initial="initial" whileHover="hover">
-                    <Download icon={faUpload} />
-                    <FileInput
-                      onChange={onChangeFile}
-                      id="uploadInput"
+            <TopBar $isMobile={isMobile}>
+              {screen === "chat" ? (
+                <Switch onClick={switchPrev} $isMobile={isMobile}>
+                  주문 정보
+                </Switch>
+              ) : screen === "draft" ? (
+                <Switch onClick={switchPrev} $isMobile={isMobile}>
+                  채팅
+                </Switch>
+              ) : (
+                <div style={{ width: "44px" }} />
+              )}
+              <Back $isSmall={isSmall} to="/order-management">
+                &larr; 뒤로가기
+              </Back>
+              {screen === "detail" ? (
+                <Switch onClick={switchNext} $isMobile={isMobile}>
+                  채팅
+                </Switch>
+              ) : screen === "chat" ? (
+                <Switch onClick={switchNext} $isMobile={isMobile}>
+                  참고 사진
+                </Switch>
+              ) : (
+                <div style={{ width: "44px" }} />
+              )}
+            </TopBar>
+            <AnimatePresence mode="popLayout" custom={isBack}>
+              {(!isXSmall && !isMobile) || (isMobile && screen === "detail") ? (
+                <Detail
+                  key="detail"
+                  variants={screenVariants}
+                  initial="entry"
+                  animate="center"
+                  exit="exit"
+                  custom={isBack}
+                  $isMobile={isMobile}
+                  $isSmall={isSmall}
+                  $isXSmall={isXSmall}
+                >
+                  <DetailResult>
+                    <DetailImage
+                      $isCompleted={
+                        imageUrl && imageUrl !== "/img/preparing.jpeg"
+                          ? true
+                          : apply.isCompleted
+                      }
+                      onClick={
+                        imageUrl && imageUrl !== "/img/preparing.jpeg"
+                          ? () => setCurrentImage(imageUrl)
+                          : apply.isCompleted
+                          ? () => setCurrentImage(apply.result)
+                          : null
+                      }
+                      key={imageUrl ?? apply.result}
+                      layoutId={imageUrl ?? apply.result}
+                      src={imageUrl ?? apply.result}
+                      alt="ApplyImage"
+                    ></DetailImage>
+                    <DownloadContainer htmlFor="uploadInput">
+                      <TooltipContainer initial="initial" whileHover="hover">
+                        <Download icon={faUpload} />
+                        <FileInput
+                          onChange={onChangeFile}
+                          id="uploadInput"
+                          type="file"
+                          accept="image/*"
+                        />
+                        <Tooltip
+                          transition={{ duration: 0.2 }}
+                          variants={tooltipVariants}
+                        >
+                          {isLoading ? "업로드 중.." : "업로드"}
+                        </Tooltip>
+                      </TooltipContainer>
+                    </DownloadContainer>
+                  </DetailResult>
+                  <DetailDesc>
+                    <DetailTitle>{apply.title}</DetailTitle>
+                    <DetailInfoes>
+                      {apply.tags.map((tag) => {
+                        return <DetailInfo key={tag}>{tag}</DetailInfo>;
+                      })}
+                      <DetailType $isPro={apply.plan === "pro"}>
+                        {apply.plan === "pro" ? "프로" : "기본"}
+                      </DetailType>
+                    </DetailInfoes>
+                    <DetailDescription>{apply.description}</DetailDescription>
+                  </DetailDesc>
+                  <DetailMetaData>
+                    <DetailData>
+                      신청 날짜: {parseISOString(apply.appliedAt)}
+                    </DetailData>
+                    <DetailData>신청인: {apply.orderer.username}</DetailData>
+                  </DetailMetaData>
+                  <ApplyManage>
+                    <DeleteApply onClick={onCancel}>
+                      {applyDeleteIsLoading
+                        ? "신청 삭제하는 중.."
+                        : "신청 삭제하기"}
+                    </DeleteApply>
+                  </ApplyManage>
+                </Detail>
+              ) : null}
+              {(!isXSmall && !isMobile) ||
+              (isXSmall && !isMobile) ||
+              (isMobile && screen === "chat") ? (
+                <Chat
+                  key="chat"
+                  $isMobile={isMobile}
+                  variants={screenVariants}
+                  custom={isBack}
+                  initial="entry"
+                  animate="center"
+                  exit="exit"
+                >
+                  <MessageList ref={ulRef}>
+                    {apply.chats.length > 0 || chats.length > 0 ? (
+                      <>
+                        {apply.chats.map((chat, index) => {
+                          return (
+                            <Message
+                              key={index}
+                              $isMe={chat.isMe}
+                              $removeAvatar={
+                                index === 0
+                                  ? false
+                                  : apply.chats[index - 1].isMe
+                              }
+                            >
+                              {(index === 0
+                                ? true
+                                : !apply.chats[index - 1].isMe) &&
+                                chat.isMe && (
+                                  <MessageUser>
+                                    <MessageAvatar
+                                      src={orderer.photoURL ?? "/img/user.jpeg"}
+                                    />
+                                    <MessageUsername>
+                                      {apply.orderer.username}
+                                    </MessageUsername>
+                                  </MessageUser>
+                                )}
+                              <MessageContainer>
+                                {!chat.isMe ? (
+                                  <MessageDate>
+                                    {parseISOString(chat.timestamp)}
+                                  </MessageDate>
+                                ) : null}
+                                <MessageContent $isMe={!chat.isMe}>
+                                  {chat.message}
+                                  {chat.imageUrl && (
+                                    <ChatLazyImage
+                                      onClick={() => {
+                                        setOpenChat(chat.message);
+                                        setCurrentImage(chat.imageUrl);
+                                      }}
+                                      src={chat.imageUrl}
+                                    />
+                                  )}
+                                </MessageContent>
+                                {!chat.isMe ? (
+                                  <DeleteMessage
+                                    onClick={() => onDeleteMessage(chat)}
+                                  >
+                                    <FontAwesomeIcon icon={faTrashCan} />
+                                  </DeleteMessage>
+                                ) : (
+                                  <MessageDate>
+                                    {parseISOString(chat.timestamp)}
+                                  </MessageDate>
+                                )}
+                              </MessageContainer>
+                            </Message>
+                          );
+                        })}
+                        {chats.map((chat, index) => {
+                          return (
+                            <Message
+                              key={index}
+                              $isMe={chat.isMe}
+                              $removeAvatar={
+                                index === 0 ? false : chats[index - 1].isMe
+                              }
+                            >
+                              {(index === 0 ? true : !chats[index - 1].isMe) &&
+                                chat.isMe && (
+                                  <MessageUser>
+                                    <MessageAvatar
+                                      src={orderer.photoURL ?? "/img/user.jpeg"}
+                                    />
+                                    <MessageUsername>
+                                      {apply.orderer.username}
+                                    </MessageUsername>
+                                  </MessageUser>
+                                )}
+                              <MessageContainer>
+                                {!chat.isMe ? (
+                                  <MessageDate>
+                                    {parseISOString(chat.timestamp)}
+                                  </MessageDate>
+                                ) : null}
+                                <MessageContent $isMe={!chat.isMe}>
+                                  {chat.message}
+                                  {chat.imageUrl && (
+                                    <ChatLazyImage
+                                      onClick={() => {
+                                        setOpenChat(chat.message);
+                                        setCurrentImage(chat.imageUrl);
+                                      }}
+                                      src={chat.imageUrl}
+                                    />
+                                  )}
+                                </MessageContent>
+                                {!chat.isMe ? (
+                                  <DeleteMessage
+                                    onClick={() => onDeleteMessage(chat)}
+                                  >
+                                    <FontAwesomeIcon icon={faTrashCan} />
+                                  </DeleteMessage>
+                                ) : (
+                                  <MessageDate>
+                                    {parseISOString(chat.timestamp)}
+                                  </MessageDate>
+                                )}
+                              </MessageContainer>
+                            </Message>
+                          );
+                        })}
+                      </>
+                    ) : (
+                      <Notification>
+                        🦄 멋진 결과를 위해 대화를 시작해보세요! 🦄
+                      </Notification>
+                    )}
+                  </MessageList>
+                  <MessageForm onSubmit={handleSubmit(onSubmit)}>
+                    <AnimatePresence>
+                      {chatFile && (
+                        <MessageImageContainer
+                          variants={messageImageVariants}
+                          initial="initial"
+                          animate="animate"
+                          whileHover="hover"
+                          exit="exit"
+                        >
+                          <MessageImageTitle>
+                            함께 전송할 사진
+                          </MessageImageTitle>
+                          <MessageImage $src={chatFile.imageUrl} />
+                        </MessageImageContainer>
+                      )}
+                    </AnimatePresence>
+                    <MessageUpload
+                      $added={Boolean(chatFile)}
+                      onClick={chatFile ? onDeleteImage : null}
+                      htmlFor={chatFile ? "" : "chatImage"}
+                    >
+                      <MessageUploadIcon icon={chatFile ? faXmark : faPlus} />
+                    </MessageUpload>
+                    <MessageFile
+                      value={file}
+                      onChange={onUpload}
                       type="file"
                       accept="image/*"
+                      id="chatImage"
                     />
-                    <Tooltip
-                      transition={{ duration: 0.2 }}
-                      variants={tooltipVariants}
-                    >
-                      {isLoading ? "업로드 중.." : "업로드"}
-                    </Tooltip>
-                  </TooltipContainer>
-                </DownloadContainer>
-              </DetailResult>
-              <DetailDesc>
-                <DetailTitle>{apply.title}</DetailTitle>
-                <DetailInfoes>
-                  {apply.tags.map((tag) => {
-                    return <DetailInfo key={tag}>{tag}</DetailInfo>;
-                  })}
-                  <DetailType $isPro={apply.plan === "pro"}>
-                    {apply.plan === "pro" ? "프로" : "기본"}
-                  </DetailType>
-                </DetailInfoes>
-                <DetailDescription>{apply.description}</DetailDescription>
-              </DetailDesc>
-              <DetailMetaData>
-                <DetailData>
-                  신청 날짜: {parseISOString(apply.appliedAt)}
-                </DetailData>
-                <DetailData>신청인: {apply.orderer.username}</DetailData>
-              </DetailMetaData>
-              <ApplyManage>
-                <DeleteApply onClick={onCancel}>
-                  {applyDeleteIsLoading
-                    ? "신청 삭제하는 중.."
-                    : "신청 삭제하기"}
-                </DeleteApply>
-              </ApplyManage>
-            </Detail>
-            <Chat>
-              <MessageList ref={ulRef}>
-                {apply.chats.length > 0 || chats.length > 0 ? (
-                  <>
-                    {apply.chats.map((chat, index) => {
-                      return (
-                        <Message
-                          key={index}
-                          $isMe={chat.isMe}
-                          $removeAvatar={
-                            index === 0 ? false : apply.chats[index - 1].isMe
-                          }
-                        >
-                          {(index === 0
-                            ? true
-                            : !apply.chats[index - 1].isMe) &&
-                            chat.isMe && (
-                              <MessageUser>
-                                <MessageAvatar
-                                  src={orderer.photoURL ?? "/img/user.jpeg"}
-                                />
-                                <MessageUsername>
-                                  {apply.orderer.username}
-                                </MessageUsername>
-                              </MessageUser>
-                            )}
-                          <MessageContainer>
-                            {!chat.isMe ? (
-                              <MessageDate>
-                                {parseISOString(chat.timestamp)}
-                              </MessageDate>
-                            ) : null}
-                            <MessageContent $isMe={!chat.isMe}>
-                              {chat.message}
-                              {chat.imageUrl && (
-                                <ChatLazyImage
-                                  onClick={() => {
-                                    setOpenChat(chat.message);
-                                    setCurrentImage(chat.imageUrl);
-                                  }}
-                                  src={chat.imageUrl}
-                                />
-                              )}
-                            </MessageContent>
-                            {!chat.isMe ? (
-                              <DeleteMessage
-                                onClick={() => onDeleteMessage(chat)}
-                              >
-                                <FontAwesomeIcon icon={faTrashCan} />
-                              </DeleteMessage>
-                            ) : (
-                              <MessageDate>
-                                {parseISOString(chat.timestamp)}
-                              </MessageDate>
-                            )}
-                          </MessageContainer>
-                        </Message>
-                      );
-                    })}
-                    {chats.map((chat, index) => {
-                      return (
-                        <Message
-                          key={index}
-                          $isMe={chat.isMe}
-                          $removeAvatar={
-                            index === 0 ? false : chats[index - 1].isMe
-                          }
-                        >
-                          {(index === 0 ? true : !chats[index - 1].isMe) &&
-                            chat.isMe && (
-                              <MessageUser>
-                                <MessageAvatar
-                                  src={orderer.photoURL ?? "/img/user.jpeg"}
-                                />
-                                <MessageUsername>
-                                  {apply.orderer.username}
-                                </MessageUsername>
-                              </MessageUser>
-                            )}
-                          <MessageContainer>
-                            {!chat.isMe ? (
-                              <MessageDate>
-                                {parseISOString(chat.timestamp)}
-                              </MessageDate>
-                            ) : null}
-                            <MessageContent $isMe={!chat.isMe}>
-                              {chat.message}
-                              {chat.imageUrl && (
-                                <ChatLazyImage
-                                  onClick={() => {
-                                    setOpenChat(chat.message);
-                                    setCurrentImage(chat.imageUrl);
-                                  }}
-                                  src={chat.imageUrl}
-                                />
-                              )}
-                            </MessageContent>
-                            {!chat.isMe ? (
-                              <DeleteMessage
-                                onClick={() => onDeleteMessage(chat)}
-                              >
-                                <FontAwesomeIcon icon={faTrashCan} />
-                              </DeleteMessage>
-                            ) : (
-                              <MessageDate>
-                                {parseISOString(chat.timestamp)}
-                              </MessageDate>
-                            )}
-                          </MessageContainer>
-                        </Message>
-                      );
-                    })}
-                  </>
-                ) : (
-                  <Notification>
-                    🦄 멋진 결과를 위해 대화를 시작해보세요! 🦄
-                  </Notification>
-                )}
-              </MessageList>
-              <MessageForm onSubmit={handleSubmit(onSubmit)}>
-                <AnimatePresence>
-                  {chatFile && (
-                    <MessageImageContainer
-                      variants={messageImageVariants}
+                    <MessageInput
+                      {...register("message", { required: true })}
+                      type="text"
+                      autoComplete="off"
+                      placeholder="메시지를 입력하세요."
+                    />
+                    <MessageButton
+                      variants={messageButtonVariants}
                       initial="initial"
-                      animate="animate"
                       whileHover="hover"
-                      exit="exit"
+                      transition={{ duration: 0.05 }}
                     >
-                      <MessageImageTitle>함께 전송할 사진</MessageImageTitle>
-                      <MessageImage $src={chatFile.imageUrl} />
-                    </MessageImageContainer>
-                  )}
-                </AnimatePresence>
-                <MessageUpload
-                  $added={Boolean(chatFile)}
-                  onClick={chatFile ? onDeleteImage : null}
-                  htmlFor={chatFile ? "" : "chatImage"}
+                      보내기
+                    </MessageButton>
+                  </MessageForm>
+                </Chat>
+              ) : null}
+              {(isXSmall && !isMobile) ||
+              (!isXSmall && !isMobile) ||
+              (isMobile && screen === "draft") ? (
+                <Drafts
+                  key="draft"
+                  $isMobile={isMobile}
+                  $isXSmall={isXSmall}
+                  variants={screenVariants}
+                  custom={isBack}
+                  initial="entry"
+                  animate="center"
+                  exit="exit"
                 >
-                  <MessageUploadIcon icon={chatFile ? faXmark : faPlus} />
-                </MessageUpload>
-                <MessageFile
-                  value={file}
-                  onChange={onUpload}
-                  type="file"
-                  accept="image/*"
-                  id="chatImage"
-                />
-                <MessageInput
-                  {...register("message", { required: true })}
-                  type="text"
-                  autoComplete="off"
-                  placeholder="메시지를 입력하세요."
-                />
-                <MessageButton
-                  variants={messageButtonVariants}
-                  initial="initial"
-                  whileHover="hover"
-                  transition={{ duration: 0.05 }}
-                >
-                  보내기
-                </MessageButton>
-              </MessageForm>
-            </Chat>
-            <Drafts>
-              <DraftTitle>
-                받은 참고 사진 ({apply.drafts.length}/
-                {apply.plan === "pro" ? "12" : "6"})
-              </DraftTitle>
-              <DraftList>
-                {apply.drafts.map((draft, idx) => {
-                  return (
-                    <Draft
-                      onClick={() => {
-                        setOpenDraft(draft.title);
-                        setCurrentImage(draft.imageUrl);
-                      }}
-                      layoutId={draft.imageUrl}
-                      key={idx}
-                    >
-                      <DraftLazyImage src={draft.imageUrl} alt="draftImage" />
-                      <DraftDesc>{draft.title}</DraftDesc>
-                    </Draft>
-                  );
-                })}
-              </DraftList>
-            </Drafts>
+                  <DraftTitle>
+                    받은 참고 사진 ({apply.drafts.length}/
+                    {apply.plan === "pro" ? "12" : "6"})
+                  </DraftTitle>
+                  <DraftList>
+                    {apply.drafts.map((draft, idx) => {
+                      return (
+                        <Draft
+                          onClick={() => {
+                            setOpenDraft(draft.title);
+                            setCurrentImage(draft.imageUrl);
+                          }}
+                          layoutId={draft.imageUrl}
+                          key={idx}
+                        >
+                          <DraftLazyImage
+                            src={draft.imageUrl}
+                            alt="draftImage"
+                          />
+                          <DraftDesc>{draft.title}</DraftDesc>
+                        </Draft>
+                      );
+                    })}
+                  </DraftList>
+                </Drafts>
+              ) : null}
+            </AnimatePresence>
           </>
         ) : (
           <></>

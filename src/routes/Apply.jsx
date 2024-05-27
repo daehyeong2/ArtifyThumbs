@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import { useRecoilValue } from "recoil";
+import { isMobileAtom, widthAtom } from "../atom";
 
 const Container = styled.div`
   display: flex;
@@ -22,8 +24,9 @@ const ContainerTitle = styled.h1`
 
 const Plans = styled.div`
   display: flex;
+  flex-direction: ${(props) => (props.$isSmall ? "column" : "row")};
   justify-content: center;
-  gap: 100px;
+  gap: ${(props) => (props.$isSmall ? "30px" : "100px")};
   margin-bottom: 100px;
 `;
 
@@ -31,8 +34,10 @@ const Plan = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 440px;
-  height: 250px;
+  gap: ${(props) => (props.$isXMobile ? "20px" : 0)};
+  width: ${(props) => (props.$isXMobile ? "350px" : "440px")};
+  min-height: 250px;
+  height: 100%;
   border: 1px solid rgba(0, 0, 0, 0.3);
   padding: 29px;
   box-sizing: border-box;
@@ -57,8 +62,8 @@ const PlanInfo = styled.div`
 const PlanFeatures = styled.ul`
   display: grid;
   grid-template-rows: repeat(3, 1fr);
-  grid-auto-flow: column;
-  gap: 10px;
+  grid-auto-flow: ${(props) => (props.$isXMobile ? "row" : "column")};
+  gap: ${(props) => (props.$isXMobile ? "15px" : "10px")};
   li {
     display: flex;
     align-items: center;
@@ -112,6 +117,8 @@ const Detail = styled.ul`
   min-width: 400px;
   width: 40vw;
   display: grid;
+  padding: ${(props) => (props.$isMobile ? "10px" : 0)};
+  box-sizing: border-box;
   grid-template-rows: repeat(100px, 1fr);
   margin-bottom: 60px;
 `;
@@ -161,16 +168,20 @@ const DetailTitle = styled.h1`
 `;
 
 const Order = () => {
+  const width = useRecoilValue(widthAtom);
+  const isMobile = useRecoilValue(isMobileAtom);
+  const isXMobile = !(width > 470);
+  const isSmall = !(width > 1050);
   return (
     <>
       <Seo title="신청하기" />
       <Container>
         <ContainerTitle>신청하기</ContainerTitle>
-        <Plans>
-          <Plan>
+        <Plans $isSmall={isSmall}>
+          <Plan $isXMobile={isXMobile}>
             <PlanTitle>기본</PlanTitle>
             <PlanInfo>
-              <PlanFeatures>
+              <PlanFeatures $isXMobile={isXMobile}>
                 <li>
                   <FontAwesomeIcon icon={faCheck} />
                   그림 1장
@@ -206,10 +217,10 @@ const Order = () => {
               </PlanBuy>
             </PlanInfo>
           </Plan>
-          <Plan>
+          <Plan $isXMobile={isXMobile}>
             <PlanTitle>프로</PlanTitle>
             <PlanInfo>
-              <PlanFeatures>
+              <PlanFeatures $isXMobile={isXMobile}>
                 <li>
                   <FontAwesomeIcon icon={faCheck} />
                   기본의 모든 조건
@@ -242,7 +253,7 @@ const Order = () => {
             </PlanInfo>
           </Plan>
         </Plans>
-        <Detail>
+        <Detail $isMobile={isMobile}>
           <DetailTitle>세부사항</DetailTitle>
           <DetailItem>
             <DetailInfo />
@@ -286,7 +297,7 @@ const Order = () => {
             </DetailInfo>
           </DetailItem>
           <DetailItem>
-            <DetailInfo>채팅 메시지 (최대 개수)</DetailInfo>
+            <DetailInfo>채팅 메시지 {isMobile ? "" : "(최대 개수)"}</DetailInfo>
             <DetailInfo>
               <h3>무제한</h3>
             </DetailInfo>
@@ -295,7 +306,9 @@ const Order = () => {
             </DetailInfo>
           </DetailItem>
           <DetailItem>
-            <DetailInfo>이미지 메시지 (최대 개수)</DetailInfo>
+            <DetailInfo>
+              이미지 메시지 {isMobile ? "" : "(최대 개수)"}
+            </DetailInfo>
             <DetailInfo>
               <h3>무제한</h3>
             </DetailInfo>
@@ -313,7 +326,7 @@ const Order = () => {
             </DetailInfo>
           </DetailItem>
           <DetailItem>
-            <DetailInfo>참고 사진(최대 장수)</DetailInfo>
+            <DetailInfo>참고 사진 {isMobile ? "" : "(최대 장수)"}</DetailInfo>
             <DetailInfo>
               <span>6</span>장
             </DetailInfo>
@@ -322,7 +335,7 @@ const Order = () => {
             </DetailInfo>
           </DetailItem>
           <DetailItem>
-            <DetailInfo>그림 (장수)</DetailInfo>
+            <DetailInfo>그림 {isMobile ? "" : "(장수)"}</DetailInfo>
             <DetailInfo>
               <span>1</span>장
             </DetailInfo>

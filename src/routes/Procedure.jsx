@@ -7,9 +7,12 @@ import { addDoc, collection } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotateBack } from "@fortawesome/free-solid-svg-icons";
+import { useRecoilValue } from "recoil";
+import { isMobileAtom } from "../atom";
 
 const Wrapper = styled.div`
   padding: 100px;
+  padding: ${(props) => (props.$isMobile ? "70px 10px" : "100px")};
   box-sizing: border-box;
   display: flex;
   justify-content: center;
@@ -62,8 +65,12 @@ const Title = styled.h1`
 const Form = styled.form`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 0.7fr 1fr 3fr 0.5fr;
+  grid-template-rows: ${(props) =>
+    props.$isMobile
+      ? "0.7fr 0.7fr 0.7fr 2.3fr 0.5fr"
+      : "0.7fr 0.7fr 3fr 0.5fr"};
   gap: 20px;
+  max-height: ${(props) => (props.$isMobile ? "none" : "600px")};
   width: 100%;
   height: 100%;
 `;
@@ -85,6 +92,7 @@ const Select = styled.select`
   font-size: 18px;
   border-radius: 10px;
   border: 2px solid #17c0eb;
+  min-width: 180px;
   height: 50px;
   outline: none;
   cursor: pointer;
@@ -152,6 +160,7 @@ const ApplyBox = styled.div`
 const ApplyMessage = styled.h3`
   grid-column: span 2;
   color: rgba(0, 0, 0, 0.4);
+  line-height: 1.2;
 `;
 
 const ErrorMessage = styled.p`
@@ -206,17 +215,18 @@ const Procedure = () => {
       setLoading(false);
     }
   };
+  const isMobile = useRecoilValue(isMobileAtom);
   return (
     <>
       <Seo title="신청하기" />
-      <Wrapper>
+      <Wrapper $isMobile={isMobile}>
         <Container>
           <Back to="/apply">
             <FontAwesomeIcon icon={faRotateBack} /> 뒤로가기
           </Back>
           <Title>신청하기</Title>
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            <InputContainer>
+          <Form $isMobile={isMobile} onSubmit={handleSubmit(onSubmit)}>
+            <InputContainer $isFull={isMobile}>
               <Label>플랜 선택</Label>
               <Select
                 {...register("plan", {
@@ -231,7 +241,7 @@ const Procedure = () => {
                 <option value="pro">프로</option>
               </Select>
             </InputContainer>
-            <InputContainer>
+            <InputContainer $isFull={isMobile}>
               <Label>그림 종류</Label>
               <Select {...register("kind", { required: true })}>
                 <option value="youtube-thumbnail">유튜브 썸네일</option>
@@ -283,8 +293,9 @@ const Procedure = () => {
             </InputContainer>
             <ApplyBox>
               <ApplyMessage>
-                ※ 참고 사진은 신청을 완료하신 후, 세부 페이지에서 추가 하실 수
-                있습니다. (신청 후에는 위의 정보들을 수정할 수 없습니다.)
+                ※ 글자 수는 공백 포함입니다. 그리고 참고 사진은 신청을 완료하신
+                후, 세부 페이지에서 추가 하실 수 있습니다. (신청 후에는 위의
+                정보들을 수정할 수 없습니다.)
               </ApplyMessage>
               <ApplyButton>
                 {isLoading ? "신청하는 중.." : "신청하기"}
