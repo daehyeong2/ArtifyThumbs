@@ -25,7 +25,7 @@ if (process.env.REACT_APP_NODE_ENV === "development") {
 
 initializeAppCheck(app, {
   provider: new ReCaptchaEnterpriseProvider(
-    "6LdlJekpAAAAAPntQCZ-dzTDWlkCPt73eVigBfIc"
+    "6Ld85egpAAAAAJIUAEHmY9HddQVX8AQNlH5nWpDE"
   ),
 
   isTokenAutoRefreshEnabled: true,
