@@ -2,7 +2,10 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import {
+  initializeAppCheck,
+  ReCaptchaEnterpriseProvider,
+} from "firebase/app-check";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBVCc4Cw8PeyyiM0wu157NWrUQz6j0nHfo",
@@ -21,7 +24,9 @@ if (process.env.REACT_APP_NODE_ENV === "development") {
 }
 
 initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("6Lc3Q-kpAAAAAAfVMfBLPMLe0CWdfrs70mhglv8y"),
+  provider: new ReCaptchaEnterpriseProvider(
+    "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
+  ),
 
   isTokenAutoRefreshEnabled: true,
 });
