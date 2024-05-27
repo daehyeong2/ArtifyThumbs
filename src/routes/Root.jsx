@@ -18,30 +18,12 @@ import {
 import { collection, getDocs, limit, query, where } from "firebase/firestore";
 import EmailVerification from "../components/EmailVerification";
 import usePrompt from "../components/usePrompt";
-import {
-  ReCaptchaEnterpriseProvider,
-  initializeAppCheck,
-} from "firebase/app-check";
-import { getApp } from "firebase/app";
 
 const Wrapper = styled.div`
   min-height: 100vh;
 `;
 
 const Root = () => {
-  const isClient = document.visibilityState === "visible";
-  useEffect(() => {
-    if (isClient) {
-      console.log("ss");
-      initializeAppCheck(getApp(), {
-        provider: new ReCaptchaEnterpriseProvider(
-          "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
-        ),
-
-        isTokenAutoRefreshEnabled: true,
-      });
-    }
-  }, []);
   pageScrollTop();
   const user = auth.currentUser;
   const [isLoading, setLoading] = useState(false);
@@ -70,7 +52,7 @@ const Root = () => {
   }, [setUser, setUserIsLoaded]);
   useEffect(() => {
     const handleResize = () => {
-      const isMobile = isClient && !(window.innerWidth > 885);
+      const isMobile = !(window.innerWidth > 885);
       setIsMobile(isMobile);
       setWidth(window.innerWidth);
     };
@@ -82,7 +64,7 @@ const Root = () => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [setWidth, isClient, setIsMobile]);
+  }, [setWidth, setIsMobile]);
   useEffect(() => {
     init();
   }, [init]);
