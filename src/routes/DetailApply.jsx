@@ -182,6 +182,8 @@ const DetailApply = () => {
   const [draftFile, setDraftFile] = useState("");
   const [openChat, setOpenChat] = useState(null);
 
+  const threeMB = 1024 * 1024 * 3;
+
   const onSubmit = (data) => {
     if (!data.message) return;
     setValue("message", "");
@@ -191,6 +193,11 @@ const DetailApply = () => {
       return navigate("/");
     }
     const now = new Date().toISOString();
+    window.removeEventListener("beforeunload", async () => {
+      if (chatFile) {
+        await deleteObject(chatFile.ref);
+      }
+    });
     socket.emit(
       "chat_message",
       {
@@ -309,6 +316,8 @@ const DetailApply = () => {
       try {
         setLoading(true);
         const file = files[0];
+        if (file.size > threeMB)
+          return alert("파일은 3MB 이하만 업로드 가능합니다.");
         const title = prompt("참고 사진의 설명을 입력해 주세요.");
         if (!title) return;
         const locationRef = ref(storage, `drafts/${applyId}/${Date.now()}`);
@@ -414,10 +423,19 @@ const DetailApply = () => {
     const { files } = e.target;
     if (files && files.length === 1) {
       const file = files[0];
+      if (!file.type.startsWith("image/"))
+        return alert("이미지 파일만 업로드 가능합니다.");
+      if (file.size > threeMB)
+        return alert("파일은 3MB 이하만 업로드 가능합니다.");
       try {
         const locationRef = ref(storage, `chats/${applyId}/${Date.now()}`);
         const result = await uploadBytes(locationRef, file);
         const resultUrl = await getDownloadURL(result.ref);
+        window.addEventListener("beforeunload", async () => {
+          if (chatFile) {
+            await deleteObject(locationRef);
+          }
+        });
         setChatFile({
           ref: locationRef,
           imageUrl: resultUrl,
