@@ -32,6 +32,7 @@ const Root = () => {
   const isClient = document.visibilityState === "visible";
   useEffect(() => {
     if (isClient) {
+      console.log("ss");
       initializeAppCheck(getApp(), {
         provider: new ReCaptchaEnterpriseProvider(
           "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
