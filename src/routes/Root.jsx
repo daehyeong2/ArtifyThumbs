@@ -39,13 +39,14 @@ const Root = () => {
   const setIsMobile = useSetRecoilState(isMobileAtom);
   const init = useCallback(async () => {
     setLoading(true);
-    initializeAppCheck(getApp(), {
-      provider: new ReCaptchaEnterpriseProvider(
-        "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
-      ),
-
-      isTokenAutoRefreshEnabled: true,
-    });
+    if (navigator.userAgent !== "ReactSnap") {
+      initializeAppCheck(getApp(), {
+        provider: new ReCaptchaEnterpriseProvider(
+          "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
+        ),
+        isTokenAutoRefreshEnabled: true,
+      });
+    }
     await auth.authStateReady();
     if (auth.currentUser) {
       const userRef = doc(db, "users", auth.currentUser.uid);

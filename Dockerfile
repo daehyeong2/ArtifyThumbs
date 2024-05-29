@@ -49,11 +49,9 @@ ARG NODE_ENV
 ENV NODE_ENV ${NODE_ENV}
 ARG REACT_APP_BACKEND_URL
 ENV REACT_APP_BACKEND_URL ${REACT_APP_BACKEND_URL}
-ENV REACT_APP_REACT_SNAP=true
 
 RUN npm run build
 
-ENV REACT_APP_REACT_SNAP=false
 FROM nginxinc/nginx-unprivileged:1.23 AS runner
 WORKDIR /usr/share/nginx/html
 COPY --from=builder /app/build .
