@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { auth, db, storage } from "../firebase";
 import { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { isBlockedAtom, reRenderAtom, userAtom } from "../atom";
+import { isBlockedAtom, isMobileAtom, reRenderAtom, userAtom } from "../atom";
 import Seo from "../components/Seo";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
@@ -14,6 +14,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 10px;
+  padding-bottom: ${(props) => (props.$isMobile ? "100px" : "")};
   box-sizing: border-box;
   position: relative;
   height: 100%;
@@ -21,7 +22,10 @@ const Wrapper = styled.div`
 
 const SettingBox = styled.div`
   display: flex;
-  align-items: center;
+  flex-direction: ${(props) => (props.$directionColumn ? "column" : "row")};
+  gap: ${(props) => (props.$directionColumn ? "25px" : 0)};
+  justify-content: center;
+  align-items: ${(props) => (props.$directionColumn ? "flex-start" : "center")};
   div {
     display: flex;
     flex-direction: column;
@@ -38,9 +42,11 @@ const SettingBox = styled.div`
 const SettingLabel = styled.label``;
 
 const SettingInput = styled.input`
-  width: 400px;
+  max-width: 400px;
+  width: 100%;
   font-size: 16px;
   padding: 5px 10px;
+  box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   outline: none;
@@ -54,13 +60,15 @@ const SettingInput = styled.input`
 `;
 
 const AvatarContainer = styled(motion.label)`
-  margin-left: auto;
+  margin-left: ${(props) => (props.$isMobile ? 0 : "auto")};
   position: relative;
+  width: 150px;
+  aspect-ratio: 1 / 1;
 `;
 
 const Avatar = styled.img`
   width: 150px;
-  height: 150px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   object-fit: cover;
   object-position: center;
@@ -101,6 +109,7 @@ const AvatarTooltip = styled(motion.span)`
   padding: 8px 10px;
   border-radius: 5px;
   width: fit-content;
+  z-index: 2;
 `;
 
 const tooltipVariants = {
@@ -195,13 +204,49 @@ const ProfileSettings = () => {
       }
     }
   };
+  const isMobile = useRecoilValue(isMobileAtom);
   return (
-    <Wrapper>
+    <Wrapper $isMobile={isMobile}>
       <Seo
         title="프로필 설정"
         description="당신의 공개 프로필 정보를 수정하세요."
       />
-      <SettingBox>
+      <SettingBox $directionColumn={isMobile}>
+        {isMobile && (
+          <AvatarContainer
+            $isMobile={true}
+            htmlFor="avatarInput"
+            initial="initial"
+            whileHover="hover"
+          >
+            <Avatar
+              src={avatar}
+              onMouseEnter={() => setIsHover(true)}
+              onMouseLeave={() => setIsHover(false)}
+              alt={userData?.username}
+            />
+            <AnimatePresence>
+              {isHover && (
+                <AvatarTooltip
+                  variants={tooltipVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  프로필 사진 변경하기
+                </AvatarTooltip>
+              )}
+            </AnimatePresence>
+            <AvatarInput
+              disabled={avatarIsLoading}
+              value={avatarFile}
+              onChange={onUpload}
+              id="avatarInput"
+              type="file"
+              accept="image/*"
+            />
+          </AvatarContainer>
+        )}
         <div>
           <div>
             <SettingLabel htmlFor="username">이름 (필수)</SettingLabel>
@@ -218,38 +263,40 @@ const ProfileSettings = () => {
             />
           </div>
         </div>
-        <AvatarContainer
-          htmlFor="avatarInput"
-          initial="initial"
-          whileHover="hover"
-        >
-          <Avatar
-            src={avatar}
-            onMouseEnter={() => setIsHover(true)}
-            onMouseLeave={() => setIsHover(false)}
-            alt={userData?.username}
-          />
-          <AnimatePresence>
-            {isHover && (
-              <AvatarTooltip
-                variants={tooltipVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-              >
-                프로필 사진 변경하기
-              </AvatarTooltip>
-            )}
-          </AnimatePresence>
-        </AvatarContainer>
-        <AvatarInput
-          disabled={avatarIsLoading}
-          value={avatarFile}
-          onChange={onUpload}
-          id="avatarInput"
-          type="file"
-          accept="image/*"
-        />
+        {!isMobile && (
+          <AvatarContainer
+            htmlFor="avatarInput"
+            initial="initial"
+            whileHover="hover"
+          >
+            <Avatar
+              src={avatar}
+              onMouseEnter={() => setIsHover(true)}
+              onMouseLeave={() => setIsHover(false)}
+              alt={userData?.username}
+            />
+            <AnimatePresence>
+              {isHover && (
+                <AvatarTooltip
+                  variants={tooltipVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  프로필 사진 변경하기
+                </AvatarTooltip>
+              )}
+            </AnimatePresence>
+            <AvatarInput
+              disabled={avatarIsLoading}
+              value={avatarFile}
+              onChange={onUpload}
+              id="avatarInput"
+              type="file"
+              accept="image/*"
+            />
+          </AvatarContainer>
+        )}
       </SettingBox>
       <SaveButton disabled={isSaved} $disabled={isSaved} onClick={onSave}>
         {isLoading ? "저장하는 중.." : "저장하기"}

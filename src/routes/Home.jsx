@@ -243,13 +243,13 @@ const Home = () => {
           image="/img/AboutImage/convenient.jpeg"
           imageAlt="convenient"
         />
-        {/* <AboutMessage
+        <AboutMessage
           title="실시간 채팅"
           message="매우 빠른 무제한 실시간 채팅을 이용해 보세요. 간편하게 당신이 원하는 그림에 대해 설명해 보세요."
           messageFirst={false}
           image="/img/AboutImage/chats.jpeg"
           imageAlt={"realtime - chats"}
-        /> */}
+        />
       </Wrapper>
     </>
   );

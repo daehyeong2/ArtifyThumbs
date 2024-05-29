@@ -15,6 +15,16 @@ import {
   ApplyManage,
   Back,
   BigImage,
+  BottomBar,
+  BottomBarContainer,
+  BottomBarDescription,
+  BottomBarDetail,
+  BottomBarImage,
+  BottomBarImageContainer,
+  BottomBarManage,
+  BottomBarPlan,
+  BottomBarTitle,
+  BottomContainer,
   Chat,
   DeleteApply,
   DeleteImage,
@@ -28,6 +38,7 @@ import {
   DetailInfoes,
   DetailMetaData,
   DetailResult,
+  DetailTags,
   DetailTitle,
   DetailType,
   Download,
@@ -491,7 +502,7 @@ const DetailOrderManagement = () => {
       if (screen === "chat") {
         setTimeout(() => {
           scrollDown();
-        }, 310);
+        }, 100);
       }
     }
   }, [apply, screen]);
@@ -500,7 +511,7 @@ const DetailOrderManagement = () => {
       if (isXSmall) {
         setTimeout(() => {
           scrollDown();
-        }, 300);
+        }, 100);
       } else {
         setTimeout(() => {
           scrollDown();
@@ -657,7 +668,9 @@ const DetailOrderManagement = () => {
                         {apply.plan === "pro" ? "프로" : "기본"}
                       </DetailType>
                     </DetailInfoes>
-                    <DetailDescription>{apply.description}</DetailDescription>
+                    <DetailDescription $isSmall={isSmall}>
+                      {apply.description}
+                    </DetailDescription>
                   </DetailDesc>
                   <DetailMetaData>
                     <DetailData>
@@ -686,7 +699,11 @@ const DetailOrderManagement = () => {
                   animate="center"
                   exit="exit"
                 >
-                  <MessageList ref={ulRef}>
+                  <MessageList
+                    $isMobile={isMobile}
+                    $isXSmall={isXSmall}
+                    ref={ulRef}
+                  >
                     {apply.chats.length > 0 || chats.length > 0 ? (
                       <>
                         {apply.chats.map((chat, index) => {
@@ -893,6 +910,78 @@ const DetailOrderManagement = () => {
                   </DraftList>
                 </Drafts>
               ) : null}
+              {isXSmall && !isMobile && (
+                <BottomBar $isXSmall={isXSmall} $isMobile={isMobile}>
+                  <BottomBarImageContainer>
+                    <BottomBarImage
+                      $isCompleted={
+                        imageUrl && imageUrl !== "/img/preparing.jpeg"
+                          ? true
+                          : apply.isCompleted
+                      }
+                      onClick={
+                        imageUrl && imageUrl !== "/img/preparing.jpeg"
+                          ? () => setCurrentImage(imageUrl)
+                          : apply.isCompleted
+                          ? () => setCurrentImage(apply.result)
+                          : null
+                      }
+                      layoutId={isXSmall ? imageUrl ?? apply.result : ""}
+                      src={imageUrl ?? apply.result}
+                      alt="ApplyImage"
+                      key={imageUrl ?? isXSmall}
+                    />
+                    <DownloadContainer htmlFor="uploadInput">
+                      <TooltipContainer initial="initial" whileHover="hover">
+                        <Download icon={faUpload} />
+                        <FileInput
+                          onChange={onChangeFile}
+                          id="uploadInput"
+                          type="file"
+                          accept="image/*"
+                        />
+                        <Tooltip
+                          transition={{ duration: 0.2 }}
+                          variants={tooltipVariants}
+                        >
+                          {isLoading ? "업로드 중.." : "업로드"}
+                        </Tooltip>
+                      </TooltipContainer>
+                    </DownloadContainer>
+                  </BottomBarImageContainer>
+                  <BottomBarContainer>
+                    <BottomBarTitle>{apply.title}</BottomBarTitle>
+                    <DetailTags>
+                      {apply.tags.map((tag) => {
+                        return <DetailInfo key={tag}>{tag}</DetailInfo>;
+                      })}
+                      <BottomBarPlan $isPro={apply.isPro}>
+                        {apply.isPro ? "프로" : "기본"}
+                      </BottomBarPlan>
+                    </DetailTags>
+                    <BottomContainer>
+                      <BottomBarDescription>
+                        {apply.description}
+                      </BottomBarDescription>
+                      <BottomBarManage>
+                        <BottomBarDetail>
+                          신청 날짜: {parseISOString(apply.appliedAt)}
+                        </BottomBarDetail>
+                        <BottomBarDetail>
+                          신청인: {apply.orderer.username}
+                        </BottomBarDetail>
+                        {apply.isCompleted && (
+                          <DeleteApply onClick={onCancel}>
+                            {applyDeleteIsLoading
+                              ? "신청 삭제하는 중.."
+                              : "신청 삭제하기"}
+                          </DeleteApply>
+                        )}
+                      </BottomBarManage>
+                    </BottomContainer>
+                  </BottomBarContainer>
+                </BottomBar>
+              )}
             </AnimatePresence>
           </>
         ) : (

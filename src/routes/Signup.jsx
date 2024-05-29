@@ -4,11 +4,11 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import SocialLogin from "../components/social-login";
 
 const Wrapper = styled.div`
   display: flex;
@@ -109,31 +109,6 @@ const LoginLink = styled(Link)`
   }
 `;
 
-const OAuthList = styled.ul`
-  display: flex;
-  gap: 10px;
-  list-style: none;
-  padding: 0;
-`;
-
-const OAuth = styled.li`
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: 0.1s;
-  &:hover {
-    color: #0984e3;
-    border: 1px solid #0984e3;
-  }
-`;
-
 const ErrorMessage = styled.p`
   width: 270px;
   line-height: 1.2;
@@ -202,6 +177,7 @@ const Signup = () => {
         createdAt: Date.now(),
         userId: credentials.user.uid,
         photoURL: "/img/user.jpeg",
+        isSocial: false,
       });
       window.location.href = "/";
     } catch (e) {
@@ -319,14 +295,7 @@ const Signup = () => {
             {isLoading ? "가입하는 중.." : "가입하기"}
           </SignUpButton>
           <LoginLink to="/signin">계정이 이미 있으신가요?</LoginLink>
-          <OAuthList>
-            <OAuth>
-              <FontAwesomeIcon icon={faDiscord} />
-            </OAuth>
-            <OAuth>
-              <FontAwesomeIcon icon={faGoogle} />
-            </OAuth>
-          </OAuthList>
+          <SocialLogin />
         </Form>
       </Wrapper>
     </>

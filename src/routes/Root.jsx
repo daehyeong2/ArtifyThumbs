@@ -15,7 +15,7 @@ import {
   widthAtom,
   isMobileAtom,
 } from "../atom";
-import { collection, getDocs, limit, query, where } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import EmailVerification from "../components/EmailVerification";
 import usePrompt from "../components/usePrompt";
 import {
@@ -39,23 +39,19 @@ const Root = () => {
   const setIsMobile = useSetRecoilState(isMobileAtom);
   const init = useCallback(async () => {
     setLoading(true);
+    initializeAppCheck(getApp(), {
+      provider: new ReCaptchaEnterpriseProvider(
+        "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
+      ),
+
+      isTokenAutoRefreshEnabled: true,
+    });
     await auth.authStateReady();
     if (auth.currentUser) {
-      initializeAppCheck(getApp(), {
-        provider: new ReCaptchaEnterpriseProvider(
-          "6LfrLOkpAAAAACD1BJETfXY-pHINuxMRY--t6l3S"
-        ),
-
-        isTokenAutoRefreshEnabled: true,
-      });
-      const userQuery = query(
-        collection(db, "users"),
-        where("userId", "==", auth.currentUser.uid),
-        limit(1)
-      );
-      const userSnap = await getDocs(userQuery);
-      if (!userSnap.empty) {
-        const user = userSnap.docs[0].data();
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const user = userSnap.data();
         setUser(user);
       }
     }

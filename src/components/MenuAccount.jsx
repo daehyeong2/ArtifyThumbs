@@ -1,5 +1,5 @@
 import { useRecoilValue } from "recoil";
-import { userAtom } from "../atom";
+import { reRenderAtom } from "../atom";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -129,8 +129,9 @@ const menuVariants = {
 };
 
 const MenuAccount = ({ menuToggle }) => {
-  const userData = useRecoilValue(userAtom);
+  const user = auth.currentUser;
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const reRender = useRecoilValue(reRenderAtom);
   const navigate = useNavigate();
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -160,8 +161,8 @@ const MenuAccount = ({ menuToggle }) => {
     navigate(0);
   };
   return (
-    <Wrapper>
-      {userData ? (
+    <Wrapper key={reRender}>
+      {user ? (
         <>
           <AnimatePresence>
             {userMenuOpen && (
@@ -183,8 +184,8 @@ const MenuAccount = ({ menuToggle }) => {
             )}
           </AnimatePresence>
           <User onClick={userMenuToggle} className="user">
-            <Avatar src={userData.photoURL} />
-            <Username>{userData.username}</Username>
+            <Avatar src={user.photoURL} />
+            <Username>{user.displayName}</Username>
           </User>
         </>
       ) : (

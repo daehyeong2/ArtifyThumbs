@@ -4,10 +4,10 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiscord, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import SocialLogin from "../components/social-login";
 
 const Wrapper = styled.div`
   display: flex;
@@ -103,31 +103,6 @@ const SignUpLink = styled(Link)`
   &:hover {
     color: #0097e6;
     text-decoration: underline;
-  }
-`;
-
-const OAuthList = styled.ul`
-  display: flex;
-  gap: 10px;
-  list-style: none;
-  padding: 0;
-`;
-
-const OAuth = styled.li`
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  border-radius: 50%;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: 0.1s;
-  &:hover {
-    color: #0984e3;
-    border: 1px solid #0984e3;
   }
 `;
 
@@ -256,14 +231,7 @@ const Signin = () => {
           <SignUpLink to="/signup">
             계정이 없으신가요? 여기를 클릭하세요.
           </SignUpLink>
-          <OAuthList>
-            <OAuth>
-              <FontAwesomeIcon icon={faDiscord} />
-            </OAuth>
-            <OAuth>
-              <FontAwesomeIcon icon={faGoogle} />
-            </OAuth>
-          </OAuthList>
+          <SocialLogin />
         </Form>
       </Wrapper>
     </>

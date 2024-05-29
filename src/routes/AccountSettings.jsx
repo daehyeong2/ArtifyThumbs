@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { auth } from "../firebase";
 import { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { isBlockedAtom, userAtom } from "../atom";
+import { isBlockedAtom, isMobileAtom, userAtom } from "../atom";
 import Seo from "../components/Seo";
 import {
   EmailAuthProvider,
@@ -18,6 +18,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 10px;
+  padding-bottom: ${(props) => (props.$isMobile ? "100px" : "")};
   box-sizing: border-box;
   position: relative;
   height: 100%;
@@ -56,9 +57,11 @@ const SettingInfo = styled.span`
 const SettingLabel = styled.label``;
 
 const SettingInput = styled.input`
-  width: 400px;
+  max-width: 400px;
+  width: 100%;
   font-size: 16px;
   padding: 5px 10px;
+  box-sizing: border-box;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 5px;
   outline: none;
@@ -263,86 +266,95 @@ const ProfileSettings = () => {
       console.error(e);
     }
   };
+  const isMobile = useRecoilValue(isMobileAtom);
   return (
-    <Wrapper>
+    <Wrapper $isMobile={isMobile}>
       <Seo title="계정 설정" description="당신의 계정 정보를 수정하세요." />
-      <SettingBox>
-        <div>
-          <div>
-            <SettingLabel htmlFor="password">기존 비밀번호 (필수)</SettingLabel>
-            <SettingInput
-              value={password}
-              type="password"
-              id="password"
-              autoComplete="off"
-              placeholder="기존 비밀번호를 입력해 주세요."
-              onChange={onChange}
-              disabled={isLoading || isSent}
-              $disabled={isLoading || isSent}
-              required
-            />
-          </div>
-          <div>
-            <SettingLabel htmlFor="newPassword">
-              새 비밀번호 (선택)
-            </SettingLabel>
-            <SettingInput
-              value={newPassword}
-              type="password"
-              id="newPassword"
-              autoComplete="off"
-              placeholder="새 비밀번호를 입력해 주세요."
-              onChange={onChange}
-              disabled={isLoading || isSent}
-              $disabled={isLoading || isSent}
-            />
-          </div>
-          <div>
-            <SettingLabel htmlFor="email">이메일 (필수)</SettingLabel>
-            <SettingInput
-              value={email}
-              type="email"
-              id="email"
-              autoComplete="off"
-              placeholder="이메일을 입력해 주세요."
-              onChange={onChange}
-              disabled={isLoading || !user?.emailVerified}
-              $disabled={isLoading || !user?.emailVerified}
-              required
-            />
-            {!isVerified && (
-              <SettingInfo>
-                <>
-                  이메일 인증이 필요합니다.{" "}
-                  <span onClick={onSend}>
-                    {isSent
-                      ? isCooldown
-                        ? "이메일 재전송 (대기 중)"
-                        : "이메일 재전송"
-                      : isCooldown
-                      ? "이메일 인증 링크 보내기 (대기중)"
-                      : "이메일 인증 링크 보내기"}
-                  </span>
-                  {isSent && <span onClick={onVerify}>인증 완료</span>}
-                </>
-              </SettingInfo>
-            )}
-          </div>
-          <div>
-            <SettingLabel>비밀번호 재설정</SettingLabel>
-            <SettingButton onClick={onResetPassword}>
-              비밀번호 재설정
-            </SettingButton>
-          </div>
-        </div>
-      </SettingBox>
-      <SaveButton
-        disabled={!isVerified || isSaved}
-        $disabled={!isVerified || isSaved}
-        onClick={onSave}
-      >
-        {isLoading ? "저장하는 중.." : "저장하기"}
-      </SaveButton>
+      {userData.isSocial ? (
+        "123"
+      ) : (
+        <>
+          <SettingBox>
+            <div>
+              <div>
+                <SettingLabel htmlFor="password">
+                  기존 비밀번호 (필수)
+                </SettingLabel>
+                <SettingInput
+                  value={password}
+                  type="password"
+                  id="password"
+                  autoComplete="off"
+                  placeholder="기존 비밀번호를 입력해 주세요."
+                  onChange={onChange}
+                  disabled={isLoading || isSent}
+                  $disabled={isLoading || isSent}
+                  required
+                />
+              </div>
+              <div>
+                <SettingLabel htmlFor="newPassword">
+                  새 비밀번호 (선택)
+                </SettingLabel>
+                <SettingInput
+                  value={newPassword}
+                  type="password"
+                  id="newPassword"
+                  autoComplete="off"
+                  placeholder="새 비밀번호를 입력해 주세요."
+                  onChange={onChange}
+                  disabled={isLoading || isSent}
+                  $disabled={isLoading || isSent}
+                />
+              </div>
+              <div>
+                <SettingLabel htmlFor="email">이메일 (필수)</SettingLabel>
+                <SettingInput
+                  value={email}
+                  type="email"
+                  id="email"
+                  autoComplete="off"
+                  placeholder="이메일을 입력해 주세요."
+                  onChange={onChange}
+                  disabled={isLoading || !user?.emailVerified}
+                  $disabled={isLoading || !user?.emailVerified}
+                  required
+                />
+                {!isVerified && (
+                  <SettingInfo>
+                    <>
+                      이메일 인증이 필요합니다.{" "}
+                      <span onClick={onSend}>
+                        {isSent
+                          ? isCooldown
+                            ? "이메일 재전송 (대기 중)"
+                            : "이메일 재전송"
+                          : isCooldown
+                          ? "이메일 인증 링크 보내기 (대기중)"
+                          : "이메일 인증 링크 보내기"}
+                      </span>
+                      {isSent && <span onClick={onVerify}>인증 완료</span>}
+                    </>
+                  </SettingInfo>
+                )}
+              </div>
+              <div>
+                <SettingLabel>비밀번호 재설정</SettingLabel>
+                <SettingButton onClick={onResetPassword}>
+                  비밀번호 재설정
+                </SettingButton>
+              </div>
+            </div>
+          </SettingBox>
+          <SaveButton
+            disabled={!isVerified || isSaved}
+            $disabled={!isVerified || isSaved}
+            onClick={onSave}
+          >
+            {isLoading ? "저장하는 중.." : "저장하기"}
+          </SaveButton>
+        </>
+      )}
     </Wrapper>
   );
 };

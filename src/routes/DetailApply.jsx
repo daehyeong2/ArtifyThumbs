@@ -678,7 +678,9 @@ const DetailApply = () => {
                         {apply.plan === "pro" ? "프로" : "기본"}
                       </DetailType>
                     </DetailInfoes>
-                    <DetailDescription>{apply.description}</DetailDescription>
+                    <DetailDescription $isSmall={isSmall}>
+                      {apply.description}
+                    </DetailDescription>
                   </DetailDesc>
                   <DetailMetaData>
                     <DetailData>

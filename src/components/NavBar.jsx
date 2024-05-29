@@ -577,35 +577,37 @@ const NavBar = () => {
                 </NavItem>
               </>
             ) : (
-              <NavFolder
-                onMouseEnter={() => setIsFolderOpen(true)}
-                onMouseLeave={() => setIsFolderOpen(false)}
-                $isActive={
-                  orderManagementMatch ||
-                  inquiryManagementMatch ||
-                  orderManagementDetailMatch ||
-                  inquiryManagementDetailMatch
-                }
-              >
-                관리
-                <AnimatePresence>
-                  {isFolderOpen ? (
-                    <NavFolderList
-                      variants={FolderVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                    >
-                      <NavFolderItem to="/order-management">
-                        주문 관리
-                      </NavFolderItem>
-                      <NavFolderItem to="/inquiry-management">
-                        문의 관리
-                      </NavFolderItem>
-                    </NavFolderList>
-                  ) : null}
-                </AnimatePresence>
-              </NavFolder>
+              userData?.isAdmin && (
+                <NavFolder
+                  onMouseEnter={() => setIsFolderOpen(true)}
+                  onMouseLeave={() => setIsFolderOpen(false)}
+                  $isActive={
+                    orderManagementMatch ||
+                    inquiryManagementMatch ||
+                    orderManagementDetailMatch ||
+                    inquiryManagementDetailMatch
+                  }
+                >
+                  관리
+                  <AnimatePresence>
+                    {isFolderOpen ? (
+                      <NavFolderList
+                        variants={FolderVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                      >
+                        <NavFolderItem to="/order-management">
+                          주문 관리
+                        </NavFolderItem>
+                        <NavFolderItem to="/inquiry-management">
+                          문의 관리
+                        </NavFolderItem>
+                      </NavFolderList>
+                    ) : null}
+                  </AnimatePresence>
+                </NavFolder>
+              )
             )}
           </>
         )}

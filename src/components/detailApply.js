@@ -119,7 +119,7 @@ export const DetailDescription = styled.p`
   font-size: 1.03rem;
   color: rgba(0, 0, 0, 0.75);
   line-height: 1.25;
-  height: 180px;
+  height: ${(props) => (props.$isSmall ? "125px" : "180px")};
   overflow-wrap: break-word;
   overflow-y: auto;
 `;

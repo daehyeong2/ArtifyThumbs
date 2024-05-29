@@ -1,7 +1,7 @@
 import { useRecoilValue } from "recoil";
 import Seo from "../components/Seo";
 import { auth, db } from "../firebase";
-import { userAtom } from "../atom";
+import { isMobileAtom, userAtom, widthAtom } from "../atom";
 import { useState } from "react";
 import { useEffect } from "react";
 import {
@@ -17,29 +17,31 @@ import { useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import ListOrder from "../components/list-order";
+import ListMobileOrder from "../components/list-mobile-order";
 
 const Wrapper = styled.div`
-  padding-top: 160px;
+  padding: 70px 30px;
+  padding-top: ${(props) => (props.$isSmall ? "70px" : "160px")};
   display: flex;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
 `;
 
 const Container = styled.div`
   display: grid;
-  grid-template-rows: 100px 1fr;
-  grid-template-columns: 1fr 3fr;
-  gap: 0 10px;
-  min-width: 600px;
+  grid-template-rows: 100px ${(props) => (props.$isSmall ? "400px" : "")} 1fr;
+  grid-template-columns: 1fr ${(props) => (props.$isSmall ? "" : "5fr")};
+  gap: 0 20px;
+  min-width: ${(props) => (props.$isMobile ? "" : "600px")};
   min-height: 400px;
-  width: 65vw;
-  height: 70vh;
+  width: ${(props) => (props.$isMobile ? "100%" : "fit-content")};
+  height: ${(props) => (props.$isSmall ? "100%" : "70vh")};
 `;
 
 const Title = styled.h1`
   font-size: 43px;
   font-weight: bold;
-  grid-column: span 2;
+  grid-column: ${(props) => (props.$isSmall ? "" : "span 2")};
   display: flex;
   align-items: center;
 `;
@@ -47,7 +49,7 @@ const Title = styled.h1`
 const Account = styled.section`
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: ${(props) => (props.$isSmall ? "30px" : "50px")};
 `;
 
 const User = styled.div`
@@ -62,6 +64,7 @@ const AvatarContainer = styled.div`
   display: flex;
   gap: 5px;
   position: relative;
+  justify-content: center;
 `;
 
 const AvatarTooltip = styled(motion.span)`
@@ -79,7 +82,6 @@ const AvatarTooltip = styled(motion.span)`
 `;
 
 const Avatar = styled(Link)`
-  width: 100%;
   display: flex;
   justify-content: center;
 `;
@@ -88,7 +90,6 @@ const AvatarImage = styled.img`
   object-fit: cover;
   object-position: center;
   max-width: 200px;
-  width: 90%;
   aspect-ratio: 1/1;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -99,6 +100,7 @@ const Username = styled.h2`
   width: 100%;
   font-size: 22px;
   font-weight: bold;
+  text-align: ${(props) => (props.$isSmall ? "center" : "start")};
 `;
 
 const UserInfoes = styled.ul`
@@ -110,6 +112,7 @@ const UserInfoes = styled.ul`
 const UserInfo = styled.li`
   font-size: 16px;
   line-height: 1.3;
+  text-align: ${(props) => (props.$isSmall ? "center" : "start")};
   span {
     color: #0984e3;
     &:hover {
@@ -119,13 +122,17 @@ const UserInfo = styled.li`
 `;
 
 const Orders = styled.ul`
-  max-height: 55vh;
+  max-height: ${(props) => (props.$isMobile ? "600px" : "55vh")};
   height: min-content;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  background-color: rgba(0, 0, 0, 0.2);
+  margin: 0 ${(props) => (props.$isMobile ? "auto" : 0)};
+  gap: ${(props) => (props.$isMobile ? "10px" : "1px")};
+  padding: 0 ${(props) => (props.$isMobile ? "5px" : 0)};
+  background-color: ${(props) =>
+    props.$isMobile ? "white" : "rgba(0, 0, 0, 0.2)"};
   overflow-y: auto;
+  max-width: ${(props) => (props.$isMobile ? "400px" : "800px")};
 `;
 
 const ApplyMessage = styled.h2`
@@ -145,6 +152,12 @@ const GoApply = styled(Link)`
   &:hover {
     text-decoration: underline;
   }
+`;
+
+const OrdersTitle = styled.h2`
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 40px;
 `;
 
 const parseISOString = (string) => {
@@ -195,13 +208,16 @@ const Profile = () => {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+  const width = useRecoilValue(widthAtom);
+  const isMobile = useRecoilValue(isMobileAtom);
+  const isSmall = !(width > 950);
   return (
     <>
       <Seo title="프로필" description="당신의 계정 프로필을 확인해 보세요!" />
-      <Wrapper>
-        <Container>
-          <Title>프로필</Title>
-          <Account>
+      <Wrapper $isSmall={isSmall}>
+        <Container $isMobile={isMobile} $isSmall={isSmall}>
+          <Title $isSmall={isSmall}>프로필</Title>
+          <Account $isSmall={isSmall}>
             <User>
               {user && (
                 <>
@@ -227,15 +243,15 @@ const Profile = () => {
                       )}
                     </AnimatePresence>
                   </AvatarContainer>
-                  <Username>{user.displayName}</Username>
+                  <Username $isSmall={isSmall}>{user.displayName}</Username>
                 </>
               )}
             </User>
             <UserInfoes>
-              <UserInfo>
+              <UserInfo $isSmall={isSmall}>
                 총 주문 수: <span>{orders.length}</span>건
               </UserInfo>
-              <UserInfo>
+              <UserInfo $isSmall={isSmall}>
                 계정 가입일:
                 <br />
                 {userData &&
@@ -243,11 +259,16 @@ const Profile = () => {
               </UserInfo>
             </UserInfoes>
           </Account>
+          {isMobile && <OrdersTitle>내 그림</OrdersTitle>}
           {orders?.length > 0 ? (
-            <Orders>
-              {orders.map((order) => (
-                <ListOrder key={order.id} order={order} />
-              ))}
+            <Orders $isMobile={isMobile}>
+              {orders.map((order) =>
+                isMobile ? (
+                  <ListMobileOrder key={order.id} order={order} />
+                ) : (
+                  <ListOrder key={order.id} order={order} />
+                )
+              )}
             </Orders>
           ) : (
             <ApplyMessage>

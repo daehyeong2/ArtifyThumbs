@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { db } from "../firebase";
 import { parseISOString } from "../components/detailApply";
+import { useRecoilValue } from "recoil";
+import { isMobileAtom, widthAtom } from "../atom";
 
 const Wrapper = styled.div`
   box-sizing: border-box;
@@ -20,12 +22,12 @@ const Container = styled.div`
   width: 80vw;
   height: 700px;
   gap: 50px;
-  padding: 30px;
+  padding: ${(props) => (props.$isMobile ? 0 : "30px")};
   box-sizing: border-box;
 `;
 
 const Order = styled.div`
-  display: grid;
+  display: ${(props) => (props.$isSmall ? "block" : "grid")};
   grid-template-columns: 1fr 2fr;
   gap: 30px;
 `;
@@ -82,8 +84,8 @@ const OrderList = styled.ul`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  max-height: 100%;
-  height: fit-content;
+  max-height: 600px;
+  height: 100%;
   gap: 10px;
 `;
 
@@ -140,6 +142,39 @@ const Plan = styled.div`
   right: 30px;
 `;
 
+const MobileItem = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  padding: 15px;
+  border-radius: 10px;
+  color: black;
+  text-decoration: none;
+`;
+
+const MobileTitle = styled.h2`
+  font-size: 22px;
+  font-weight: bold;
+`;
+
+const MobileBottomBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const MobileStatus = styled.h3`
+  font-size: 16px;
+  span {
+    font-weight: bold;
+    color: ${(props) => (props.$isCompleted ? "green" : "red")};
+  }
+`;
+
+const MobileDate = styled.span`
+  font-size: 14px;
+`;
+
 const OrderManagement = () => {
   const [hoverItem, setHoverItem] = useState(null);
   const [orders, setOrders] = useState([]);
@@ -174,65 +209,94 @@ const OrderManagement = () => {
   } else {
     hoverData = null;
   }
+  const width = useRecoilValue(widthAtom);
+  const isSmall = !(width > 1330);
+  const isMobile = useRecoilValue(isMobileAtom);
   return (
     <>
       <Seo title="주문 관리" />
       <Wrapper>
-        <Container>
+        <Container $isMobile={isMobile}>
           <Title>주문 관리</Title>
-          <Order>
-            <OrderPreview>
-              {hoverData ? (
-                <>
-                  <PreviewImage $src={hoverData.result} />
-                  <PreviewTitle>{hoverData.title}</PreviewTitle>
-                  <PreviewTags>
-                    {hoverData.tags.map((tag) => (
-                      <li key={tag}>{tag}</li>
-                    ))}
-                    <Plan $isPro={hoverData.plan === "pro"}>
-                      {hoverData.plan === "pro" ? "프로" : "기본"}
-                    </Plan>
-                  </PreviewTags>
-                  <PreviewDescription>
-                    {hoverData.description}
-                  </PreviewDescription>
-                </>
-              ) : (
-                <>
-                  <PreviewImage $src="/img/smallLogo.jpeg" $contain={true} />
-                  <PreviewTitle>주문을 선택해주세요.</PreviewTitle>
-                  <PreviewDescription>
-                    주문 위에 마우스를 올려보세요!
-                  </PreviewDescription>
-                </>
-              )}
-            </OrderPreview>
+          <Order $isSmall={isSmall}>
+            {!isSmall && (
+              <OrderPreview>
+                {hoverData ? (
+                  <>
+                    <PreviewImage $src={hoverData.result} />
+                    <PreviewTitle>{hoverData.title}</PreviewTitle>
+                    <PreviewTags>
+                      {hoverData.tags.map((tag) => (
+                        <li key={tag}>{tag}</li>
+                      ))}
+                      <Plan $isPro={hoverData.plan === "pro"}>
+                        {hoverData.plan === "pro" ? "프로" : "기본"}
+                      </Plan>
+                    </PreviewTags>
+                    <PreviewDescription>
+                      {hoverData.description}
+                    </PreviewDescription>
+                  </>
+                ) : (
+                  <>
+                    <PreviewImage $src="/img/smallLogo.jpeg" $contain={true} />
+                    <PreviewTitle>주문을 선택해주세요.</PreviewTitle>
+                    <PreviewDescription>
+                      주문 위에 마우스를 올려보세요!
+                    </PreviewDescription>
+                  </>
+                )}
+              </OrderPreview>
+            )}
             <OrderList onMouseLeave={() => setHoverItem(null)}>
-              <OrderHeader>
-                <OrderNumber>번호</OrderNumber>
-                <OrderTitle>제목</OrderTitle>
-                <OrderDate>주문 날짜</OrderDate>
-                <span>상태</span>
-              </OrderHeader>
-              {orders.map((order, idx) => (
-                <OrderItem
-                  onMouseEnter={() => setHoverItem(order.id)}
-                  key={order.id}
-                  to={`/order-management/${order.id}`}
-                >
-                  <OrderNumber>{orders.length - idx}</OrderNumber>
-                  <OrderTitle>
-                    {order.title.length > 15
-                      ? `${order.title.slice(0, 15)}...`
-                      : order.title}
-                  </OrderTitle>
-                  <OrderDate>{parseISOString(order.appliedAt)}</OrderDate>
-                  <OrderStatus $isCompleted={order.isCompleted}>
-                    {order.isCompleted ? "완료됨" : "준비 중"}
-                  </OrderStatus>
-                </OrderItem>
-              ))}
+              {!isMobile && (
+                <OrderHeader>
+                  <OrderNumber>번호</OrderNumber>
+                  <OrderTitle>제목</OrderTitle>
+                  <OrderDate>주문 날짜</OrderDate>
+                  <span>상태</span>
+                </OrderHeader>
+              )}
+              {orders.map((order, idx) =>
+                isMobile ? (
+                  <MobileItem
+                    key={order.id}
+                    to={`/order-management/${order.id}`}
+                  >
+                    <MobileTitle>
+                      {order.title.length > 15
+                        ? `${order.title.slice(0, 15)}...`
+                        : order.title}
+                    </MobileTitle>
+                    <MobileBottomBar>
+                      <MobileStatus $isCompleted={order.isCompleted}>
+                        상태:{" "}
+                        <span>{order.isCompleted ? "완료됨" : "준비 중"}</span>
+                      </MobileStatus>
+                      <MobileDate>
+                        주문 날짜: {parseISOString(order.appliedAt)}
+                      </MobileDate>
+                    </MobileBottomBar>
+                  </MobileItem>
+                ) : (
+                  <OrderItem
+                    onMouseEnter={() => setHoverItem(order.id)}
+                    key={order.id}
+                    to={`/order-management/${order.id}`}
+                  >
+                    <OrderNumber>{orders.length - idx}</OrderNumber>
+                    <OrderTitle>
+                      {order.title.length > 15
+                        ? `${order.title.slice(0, 15)}...`
+                        : order.title}
+                    </OrderTitle>
+                    <OrderDate>{parseISOString(order.appliedAt)}</OrderDate>
+                    <OrderStatus $isCompleted={order.isCompleted}>
+                      {order.isCompleted ? "완료됨" : "준비 중"}
+                    </OrderStatus>
+                  </OrderItem>
+                )
+              )}
             </OrderList>
           </Order>
         </Container>

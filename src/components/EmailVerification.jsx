@@ -5,6 +5,7 @@ import { auth, db } from "../firebase";
 import { motion } from "framer-motion";
 import Seo from "./Seo";
 import { deleteDoc, doc } from "firebase/firestore";
+import { FirebaseError } from "firebase/app";
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -139,7 +140,19 @@ const EmailVerification = () => {
         setIsCooldown(false);
       }, 60000);
     } catch (e) {
-      console.error(e);
+      if (e instanceof FirebaseError) {
+        switch (e.code) {
+          case "auth/too-many-requests":
+            alert(
+              "이메일은 60초에 한번씩 전송할 수 있습니다, 잠시 후에 다시 시도해 주세요."
+            );
+            break;
+          default:
+            console.error(e);
+        }
+      } else {
+        console.error(e);
+      }
     }
   };
   const confirmVerification = async () => {

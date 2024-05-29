@@ -92,8 +92,8 @@ const ListOrder = ({ order }) => {
             : order.title}
         </OrderTitle>
         <OrderDescription>
-          {order.description.length > 120
-            ? `${order.description.slice(0, 120)}...`
+          {order.description.length > 37
+            ? `${order.description.slice(0, 37)}...`
             : order.description}
         </OrderDescription>
         <OrderDate>{parseISOString(order.appliedAt)}</OrderDate>

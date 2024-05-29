@@ -247,7 +247,7 @@ const Inquiry = () => {
                 $isMobile={isMobile}
                 type="text"
                 autoComplete="off"
-                placeholder="문의 제목을 입력하세요."
+                placeholder="문의 제목을 입력해 주세요."
                 required
                 {...register("title", { required: true })}
               />
@@ -255,7 +255,7 @@ const Inquiry = () => {
                 $isMobile={isMobile}
                 type="email"
                 autoComplete="off"
-                placeholder="이메일을 입력하세요."
+                placeholder="이메일을 입력해 주세요."
                 required
                 {...register("email", {
                   required: true,
@@ -264,7 +264,7 @@ const Inquiry = () => {
               />
               <TextArea
                 autoComplete="off"
-                placeholder="문의 내용을 입력해주세요."
+                placeholder="문의 내용을 입력해 주세요."
                 required
                 {...register("content", { required: true, maxLength: 2500 })}
               />

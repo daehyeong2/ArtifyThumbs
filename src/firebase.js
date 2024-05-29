@@ -14,6 +14,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+if (process.env.REACT_APP_NODE_ENV === "development") {
+  window.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+}
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
