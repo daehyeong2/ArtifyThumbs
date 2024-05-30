@@ -28,6 +28,7 @@ const InquirySection = styled.div`
   max-width: 800px;
   width: 100%;
   padding: 0 15px;
+  padding-bottom: ${(props) => (props.$isMobile ? "100px" : "")};
   box-sizing: border-box;
 `;
 
@@ -239,7 +240,7 @@ const Inquiry = () => {
         description="ArtifyThumbs에 대해 모르는 것을 문의해 보세요."
       />
       <Wrapper>
-        <InquirySection>
+        <InquirySection $isMobile={isMobile}>
           <Container $isMobile={isMobile}>
             <Title $isMobile={isMobile}>문의하기</Title>
             <Form $isMobile={isMobile} onSubmit={handleSubmit(onSubmit)}>
