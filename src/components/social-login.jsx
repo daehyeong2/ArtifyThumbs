@@ -65,6 +65,7 @@ const SocialLogin = () => {
         const userData = userSnap.data();
         await updateProfile(auth.currentUser, {
           displayName: userData.username,
+          email: userData.email,
           photoURL: userData.photoURL,
         });
         return (window.location.href = "/");
@@ -73,6 +74,7 @@ const SocialLogin = () => {
         credentials.user.displayName ?? `user-${generateRandomString(5)}`;
       await setDoc(userRef, {
         username,
+        email: credentials.user.email,
         isAdmin: true,
         createdAt: Date.now(),
         userId: credentials.user.uid,
@@ -103,6 +105,7 @@ const SocialLogin = () => {
         const userData = userSnap.data();
         await updateProfile(auth.currentUser, {
           displayName: userData.username,
+          email: userData.email,
           photoURL: userData.photoURL,
         });
         return (window.location.href = "/");
@@ -111,6 +114,7 @@ const SocialLogin = () => {
         credentials.user.displayName ?? `user-${generateRandomString(5)}`;
       await setDoc(userRef, {
         username,
+        email: credentials.user.email,
         isAdmin: true,
         createdAt: Date.now(),
         userId: credentials.user.uid,

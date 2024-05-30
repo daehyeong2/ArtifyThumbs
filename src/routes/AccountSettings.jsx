@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { isBlockedAtom, isMobileAtom, userAtom } from "../atom";
@@ -12,6 +12,17 @@ import {
   updatePassword,
   verifyBeforeUpdateEmail,
 } from "firebase/auth";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  collection,
+  doc,
+  getDocs,
+  limit,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 const Wrapper = styled.div`
   display: flex;
@@ -103,6 +114,36 @@ const SettingButton = styled.button`
   margin-top: 3px;
 `;
 
+const SocialLock = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  padding-bottom: 100px;
+  position: absolute;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.35);
+  border-radius: 5px;
+`;
+
+const SocialLockIcon = styled(FontAwesomeIcon)`
+  font-size: 60px;
+  color: rgb(190, 190, 190);
+`;
+
+const SocialLockTitle = styled.h2`
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  word-break: break-all;
+  max-width: 350px;
+  line-height: 1.2;
+`;
+
 const ProfileSettings = () => {
   let user = auth.currentUser;
   const userData = useRecoilValue(userAtom);
@@ -125,6 +166,7 @@ const ProfileSettings = () => {
     setIsVerified(user.emailVerified);
   }, [user, userData]);
   const onChange = (e) => {
+    if (isSocial) return;
     switch (e.target.id) {
       case "email":
         setEmail(e.target.value);
@@ -153,7 +195,7 @@ const ProfileSettings = () => {
     }
   };
   const onSave = async () => {
-    if (isSaved || isLoading) return;
+    if (isSocial || isSaved || isLoading) return;
     if (!password) return alert("필수 항목을 모두 입력해 주세요.");
     setLoading(true);
     try {
@@ -174,11 +216,20 @@ const ProfileSettings = () => {
     }
   };
   const onSend = async () => {
+    if (isSocial) return;
     if (isCooldown) {
       return alert(
         "이메일은 60초에 한번씩 전송할 수 있습니다, 잠시 후에 다시 시도해 주세요."
       );
     }
+    const userQuery = query(
+      collection(db, "users"),
+      where("email", "==", email),
+      limit(1)
+    );
+    const userSnap = await getDocs(userQuery);
+    if (!userSnap.empty)
+      return alert("해당 이메일로 가입된 계정이 이미 존재합니다.");
     setIsVerified(false);
     let isError = null;
     try {
@@ -199,6 +250,7 @@ const ProfileSettings = () => {
     }
   };
   const reauthenticate = async (password, showAlert = true, reSend) => {
+    if (isSocial) return;
     if (!user) {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -235,8 +287,13 @@ const ProfileSettings = () => {
     }
   };
   const onVerify = async () => {
+    if (isSocial) return;
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        email,
+      });
     } catch (e) {
       if (e.code === "auth/invalid-credential")
         return alert("아직 인증되지 않았습니다.");
@@ -250,6 +307,7 @@ const ProfileSettings = () => {
     setIsSent(false);
   };
   const onResetPassword = async () => {
+    if (isSocial) return;
     if (passwordCooldown)
       return alert(
         "비밀번호 재설정 메일은 30초에 한번씩 전송할 수 있습니다. 잠시만 기다려주세요."
@@ -267,94 +325,96 @@ const ProfileSettings = () => {
     }
   };
   const isMobile = useRecoilValue(isMobileAtom);
+  const isSocial = userData?.isSocial;
   return (
     <Wrapper $isMobile={isMobile}>
       <Seo title="계정 설정" description="당신의 계정 정보를 수정하세요." />
-      {userData.isSocial ? (
-        "123"
-      ) : (
-        <>
-          <SettingBox>
-            <div>
-              <div>
-                <SettingLabel htmlFor="password">
-                  기존 비밀번호 (필수)
-                </SettingLabel>
-                <SettingInput
-                  value={password}
-                  type="password"
-                  id="password"
-                  autoComplete="off"
-                  placeholder="기존 비밀번호를 입력해 주세요."
-                  onChange={onChange}
-                  disabled={isLoading || isSent}
-                  $disabled={isLoading || isSent}
-                  required
-                />
-              </div>
-              <div>
-                <SettingLabel htmlFor="newPassword">
-                  새 비밀번호 (선택)
-                </SettingLabel>
-                <SettingInput
-                  value={newPassword}
-                  type="password"
-                  id="newPassword"
-                  autoComplete="off"
-                  placeholder="새 비밀번호를 입력해 주세요."
-                  onChange={onChange}
-                  disabled={isLoading || isSent}
-                  $disabled={isLoading || isSent}
-                />
-              </div>
-              <div>
-                <SettingLabel htmlFor="email">이메일 (필수)</SettingLabel>
-                <SettingInput
-                  value={email}
-                  type="email"
-                  id="email"
-                  autoComplete="off"
-                  placeholder="이메일을 입력해 주세요."
-                  onChange={onChange}
-                  disabled={isLoading || !user?.emailVerified}
-                  $disabled={isLoading || !user?.emailVerified}
-                  required
-                />
-                {!isVerified && (
-                  <SettingInfo>
-                    <>
-                      이메일 인증이 필요합니다.{" "}
-                      <span onClick={onSend}>
-                        {isSent
-                          ? isCooldown
-                            ? "이메일 재전송 (대기 중)"
-                            : "이메일 재전송"
-                          : isCooldown
-                          ? "이메일 인증 링크 보내기 (대기중)"
-                          : "이메일 인증 링크 보내기"}
-                      </span>
-                      {isSent && <span onClick={onVerify}>인증 완료</span>}
-                    </>
-                  </SettingInfo>
-                )}
-              </div>
-              <div>
-                <SettingLabel>비밀번호 재설정</SettingLabel>
-                <SettingButton onClick={onResetPassword}>
-                  비밀번호 재설정
-                </SettingButton>
-              </div>
-            </div>
-          </SettingBox>
-          <SaveButton
-            disabled={!isVerified || isSaved}
-            $disabled={!isVerified || isSaved}
-            onClick={onSave}
-          >
-            {isLoading ? "저장하는 중.." : "저장하기"}
-          </SaveButton>
-        </>
+      {isSocial && (
+        <SocialLock>
+          <SocialLockIcon icon={faLock} />
+          <SocialLockTitle>
+            (이메일/비밀번호) 방식으로 가입되지 않은 계정은 해당 기능을 사용할
+            수 없습니다.
+          </SocialLockTitle>
+        </SocialLock>
       )}
+      <SettingBox>
+        <div>
+          <div>
+            <SettingLabel htmlFor="password">기존 비밀번호 (필수)</SettingLabel>
+            <SettingInput
+              value={password}
+              type="password"
+              id="password"
+              autoComplete="off"
+              placeholder="기존 비밀번호를 입력해 주세요."
+              onChange={onChange}
+              disabled={isLoading || isSent}
+              $disabled={isLoading || isSent}
+              required
+            />
+          </div>
+          <div>
+            <SettingLabel htmlFor="newPassword">
+              새 비밀번호 (선택)
+            </SettingLabel>
+            <SettingInput
+              value={newPassword}
+              type="password"
+              id="newPassword"
+              autoComplete="off"
+              placeholder="새 비밀번호를 입력해 주세요."
+              onChange={onChange}
+              disabled={isLoading || isSent}
+              $disabled={isLoading || isSent}
+            />
+          </div>
+          <div>
+            <SettingLabel htmlFor="email">이메일 (필수)</SettingLabel>
+            <SettingInput
+              value={email}
+              type="email"
+              id="email"
+              autoComplete="off"
+              placeholder="이메일을 입력해 주세요."
+              onChange={onChange}
+              disabled={isLoading || !user?.emailVerified}
+              $disabled={isLoading || !user?.emailVerified}
+              required
+            />
+            {!isVerified && (
+              <SettingInfo>
+                <>
+                  이메일 인증이 필요합니다.{" "}
+                  <span onClick={onSend}>
+                    {isSent
+                      ? isCooldown
+                        ? "이메일 재전송 (대기 중)"
+                        : "이메일 재전송"
+                      : isCooldown
+                      ? "이메일 인증 링크 보내기 (대기중)"
+                      : "이메일 인증 링크 보내기"}
+                  </span>
+                  {isSent && <span onClick={onVerify}>인증 완료</span>}
+                </>
+              </SettingInfo>
+            )}
+          </div>
+          <div>
+            <SettingLabel>비밀번호 재설정</SettingLabel>
+            <SettingButton onClick={onResetPassword}>
+              비밀번호 재설정
+            </SettingButton>
+          </div>
+        </div>
+      </SettingBox>
+      <SaveButton
+        disabled={!isVerified || isSaved}
+        $disabled={!isVerified || isSaved}
+        onClick={onSave}
+      >
+        {isLoading ? "저장하는 중.." : "저장하기"}
+      </SaveButton>
     </Wrapper>
   );
 };

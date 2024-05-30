@@ -19,6 +19,9 @@ const SiteTech = styled.section`
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
+  span {
+    display: ${(props) => (props.$isMobile ? "none" : "block")};
+  }
 `;
 
 const TechTitle = styled.h1`
@@ -31,7 +34,9 @@ const TechTitle = styled.h1`
 const TechGroup = styled.ul`
   display: flex;
   padding-left: 5px;
+  box-sizing: border-box;
   gap: 15px;
+  flex-wrap: wrap;
 `;
 
 const Tech = styled(motion.li)`
@@ -97,7 +102,7 @@ const Gorani = () => {
           <span>소개글:</span> 편하게 신청해 주세요~
         </Introduction>
         <SiteTitle $isMobile={isMobile}>이 웹사이트에 사용된 기술</SiteTitle>
-        <SiteTech>
+        <SiteTech $isMobile={isMobile}>
           <TechTitle $isMobile={isMobile}>프론트엔드</TechTitle>
           <TechGroup>
             <Tech initial="initial" whileHover="hover">

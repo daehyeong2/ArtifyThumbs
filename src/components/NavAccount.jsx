@@ -108,7 +108,8 @@ const MenuProfile = styled.section`
 const AvatarImage = styled.img`
   width: 50px;
   height: 50px;
-  object-fit: center;
+  object-fit: cover;
+  object-position: center;
   border-radius: 50%;
   border: 1px solid #cbcbcb;
 `;

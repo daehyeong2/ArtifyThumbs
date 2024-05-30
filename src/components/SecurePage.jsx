@@ -20,7 +20,7 @@ const SecurePage = ({ element, authenticatedOnly, guestOnly, adminOnly }) => {
     return <LoadingScreen />;
   }
   if (authenticatedOnly && !user) {
-    alert("로그인이 필요한 서비스입니다.");
+    alert("로그인이 필요한 페이지입니다.");
     return <Navigate to="/signin" replace />;
   } else if (guestOnly && user) {
     alert("로그인 중일 때는 사용하실 수 없습니다.");

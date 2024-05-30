@@ -173,6 +173,7 @@ const Signup = () => {
       const userRef = doc(db, "users", credentials.user.uid);
       await setDoc(userRef, {
         username: data.username,
+        email: data.email,
         isAdmin: true,
         createdAt: Date.now(),
         userId: credentials.user.uid,

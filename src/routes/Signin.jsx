@@ -5,9 +5,10 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import SocialLogin from "../components/social-login";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 const Wrapper = styled.div`
   display: flex;
@@ -163,6 +164,15 @@ const Signin = () => {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, data.email, data.password);
+      await auth.currentUser.reload();
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      const userData = userSnap.data();
+      if (userData.email !== data.email) {
+        await updateDoc(userRef, {
+          email: data.email,
+        });
+      }
       window.location.href = "/";
     } catch (e) {
       setError(errorMap[e.code]);

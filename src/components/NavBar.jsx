@@ -7,7 +7,7 @@ import {
   useScroll,
 } from "framer-motion";
 import { Link, useMatch } from "react-router-dom";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { isMobileAtom, userAtom, widthAtom } from "../atom";
 import CustomLink from "./CustomLink";
@@ -360,6 +360,12 @@ const NavBar = () => {
     }
     setMenuOpen((prev) => !prev);
   };
+  useEffect(() => {
+    if (!isMobile) {
+      document.body.style.overflow = "unset";
+      setMenuOpen(false);
+    }
+  }, [isMobile]);
   return (
     <Nav
       $isBorderExist={isBorderExist}

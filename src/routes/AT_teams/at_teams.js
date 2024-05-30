@@ -12,7 +12,7 @@ export const Wrapper = styled.div`
 export const Container = styled.div`
   padding: 0 ${(props) => (props.$isMobile ? "15px" : "80px")};
   box-sizing: border-box;
-  width: 100vw;
+  width: ${(props) => (props.$isMobile ? "fit-content" : "100vw")};
 `;
 
 export const Back = styled(Link)`
