@@ -240,6 +240,7 @@ const DetailOrderManagement = () => {
         socket = io.connect(process.env.REACT_APP_BACKEND_URL, {
           query: { token },
         });
+        socket.emit("role", "admin");
         socket.emit("chat_room", orderId);
         socket.on("chat_message", (data) => {
           paint_message(data.message, data.isMe, data.imageUrl, data.timestamp);
@@ -369,7 +370,10 @@ const DetailOrderManagement = () => {
         chats.items.forEach(async (itemRef) => {
           await deleteObject(itemRef);
         });
-        if (apply.isCompleted) {
+        if (
+          apply.isCompleted ||
+          (imageUrl && imageUrl !== "/img/preparing.jpeg")
+        ) {
           const resultRef = ref(storage, `results/${orderId}`);
           await deleteObject(resultRef);
         }
@@ -519,6 +523,27 @@ const DetailOrderManagement = () => {
       }
     }
   }, [apply, isMobile, isSmall, isXSmall]);
+  const readMessage = useCallback(async () => {
+    const docRef = doc(db, `orders/${orderId}`);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      return;
+    }
+    const chats = docSnap.data().chats;
+    chats[chats.length - 1].isRead = true;
+    await updateDoc(docRef, {
+      chats,
+    });
+  }, [orderId]);
+  useEffect(() => {
+    if (apply) {
+      scrollDown();
+      const recentChat = apply.chats[apply.chats.length - 1];
+      if (recentChat && recentChat.isMe && !recentChat.isRead) {
+        readMessage();
+      }
+    }
+  }, [apply, readMessage]);
   return (
     <>
       <Seo title={apply?.title ? apply.title : "로딩 중.."} />

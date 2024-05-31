@@ -1,28 +1,36 @@
 import styled from "styled-components";
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import { useEffect, useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { isBlockedAtom, isMobileAtom, userAtom } from "../atom";
 import Seo from "../components/Seo";
 import {
   EmailAuthProvider,
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  deleteUser,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   updatePassword,
   verifyBeforeUpdateEmail,
 } from "firebase/auth";
-import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import {
   collection,
+  deleteDoc,
   doc,
+  getDoc,
   getDocs,
   limit,
   query,
   updateDoc,
   where,
 } from "firebase/firestore";
+import { deleteObject, listAll, ref } from "firebase/storage";
+import { FirebaseError } from "firebase/app";
 
 const Wrapper = styled.div`
   display: flex;
@@ -65,7 +73,9 @@ const SettingInfo = styled.span`
   }
 `;
 
-const SettingLabel = styled.label``;
+const SettingLabel = styled.label`
+  width: fit-content;
+`;
 
 const SettingInput = styled.input`
   max-width: 400px;
@@ -104,44 +114,39 @@ const SaveButton = styled.button`
 
 const SettingButton = styled.button`
   border: 1px solid rgba(0, 0, 0, 0.2);
-  transition: opacity 0.05s ease-in-out;
   background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  width: fit-content;
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
+  font-size: 16px;
+  padding: 8px 10px;
+  margin-top: 3px;
+`;
+
+const SocialMessage = styled.span`
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  svg {
+    color: red;
+    font-size: 20px;
+  }
+`;
+
+const AccountSecession = styled.button`
+  border: 1px solid red;
+  background-color: white;
+  color: red;
+  font-weight: bold;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   border-radius: 8px;
   width: fit-content;
   cursor: pointer;
   font-size: 16px;
   padding: 8px 10px;
   margin-top: 3px;
-`;
-
-const SocialLock = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  box-sizing: border-box;
-  padding-bottom: 100px;
-  position: absolute;
-  z-index: 10;
-  background-color: rgba(0, 0, 0, 0.35);
-  border-radius: 5px;
-`;
-
-const SocialLockIcon = styled(FontAwesomeIcon)`
-  font-size: 60px;
-  color: rgb(190, 190, 190);
-`;
-
-const SocialLockTitle = styled.h2`
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  word-break: break-all;
-  max-width: 350px;
-  line-height: 1.2;
 `;
 
 const ProfileSettings = () => {
@@ -159,6 +164,7 @@ const ProfileSettings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [lastPassword, setLastPassword] = useState("");
   const [passwordCooldown, setPasswordCooldown] = useState(false);
+  const [secessionLoading, setSecessionLoading] = useState(false);
   useEffect(() => {
     if (!user || !userData) return;
     setEmail(user.email);
@@ -263,7 +269,7 @@ const ProfileSettings = () => {
     const credential = EmailAuthProvider.credential(
       isSent ? email : user.email,
       password
-    ); // 비밀번호 재설정 기능 추가 예정
+    );
     try {
       const userCredential = await reauthenticateWithCredential(
         user,
@@ -324,20 +330,154 @@ const ProfileSettings = () => {
       console.error(e);
     }
   };
+  const deleteApply = async (applyId, isEnd) => {
+    try {
+      const docRef = doc(db, `orders/${applyId}`);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) return;
+      const apply = docSnap.data();
+      const chatsRef = ref(storage, `chats/${applyId}/`);
+      const chats = await listAll(chatsRef);
+      chats.items.forEach(async (itemRef) => {
+        await deleteObject(itemRef);
+      });
+      const draftsRef = ref(storage, `drafts/${applyId}/`);
+      const drafts = await listAll(draftsRef);
+      drafts.items.forEach(async (itemRef) => {
+        await deleteObject(itemRef);
+      });
+      if (apply.isCompleted) {
+        const resultRef = ref(storage, `results/${applyId}`);
+        await deleteObject(resultRef);
+      }
+      await deleteDoc(docRef);
+      if (isEnd) {
+        try {
+          if (
+            user.photoURL.startsWith(
+              "https://firebasestorage.googleapis.com/v0/b/artifythumbs-37528.appspot.com/o/avatars"
+            )
+          ) {
+            const avatarRef = ref(storage, `avatars/${user.uid}`);
+            await deleteObject(avatarRef);
+          }
+          const userRef = doc(db, "users", user.uid);
+          await deleteDoc(userRef);
+          await deleteUser(user);
+          setSecessionLoading(false);
+          window.location.href = "/";
+        } catch (e) {
+          console.error(e);
+          alert(`유저 삭제 중 에러 발생: ${e}`);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      alert(`신청 삭제 중 에러 발생: ${e}`);
+    }
+  };
+  const onAccountSecession = async () => {
+    if (
+      window.prompt(
+        `탈퇴를 원하신다면 "${user.displayName}"을 입력해 주세요.`
+      ) !== user.displayName
+    )
+      return;
+    if (
+      !window.confirm(
+        "정말로 계정을 탈퇴하시겠습니까? (모든 주문 기록이 삭제되고 모든 데이터는 복구할 수 없습니다.)"
+      )
+    )
+      return;
+    const providerId = user.providerData[0].providerId;
+    if (providerId === "password" && !password)
+      return alert("기존 비밀번호를 입력해 주세요.");
+    if (providerId === "password") {
+      await reauthenticate(password);
+    } else if (providerId === "google.com") {
+      alert("본인 인증을 위해 현재 계정으로 다시 로그인해 주세요.");
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        login_hint: lastEmail,
+      });
+      try {
+        await reauthenticateWithPopup(user, provider);
+      } catch (e) {
+        if (e instanceof FirebaseError) {
+          switch (e.code) {
+            case "auth/user-mismatch":
+              return alert("현재 계정으로 로그인해 주세요.");
+            case "auth/popup-blocked":
+              return alert(
+                "팝업 차단을 해제해 주세요. (이미 해제된 상태라면 다시 시도해 주세요.)"
+              );
+            default:
+              return alert(`에러 발생: ${e}`);
+          }
+        }
+      }
+    } else if (providerId === "github.com") {
+      alert("본인 인증을 위해 현재 계정으로 다시 로그인해 주세요.");
+      const provider = new GithubAuthProvider();
+      provider.setCustomParameters({
+        login_hint: lastEmail,
+      });
+      try {
+        await reauthenticateWithPopup(user, provider);
+      } catch (e) {
+        if (e instanceof FirebaseError) {
+          switch (e.code) {
+            case "auth/user-mismatch":
+              return alert("현재 계정으로 로그인해 주세요.");
+            default:
+              return alert(`에러 발생: ${e}`);
+          }
+        }
+      }
+    } else {
+      return alert(`존재하지 않는 인증 제공자입니다. (${providerId})`);
+    }
+    try {
+      setSecessionLoading(true);
+      const orderQuery = query(
+        collection(db, "orders"),
+        where("orderer", "==", user.uid)
+      );
+      const querySnapshot = await getDocs(orderQuery);
+      if (!querySnapshot.empty) {
+        querySnapshot.docs.forEach(async (order, idx) => {
+          await deleteApply(order.id, querySnapshot.docs.length - 1 === idx);
+        });
+      } else {
+        try {
+          if (
+            user.photoURL.startsWith(
+              "https://firebasestorage.googleapis.com/v0/b/artifythumbs-37528.appspot.com/o/avatars"
+            )
+          ) {
+            const avatarRef = ref(storage, `avatars/${user.uid}`);
+            await deleteObject(avatarRef);
+          }
+          const userRef = doc(db, "users", user.uid);
+          await deleteDoc(userRef);
+          await deleteUser(user);
+          setSecessionLoading(false);
+          window.location.href = "/";
+        } catch (e) {
+          console.error(e);
+          alert(`유저 삭제 중 에러 발생: ${e}`);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      alert(`탈퇴 중 에러 발생: ${e}`);
+    }
+  };
   const isMobile = useRecoilValue(isMobileAtom);
   const isSocial = userData?.isSocial;
   return (
     <Wrapper $isMobile={isMobile}>
       <Seo title="계정 설정" description="당신의 계정 정보를 수정하세요." />
-      {isSocial && (
-        <SocialLock>
-          <SocialLockIcon icon={faLock} />
-          <SocialLockTitle>
-            (이메일/비밀번호) 방식으로 가입되지 않은 계정은 해당 기능을 사용할
-            수 없습니다.
-          </SocialLockTitle>
-        </SocialLock>
-      )}
       <SettingBox>
         <div>
           <div>
@@ -349,8 +489,8 @@ const ProfileSettings = () => {
               autoComplete="off"
               placeholder="기존 비밀번호를 입력해 주세요."
               onChange={onChange}
-              disabled={isLoading || isSent}
-              $disabled={isLoading || isSent}
+              disabled={isSocial || isLoading || isSent}
+              $disabled={isSocial || isLoading || isSent}
               required
             />
           </div>
@@ -365,8 +505,8 @@ const ProfileSettings = () => {
               autoComplete="off"
               placeholder="새 비밀번호를 입력해 주세요."
               onChange={onChange}
-              disabled={isLoading || isSent}
-              $disabled={isLoading || isSent}
+              disabled={isSocial || isLoading || isSent}
+              $disabled={isSocial || isLoading || isSent}
             />
           </div>
           <div>
@@ -378,8 +518,8 @@ const ProfileSettings = () => {
               autoComplete="off"
               placeholder="이메일을 입력해 주세요."
               onChange={onChange}
-              disabled={isLoading || !user?.emailVerified}
-              $disabled={isLoading || !user?.emailVerified}
+              disabled={isSocial || isLoading || !user?.emailVerified}
+              $disabled={isSocial || isLoading || !user?.emailVerified}
               required
             />
             {!isVerified && (
@@ -402,9 +542,22 @@ const ProfileSettings = () => {
           </div>
           <div>
             <SettingLabel>비밀번호 재설정</SettingLabel>
-            <SettingButton onClick={onResetPassword}>
+            <SettingButton $disabled={isSocial} onClick={onResetPassword}>
               비밀번호 재설정
             </SettingButton>
+          </div>
+          {isSocial && (
+            <SocialMessage>
+              <FontAwesomeIcon icon={faXmark} />
+              이메일/비밀번호 방법으로 가입되지 않은 계정은 위의 기능들을 이용할
+              수 없습니다.
+            </SocialMessage>
+          )}
+          <div>
+            <SettingLabel>계정 탈퇴 (복구할 수 없습니다.)</SettingLabel>
+            <AccountSecession onClick={onAccountSecession}>
+              {secessionLoading ? "계정 탈퇴하는 중.." : "계정 탈퇴"}
+            </AccountSecession>
           </div>
         </div>
       </SettingBox>

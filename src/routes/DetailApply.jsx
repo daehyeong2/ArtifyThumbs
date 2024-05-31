@@ -236,6 +236,7 @@ const DetailApply = () => {
         socket = io.connect(process.env.REACT_APP_BACKEND_URL, {
           query: { token },
         });
+        socket.emit("role", "client");
         socket.emit("chat_room", applyId);
         socket.on("chat_message", (data) => {
           paint_message(data.message, data.isMe, data.imageUrl, data.timestamp);
@@ -275,11 +276,27 @@ const DetailApply = () => {
       ulElement.scrollTop = ulElement.scrollHeight + 59;
     }
   }
+  const readMessage = useCallback(async () => {
+    const docRef = doc(db, `orders/${applyId}`);
+    const docSnap = await getDoc(docRef);
+    if (!docSnap.exists()) {
+      return;
+    }
+    const chats = docSnap.data().chats;
+    chats[chats.length - 1].isRead = true;
+    await updateDoc(docRef, {
+      chats,
+    });
+  }, [applyId]);
   useEffect(() => {
     if (apply) {
       scrollDown();
+      const recentChat = apply.chats[apply.chats.length - 1];
+      if (recentChat && !recentChat.isMe && !recentChat.isRead) {
+        readMessage();
+      }
     }
-  }, [apply]);
+  }, [apply, readMessage]);
   const onDownload = async () => {
     try {
       const response = await fetch(

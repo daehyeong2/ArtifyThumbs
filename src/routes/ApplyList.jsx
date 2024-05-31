@@ -11,6 +11,7 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import { motion } from "framer-motion";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -78,6 +79,7 @@ const Apply = styled.li`
   border-radius: 10px;
   box-shadow: 3px 3px 7px 2px rgba(0, 0, 0, 0.15);
   transition: 0.2s;
+  position: relative;
   cursor: pointer;
   &:hover {
     transform: translateY(-5px);
@@ -160,6 +162,33 @@ const ApplyPlan = styled.div`
   color: white;
 `;
 
+const ApplyNewMessage = styled(motion.div)`
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border-radius: 5px;
+  background-color: #fdcb6e;
+  font-weight: bold;
+  color: white;
+  padding: 5px 8px;
+  font-size: 14px;
+  z-index: 10;
+`;
+
+const applyMessageVariants = {
+  initial: {
+    scale: 1,
+  },
+  animate: {
+    scale: 1.03,
+    transition: {
+      repeat: Infinity,
+      repeatType: "reverse",
+      duration: 0.3,
+    },
+  },
+};
+
 function parseISOString(string) {
   const strDate = string.substring(0, 10);
   const [y, m, d] = strDate.split("-");
@@ -169,30 +198,33 @@ function parseISOString(string) {
 const ApplyList = () => {
   const user = auth.currentUser;
   const [orders, setOrders] = useState(null);
-  const fetchOrders = useCallback(async () => {
-    if (!user) return;
-    const orderQuery = query(
-      collection(db, "orders"),
-      where("orderer", "==", user.uid),
-      orderBy("isCompleted", "desc"),
-      orderBy("appliedAt", "desc"),
-      limit(20)
-    );
-    const querySnapshot = await getDocs(orderQuery);
-    if (querySnapshot.docs.length === 0) {
-      setOrders([]);
-    } else {
-      const docs = querySnapshot.docs.map((doc) => {
-        return {
-          id: doc.id,
-          ...doc.data(),
-        };
-      });
-      setOrders(docs);
-    }
-  }, [user]);
+  const fetchOrders = useCallback(
+    async (date) => {
+      if (!user) return;
+      const orderQuery = query(
+        collection(db, "orders"),
+        where("orderer", "==", user.uid),
+        orderBy("isCompleted", "desc"),
+        orderBy("appliedAt", "desc"),
+        limit(20)
+      );
+      const querySnapshot = await getDocs(orderQuery);
+      if (querySnapshot.docs.length === 0) {
+        setOrders([]);
+      } else {
+        const docs = querySnapshot.docs.map((doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        });
+        setOrders(docs);
+      }
+    },
+    [user]
+  );
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(Date.now());
   }, [fetchOrders]);
   return (
     <>
@@ -207,6 +239,17 @@ const ApplyList = () => {
                 return (
                   <ApplyLink key={index} to={`/apply-list/${apply.id}`}>
                     <Apply>
+                      {apply.chats[apply.chats.length - 1] &&
+                      !apply.chats[apply.chats.length - 1]?.isMe &&
+                      !apply.chats[apply.chats.length - 1]?.isRead ? (
+                        <ApplyNewMessage
+                          variants={applyMessageVariants}
+                          initial="initial"
+                          animate="animate"
+                        >
+                          새로운 메시지
+                        </ApplyNewMessage>
+                      ) : null}
                       <ApplyImage $src={apply.result} alt="result" />
                       <ApplyDesc>
                         <ApplyHeader>

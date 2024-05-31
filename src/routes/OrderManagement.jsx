@@ -86,7 +86,6 @@ const OrderList = styled.ul`
   overflow-y: auto;
   max-height: 600px;
   height: 100%;
-  gap: 10px;
 `;
 
 const OrderHeader = styled.header`
@@ -124,9 +123,10 @@ const OrderItem = styled(Link)`
   color: black;
   text-decoration: none;
   place-items: center;
-  padding-top: 5px;
+  padding: 15px 0;
   padding-bottom: 15px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: ${(props) => (props.$newMessage ? "#fff5d2" : "white")};
 `;
 
 const Plan = styled.div`
@@ -145,16 +145,18 @@ const Plan = styled.div`
 const MobileItem = styled(Link)`
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
   border: 1px solid rgba(0, 0, 0, 0.4);
   padding: 15px;
   border-radius: 10px;
   color: black;
   text-decoration: none;
+  background-color: ${(props) => (props.$newMessage ? "#fff5d2" : "white")};
+  margin-top: ${(props) => (props.$isFirst ? "" : "10px")};
 `;
 
 const MobileTitle = styled.h2`
-  font-size: 22px;
+  font-size: 20px;
   font-weight: bold;
 `;
 
@@ -164,7 +166,7 @@ const MobileBottomBar = styled.div`
 `;
 
 const MobileStatus = styled.h3`
-  font-size: 16px;
+  font-size: 14px;
   span {
     font-weight: bold;
     color: ${(props) => (props.$isCompleted ? "green" : "red")};
@@ -248,7 +250,10 @@ const OrderManagement = () => {
                 )}
               </OrderPreview>
             )}
-            <OrderList onMouseLeave={() => setHoverItem(null)}>
+            <OrderList
+              $isMobile={isMobile}
+              onMouseLeave={() => setHoverItem(null)}
+            >
               {!isMobile && (
                 <OrderHeader>
                   <OrderNumber>번호</OrderNumber>
@@ -262,6 +267,12 @@ const OrderManagement = () => {
                   <MobileItem
                     key={order.id}
                     to={`/order-management/${order.id}`}
+                    $isFirst={idx === 0}
+                    $newMessage={
+                      order.chats.length > 0 &&
+                      order.chats[order.chats.length - 1].isMe &&
+                      !order.chats[order.chats.length - 1].isRead
+                    }
                   >
                     <MobileTitle>
                       {order.title.length > 15
@@ -283,6 +294,12 @@ const OrderManagement = () => {
                     onMouseEnter={() => setHoverItem(order.id)}
                     key={order.id}
                     to={`/order-management/${order.id}`}
+                    $isFirst={idx === 0}
+                    $newMessage={
+                      order.chats.length > 0 &&
+                      order.chats[order.chats.length - 1].isMe &&
+                      !order.chats[order.chats.length - 1].isRead
+                    }
                   >
                     <OrderNumber>{orders.length - idx}</OrderNumber>
                     <OrderTitle>

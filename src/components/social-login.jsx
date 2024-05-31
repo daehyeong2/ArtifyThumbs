@@ -41,6 +41,7 @@ const errors = {
     "권한 오류가 발생했습니다. 같은 문제가 반복된다면 문의하기를 통해 오류를 신고해 주세요.",
   "auth/account-exists-with-different-credential":
     "다른 인증 방식으로 가입된 계정이 이미 존재합니다.",
+  "appCheck/fetch-status-error": "권한 오류가 발생했습니다.",
 };
 
 const generateRandomString = (num) => {
@@ -89,6 +90,7 @@ const SocialLogin = () => {
       return (window.location.href = "/");
     } catch (e) {
       if (e instanceof FirebaseError) {
+        console.error(e);
         alert(errors[e.code]);
       } else {
         console.error(e);
@@ -129,6 +131,7 @@ const SocialLogin = () => {
       return (window.location.href = "/");
     } catch (e) {
       if (e instanceof FirebaseError) {
+        console.error(e);
         alert(errors[e.code]);
       } else {
         console.error(e);
@@ -137,11 +140,11 @@ const SocialLogin = () => {
   };
   return (
     <OAuthList>
-      <OAuth>
-        <FontAwesomeIcon onClick={onLoginGoogle} icon={faGoogle} />
+      <OAuth onClick={onLoginGoogle}>
+        <FontAwesomeIcon icon={faGoogle} />
       </OAuth>
-      <OAuth>
-        <FontAwesomeIcon onClick={onLoginGithub} icon={faGithub} />
+      <OAuth onClick={onLoginGithub}>
+        <FontAwesomeIcon icon={faGithub} />
       </OAuth>
     </OAuthList>
   );
