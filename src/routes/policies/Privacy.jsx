@@ -3,10 +3,12 @@ import Seo from "../../components/Seo";
 
 const Wrapper = styled.div`
   min-height: 100vh;
+  padding: 0 1rem;
   padding-top: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
 `;
 
 const Container = styled.div`
@@ -18,12 +20,12 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 40px;
+  font-size: 30px;
   font-weight: bold;
 `;
 
 const ContainerTitle = styled.h1`
-  font-size: 25px;
+  font-size: 22px;
   font-weight: bold;
 `;
 
@@ -219,7 +221,7 @@ const Privacy = () => {
             1. 회원이 회원탈퇴 요청 후 그 즉시 해당 회원에 대한 모든 정보가
             파기됩니다. 회원에 대한 모든 정보는 회원이 파기 요청을 하기 전까지
             보관됩니다. 또한, 사용자의 모든 정보는 안전하게 보관되며 서비스
-            이용을 위한 목적 외의 목적으로는 이용되지 않습니다.
+            이용의 목적 이외의 목적으로는 이용되지 않습니다.
           </Li>
           <Li>
             2. 파기방법
@@ -236,7 +238,8 @@ const Privacy = () => {
           </Li>
         </Ol>
         <MiniTitle>
-          5. "회사"는 "회원"의 안정적인 정보보호를 다양한 노력을 하고 있습니다.
+          5. "회사"는 "회원"의 안정적인 정보보호를 위한 다양한 노력을 하고
+          있습니다.
         </MiniTitle>
         <Ol>
           <Li>
@@ -286,14 +289,19 @@ const Privacy = () => {
             기관에 문의하시기 바랍니다.
             <Ol>
               <Li>
-                1. 개인정보침해신고센터 (http://www.118.or.kr / 국번 없이 118)
+                1. 개인정보침해신고센터 (
+                <a href="http://www.118.or.kr">http://www.118.or.kr</a> / 국번
+                없이 118)
               </Li>
               <Li>
-                2. 대검찰청 사이버범죄수사단 (http://www.spo.go.kr /
+                2. 대검찰청 사이버범죄수사단 (
+                <a href="http://www.spo.go.kr">http://www.spo.go.kr</a> /
                 02-3480-2000)
               </Li>
               <Li>
-                3. 경찰청 사이버테러대응센터 (http://www.ctrc.go.kr / 1566-0112)
+                3. 경찰청 사이버테러대응센터 (
+                <a href="http://www.ctrc.go.kr">http://www.ctrc.go.kr</a> /
+                1566-0112)
               </Li>
             </Ol>
           </Li>
