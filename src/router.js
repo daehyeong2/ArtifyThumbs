@@ -24,9 +24,9 @@ import PasswordReset from "./routes/PasswordReset";
 import Dawn from "./routes/AT_teams/Dawn";
 import Gorani from "./routes/AT_teams/Gorani";
 import Baram from "./routes/AT_teams/Baram";
-import Privacy from "./routes/Privacy";
-import Terms from "./routes/Terms";
-import Refund from "./routes/Refund";
+import Privacy from "./routes/policies/Privacy";
+import Terms from "./routes/policies/Terms";
+import Refund from "./routes/policies/Refund";
 
 const router = createBrowserRouter([
   {

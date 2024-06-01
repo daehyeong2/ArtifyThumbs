@@ -122,7 +122,10 @@ const footerLogoVariants = {
   },
 };
 
-const MotionLink = motion(Link);
+const MotionLink = styled(motion(Link))`
+  font-weight: ${(props) => (props.$isBold ? "bold" : "")};
+  color: black;
+`;
 
 const MainFooter = () => {
   const width = useRecoilValue(widthAtom);
@@ -176,13 +179,8 @@ const MainFooter = () => {
             <FooterItemTitle>LEGAL</FooterItemTitle>
             <ul>
               <li>
-                <MotionLink
-                  variants={linkVariants}
-                  whileHover="hover"
-                  initial="initial"
-                  to="/policies/privacy-policy"
-                >
-                  개인정보 처리 방침
+                <MotionLink $isBold={true} to="/policies/privacy-policy">
+                  개인정보 처리방침
                 </MotionLink>
               </li>
               <li>

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Seo from "../components/Seo";
+import Seo from "../../components/Seo";
 
 const Wrapper = styled.div`
   min-height: 100vh;
@@ -21,18 +21,18 @@ const Title = styled.h1`
   font-weight: bold;
 `;
 
-const Refund = () => {
+const Terms = () => {
   return (
     <Wrapper>
       <Seo
-        title="취소 및 환불정책"
-        description="ArtifyThumbs의 취소 및 환불정책을 확인하세요."
+        title="이용약관"
+        description="ArtifyThumbs의 이용약관을 확인하세요."
       />
       <Container>
-        <Title>취소 및 환불정책</Title>
+        <Title>이용약관</Title>
       </Container>
     </Wrapper>
   );
 };
 
-export default Refund;
+export default Terms;
