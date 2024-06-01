@@ -180,9 +180,9 @@ const MainFooter = () => {
                   variants={linkVariants}
                   whileHover="hover"
                   initial="initial"
-                  to="/privacy"
+                  to="/policies/privacy-policy"
                 >
-                  개인정보 처리방침
+                  개인정보 처리 방침
                 </MotionLink>
               </li>
               <li>
@@ -190,9 +190,19 @@ const MainFooter = () => {
                   variants={linkVariants}
                   whileHover="hover"
                   initial="initial"
-                  to="/terms"
+                  to="/policies/terms"
                 >
                   이용약관
+                </MotionLink>
+              </li>
+              <li>
+                <MotionLink
+                  variants={linkVariants}
+                  whileHover="hover"
+                  initial="initial"
+                  to="/policies/refund-policy"
+                >
+                  취소 및 환불정책
                 </MotionLink>
               </li>
             </ul>

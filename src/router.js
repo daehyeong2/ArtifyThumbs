@@ -24,6 +24,9 @@ import PasswordReset from "./routes/PasswordReset";
 import Dawn from "./routes/AT_teams/Dawn";
 import Gorani from "./routes/AT_teams/Gorani";
 import Baram from "./routes/AT_teams/Baram";
+import Privacy from "./routes/Privacy";
+import Terms from "./routes/Terms";
+import Refund from "./routes/Refund";
 
 const router = createBrowserRouter([
   {
@@ -147,6 +150,23 @@ const router = createBrowserRouter([
           {
             path: "baram",
             element: <Baram />,
+          },
+        ],
+      },
+      {
+        path: "policies",
+        children: [
+          {
+            path: "privacy-policy",
+            element: <Privacy />,
+          },
+          {
+            path: "terms",
+            element: <Terms />,
+          },
+          {
+            path: "refund-policy",
+            element: <Refund />,
           },
         ],
       },
