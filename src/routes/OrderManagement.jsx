@@ -203,7 +203,7 @@ const OrderManagement = () => {
   const [loadMoreVisible, setLoadMoreVisible] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
   const pageSize = 20;
-  const fetchOrders = useCallback(async (pageSize, startAfterDoc) => {
+  const fetchOrders = useCallback(async (pageSize, startAfterDoc, date) => {
     try {
       let orderQuery;
       if (startAfterDoc) {
@@ -247,7 +247,7 @@ const OrderManagement = () => {
     }
   }, []);
   const loadMore = async () => {
-    const result = await fetchOrders(pageSize, lastVisible);
+    const result = await fetchOrders(pageSize, lastVisible, Date.now());
     if (!result) return;
     const { data: nextPageData, lastVisible: nextLastVisible } = result;
     setOrders((prev) => [...prev, ...nextPageData]);
@@ -255,7 +255,7 @@ const OrderManagement = () => {
   };
   useEffect(() => {
     const fetchData = async () => {
-      const result = await fetchOrders(pageSize, null);
+      const result = await fetchOrders(pageSize, null, Date.now());
       if (!result) return;
       const { data, lastVisible } = result;
       setOrders((prev) => [...prev, ...data]);
