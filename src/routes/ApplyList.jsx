@@ -8,10 +8,13 @@ import {
   limit,
   orderBy,
   query,
+  startAfter,
   where,
 } from "firebase/firestore";
 import { auth, db } from "../firebase";
 import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 const Container = styled.div`
   min-height: 100vh;
@@ -87,6 +90,36 @@ const Apply = styled.li`
       scale: 1.1;
     }
   }
+`;
+
+const LoadMore = styled.button`
+  height: 300px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  box-shadow: 2px 2px 7px 2px rgba(0, 0, 0, 0.15);
+  background-color: #f4f4f4;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: 0.2s;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 5px 5px 7px 2px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const LoadMoreTitle = styled.h2`
+  font-size: 18px;
+  font-weight: bold;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+`;
+
+const LoadMoreIcon = styled(FontAwesomeIcon)`
+  font-size: 100px;
 `;
 
 const ApplyDesc = styled.div`
@@ -197,20 +230,37 @@ function parseISOString(string) {
 
 const ApplyList = () => {
   const user = auth.currentUser;
-  const [orders, setOrders] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loadMoreVisible, setLoadMoreVisible] = useState(false);
+  const [lastVisible, setLastVisible] = useState(null);
+
+  const pageSize = 5;
+
   const fetchOrders = useCallback(
-    async (date) => {
+    async (pageSize, startAfterDoc, date) => {
       if (!user) return;
-      const orderQuery = query(
-        collection(db, "orders"),
-        where("orderer", "==", user.uid),
-        orderBy("isCompleted", "desc"),
-        orderBy("appliedAt", "desc"),
-        limit(20)
-      );
+      let orderQuery;
+      if (startAfterDoc) {
+        orderQuery = query(
+          collection(db, "orders"),
+          where("orderer", "==", user.uid),
+          orderBy("isCompleted", "desc"),
+          orderBy("appliedAt", "desc"),
+          startAfter(startAfterDoc),
+          limit(pageSize)
+        );
+      } else {
+        orderQuery = query(
+          collection(db, "orders"),
+          where("orderer", "==", user.uid),
+          orderBy("isCompleted", "desc"),
+          orderBy("appliedAt", "desc"),
+          limit(pageSize)
+        );
+      }
       const querySnapshot = await getDocs(orderQuery);
       if (querySnapshot.docs.length === 0) {
-        setOrders([]);
+        return setLoadMoreVisible(false);
       } else {
         const docs = querySnapshot.docs.map((doc) => {
           return {
@@ -218,13 +268,35 @@ const ApplyList = () => {
             ...doc.data(),
           };
         });
-        setOrders(docs);
+        if (docs.length === pageSize) {
+          setLoadMoreVisible(true);
+        } else {
+          setLoadMoreVisible(false);
+        }
+        return {
+          data: docs,
+          lastVisible: querySnapshot.docs[querySnapshot.docs.length - 1],
+        };
       }
     },
     [user]
   );
+  const loadMore = async () => {
+    const result = await fetchOrders(pageSize, lastVisible, Date.now());
+    if (!result) return;
+    const { data: nextPageData, lastVisible: nextLastVisible } = result;
+    setOrders((prev) => [...prev, ...nextPageData]);
+    setLastVisible(nextLastVisible);
+  };
   useEffect(() => {
-    fetchOrders(Date.now());
+    const fetchData = async () => {
+      const result = await fetchOrders(pageSize, null, Date.now());
+      if (!result) return;
+      const { data, lastVisible } = result;
+      setOrders((prev) => [...prev, ...data]);
+      setLastVisible(lastVisible);
+    };
+    fetchData();
   }, [fetchOrders]);
   return (
     <>
@@ -235,49 +307,57 @@ const ApplyList = () => {
         {orders && (
           <List $isExist={orders.length > 0}>
             {orders.length > 0 ? (
-              orders.map((apply, index) => {
-                return (
-                  <ApplyLink key={index} to={`/apply-list/${apply.id}`}>
-                    <Apply>
-                      {apply.chats[apply.chats.length - 1] &&
-                      !apply.chats[apply.chats.length - 1]?.isMe &&
-                      !apply.chats[apply.chats.length - 1]?.isRead ? (
-                        <ApplyNewMessage
-                          variants={applyMessageVariants}
-                          initial="initial"
-                          animate="animate"
-                        >
-                          새로운 메시지
-                        </ApplyNewMessage>
-                      ) : null}
-                      <ApplyImage $src={apply.result} alt="result" />
-                      <ApplyDesc>
-                        <ApplyHeader>
-                          <ApplyTitle>
-                            {apply.title.length > 9
-                              ? `${apply.title.slice(0, 9)}...`
-                              : apply.title}
-                          </ApplyTitle>
-                          <ApplyPlan $isPro={apply.plan === "pro"}>
-                            {apply.plan === "pro" ? "프로" : "기본"}
-                          </ApplyPlan>
-                        </ApplyHeader>
-                        <ApplyInfoes>
-                          <ApplyStatus>
-                            상태:{" "}
-                            <Status $isComplete={apply.isCompleted}>
-                              {apply.isCompleted ? "완료됨" : "준비중"}
-                            </Status>
-                          </ApplyStatus>
-                          <ApplyDate>
-                            신청 날짜: {parseISOString(apply.appliedAt)}
-                          </ApplyDate>
-                        </ApplyInfoes>
-                      </ApplyDesc>
-                    </Apply>
-                  </ApplyLink>
-                );
-              })
+              <>
+                {orders.map((apply, index) => {
+                  return (
+                    <ApplyLink key={index} to={`/apply-list/${apply.id}`}>
+                      <Apply>
+                        {apply.chats[apply.chats.length - 1] &&
+                        !apply.chats[apply.chats.length - 1]?.isMe &&
+                        !apply.chats[apply.chats.length - 1]?.isRead ? (
+                          <ApplyNewMessage
+                            variants={applyMessageVariants}
+                            initial="initial"
+                            animate="animate"
+                          >
+                            새로운 메시지
+                          </ApplyNewMessage>
+                        ) : null}
+                        <ApplyImage $src={apply.result} alt="result" />
+                        <ApplyDesc>
+                          <ApplyHeader>
+                            <ApplyTitle>
+                              {apply.title.length > 8
+                                ? `${apply.title.slice(0, 8)}...`
+                                : apply.title}
+                            </ApplyTitle>
+                            <ApplyPlan $isPro={apply.plan === "pro"}>
+                              {apply.plan === "pro" ? "프로" : "기본"}
+                            </ApplyPlan>
+                          </ApplyHeader>
+                          <ApplyInfoes>
+                            <ApplyStatus>
+                              상태:{" "}
+                              <Status $isComplete={apply.isCompleted}>
+                                {apply.isCompleted ? "완료됨" : "준비중"}
+                              </Status>
+                            </ApplyStatus>
+                            <ApplyDate>
+                              신청 날짜: {parseISOString(apply.appliedAt)}
+                            </ApplyDate>
+                          </ApplyInfoes>
+                        </ApplyDesc>
+                      </Apply>
+                    </ApplyLink>
+                  );
+                })}
+                {loadMoreVisible && (
+                  <LoadMore onClick={loadMore}>
+                    <LoadMoreIcon icon={faPlus} />
+                    <LoadMoreTitle>더 불러오기</LoadMoreTitle>
+                  </LoadMore>
+                )}
+              </>
             ) : (
               <ApplyMessage>
                 🪄 이런! 신청한 그림이 없어요!

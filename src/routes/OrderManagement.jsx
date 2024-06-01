@@ -2,7 +2,14 @@ import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { parseISOString } from "../components/detailApply";
 import { useRecoilValue } from "recoil";
@@ -124,7 +131,6 @@ const OrderItem = styled(Link)`
   text-decoration: none;
   place-items: center;
   padding: 15px 0;
-  padding-bottom: 15px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
   background-color: ${(props) => (props.$newMessage ? "#fff5d2" : "white")};
 `;
@@ -152,7 +158,7 @@ const MobileItem = styled(Link)`
   color: black;
   text-decoration: none;
   background-color: ${(props) => (props.$newMessage ? "#fff5d2" : "white")};
-  margin-top: ${(props) => (props.$isFirst ? "" : "10px")};
+  margin-top: ${(props) => (props.$isFirst ? "" : "5px")};
 `;
 
 const MobileTitle = styled.h2`
@@ -177,33 +183,85 @@ const MobileDate = styled.span`
   font-size: 14px;
 `;
 
+const LoadMore = styled.div`
+  padding: 10px 0;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  width: 100%;
+  cursor: pointer;
+  margin-top: 5px;
+`;
+
 const OrderManagement = () => {
   const [hoverItem, setHoverItem] = useState(null);
   const [orders, setOrders] = useState([]);
-  const fetchOrders = useCallback(async () => {
+  const [loadMoreVisible, setLoadMoreVisible] = useState(false);
+  const [lastVisible, setLastVisible] = useState(null);
+  const pageSize = 20;
+  const fetchOrders = useCallback(async (pageSize, startAfterDoc) => {
     try {
-      const orderQuery = query(
-        collection(db, "orders"),
-        orderBy("isCompleted", "asc"),
-        orderBy("appliedAt", "desc"),
-        limit(25)
-      );
+      let orderQuery;
+      if (startAfterDoc) {
+        orderQuery = query(
+          collection(db, "orders"),
+          orderBy("isCompleted", "asc"),
+          orderBy("appliedAt", "desc"),
+          startAfter(startAfterDoc),
+          limit(pageSize)
+        );
+      } else {
+        orderQuery = query(
+          collection(db, "orders"),
+          orderBy("isCompleted", "asc"),
+          orderBy("appliedAt", "desc"),
+          limit(pageSize)
+        );
+      }
       const orderSnap = await getDocs(orderQuery);
-      if (orderSnap.docs.length > 0) {
+      if (orderSnap.docs.length === 0) {
+        return setLoadMoreVisible(false);
+      } else {
         const docs = orderSnap.docs.map((doc) => {
           return {
             id: doc.id,
             ...doc.data(),
           };
         });
-        setOrders(docs);
+        if (docs.length === pageSize) {
+          setLoadMoreVisible(true);
+        } else {
+          setLoadMoreVisible(false);
+        }
+        return {
+          data: docs,
+          lastVisible: orderSnap.docs[orderSnap.docs.length - 1],
+        };
       }
     } catch (e) {
       console.error(e);
     }
   }, []);
+  const loadMore = async () => {
+    const result = await fetchOrders(pageSize, lastVisible);
+    if (!result) return;
+    const { data: nextPageData, lastVisible: nextLastVisible } = result;
+    setOrders((prev) => [...prev, ...nextPageData]);
+    setLastVisible(nextLastVisible);
+  };
   useEffect(() => {
-    fetchOrders();
+    const fetchData = async () => {
+      const result = await fetchOrders(pageSize, null);
+      if (!result) return;
+      const { data, lastVisible } = result;
+      setOrders((prev) => [...prev, ...data]);
+      setLastVisible(lastVisible);
+    };
+    fetchData();
   }, [fetchOrders]);
   let hoverData;
   if (hoverItem !== null) {
@@ -313,6 +371,9 @@ const OrderManagement = () => {
                     </OrderStatus>
                   </OrderItem>
                 )
+              )}
+              {loadMoreVisible && (
+                <LoadMore onClick={loadMore}>더 불러오기</LoadMore>
               )}
             </OrderList>
           </Order>

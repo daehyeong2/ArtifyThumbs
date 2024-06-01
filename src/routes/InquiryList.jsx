@@ -2,7 +2,14 @@ import styled from "styled-components";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useRecoilValue } from "recoil";
 import { isMobileAtom, widthAtom } from "../atom";
@@ -68,7 +75,6 @@ const OrderList = styled.ul`
   overflow-y: auto;
   max-height: 100%;
   height: fit-content;
-  gap: 10px;
 `;
 
 const OrderHeader = styled.header`
@@ -102,8 +108,7 @@ const OrderItem = styled(Link)`
   color: black;
   text-decoration: none;
   place-items: center;
-  padding-top: 5px;
-  padding-bottom: 15px;
+  padding: 15px 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 `;
 
@@ -120,6 +125,7 @@ const MobileItem = styled(Link)`
   border-radius: 10px;
   color: black;
   text-decoration: none;
+  margin-top: ${(props) => (props.$isFirst ? "" : "5px")};
 `;
 
 const MobileTitle = styled.h2`
@@ -144,6 +150,20 @@ const MobileDate = styled.span`
   font-size: 14px;
 `;
 
+const LoadMore = styled.div`
+  padding: 10px 0;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  width: 100%;
+  cursor: pointer;
+  margin-top: 5px;
+`;
+
 function parseISOString(string) {
   const strDate = string.substring(0, 10);
   const [y, m, d] = strDate.split("-");
@@ -153,30 +173,68 @@ function parseISOString(string) {
 const InquiryManagement = () => {
   const [hoverItem, setHoverItem] = useState(null);
   const [inquiries, setInquiries] = useState([]);
-  const fetchInquiries = useCallback(async () => {
+  const [loadMoreVisible, setLoadMoreVisible] = useState(false);
+  const [lastVisible, setLastVisible] = useState(null);
+  const pageSize = 20;
+  const fetchInquiries = useCallback(async (pageSize, startAfterDoc) => {
+    let inquiryQuery;
     try {
-      const inquiryQuery = query(
-        collection(db, "inquiries"),
-        orderBy("isAnswered", "asc"),
-        orderBy("createdAt", "desc"),
-        limit(25)
-      );
+      if (startAfterDoc) {
+        inquiryQuery = query(
+          collection(db, "inquiries"),
+          orderBy("isAnswered", "asc"),
+          orderBy("createdAt", "desc"),
+          startAfter(startAfterDoc),
+          limit(pageSize)
+        );
+      } else {
+        inquiryQuery = query(
+          collection(db, "inquiries"),
+          orderBy("isAnswered", "asc"),
+          orderBy("createdAt", "desc"),
+          limit(pageSize)
+        );
+      }
       const inquirySnap = await getDocs(inquiryQuery);
-      if (inquirySnap.docs.length > 0) {
+      if (inquirySnap.docs.length === 0) {
+        return setLoadMoreVisible(false);
+      } else {
         const docs = inquirySnap.docs.map((doc) => {
           return {
             id: doc.id,
             ...doc.data(),
           };
         });
-        setInquiries(docs);
+        if (docs.length === pageSize) {
+          setLoadMoreVisible(true);
+        } else {
+          setLoadMoreVisible(false);
+        }
+        return {
+          data: docs,
+          lastVisible: inquirySnap.docs[inquirySnap.docs.length - 1],
+        };
       }
     } catch (e) {
       console.error(e);
     }
   }, []);
+  const loadMore = async () => {
+    const result = await fetchInquiries(pageSize, lastVisible);
+    if (!result) return;
+    const { data: nextPageData, lastVisible: nextLastVisible } = result;
+    setInquiries((prev) => [...prev, ...nextPageData]);
+    setLastVisible(nextLastVisible);
+  };
   useEffect(() => {
-    fetchInquiries();
+    const fetchData = async () => {
+      const result = await fetchInquiries(pageSize, null);
+      if (!result) return;
+      const { data, lastVisible } = result;
+      setInquiries((prev) => [...prev, ...data]);
+      setLastVisible(lastVisible);
+    };
+    fetchData();
   }, [fetchInquiries]);
   let hoverData;
   if (hoverItem !== null) {
@@ -226,6 +284,7 @@ const InquiryManagement = () => {
                 isMobile ? (
                   <MobileItem
                     key={order.id}
+                    $isFirst={idx === 0}
                     to={`/inquiry-management/${order.id}`}
                   >
                     <MobileTitle>
@@ -261,6 +320,9 @@ const InquiryManagement = () => {
                     </OrderStatus>
                   </OrderItem>
                 )
+              )}
+              {loadMoreVisible && (
+                <LoadMore onClick={loadMore}>더 불러오기</LoadMore>
               )}
             </OrderList>
           </Order>
