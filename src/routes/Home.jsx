@@ -115,7 +115,7 @@ const Home = () => {
   const userData = useRecoilValue(userAtom);
   const isMobile = useRecoilValue(isMobileAtom);
   const [user, setUser] = useState(null);
-  const [label, setLabel] = useState(null);
+  const [label, setLabel] = useState("");
   const [isFirst, setIsFirst] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const createComebackInterval = useCallback(
@@ -200,7 +200,9 @@ const Home = () => {
     }
   }, [userData]);
   useEffect(() => {
-    setLabel(labelList[0]);
+    setTimeout(() => {
+      setLabel(labelList[0]);
+    }, 10);
   }, []);
   return (
     <>
