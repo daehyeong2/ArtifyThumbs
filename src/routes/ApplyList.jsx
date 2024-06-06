@@ -234,7 +234,7 @@ const ApplyList = () => {
   const [loadMoreVisible, setLoadMoreVisible] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
 
-  const pageSize = 5;
+  const pageSize = 1;
 
   const fetchOrders = useCallback(
     async (pageSize, startAfterDoc, date) => {

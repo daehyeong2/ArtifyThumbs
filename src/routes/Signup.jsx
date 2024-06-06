@@ -9,6 +9,7 @@ import { auth, db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import SocialLogin from "../components/social-login";
+import { FirebaseError } from "firebase/app";
 
 const Wrapper = styled.div`
   display: flex;
@@ -134,9 +135,24 @@ const PasswordShow = styled.label`
   }
 `;
 
-const errorMap = {
-  "auth/email-already-in-use": "이미 등록된 이메일입니다.",
-};
+const CheckBoxInput = styled.input`
+  width: 1rem;
+`;
+
+const CheckBoxLabel = styled.label`
+  font-size: 16px;
+  max-width: 250px;
+  line-height: 1.3;
+  a {
+    color: #0984e3;
+  }
+`;
+
+const CheckBox = styled.div`
+  display: flex;
+  max-width: 275px;
+  gap: 8px;
+`;
 
 const Signup = () => {
   const {
@@ -149,11 +165,16 @@ const Signup = () => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [error, setError] = useState(false);
   const onSubmit = async (data) => {
+    setError("");
     if (isLoading) return;
+    if (!data.agreeTerms)
+      return setError("이용약관 및 개인정보 처리방침에 동의하셔야 합니다");
     if (data.passwordConfirmation !== data.password) {
       return setFormError(
         "passwordConfirmation",
-        "확인 비밀번호가 일치하지 않습니다.",
+        {
+          message: "확인 비밀번호가 일치하지 않습니다.",
+        },
         {
           shouldFocus: true,
         }
@@ -182,7 +203,16 @@ const Signup = () => {
       });
       window.location.href = "/";
     } catch (e) {
-      setError(errorMap[e.code]);
+      if (e instanceof FirebaseError) {
+        switch (e.code) {
+          case "auth/email-already-in-use":
+            setFormError(
+              "email",
+              { message: "이미 등록된 이메일입니다." },
+              { shouldFocus: true }
+            );
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -204,8 +234,11 @@ const Signup = () => {
             <Label htmlFor="email">이메일을 입력해 주세요.</Label>
             <Input
               {...register("email", {
-                required: true,
-                pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                required: "이메일을 입력해 주세요.",
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "올바른 이메일 형식으로 입력해주세요.",
+                },
               })}
               placeholder="이메일"
               autoComplete="username"
@@ -213,7 +246,7 @@ const Signup = () => {
               name="email"
             ></Input>
             {errors.email && (
-              <ErrorMessage>올바른 이메일 형식으로 입력해주세요.</ErrorMessage>
+              <ErrorMessage>{errors.email.message}</ErrorMessage>
             )}
           </InputContainer>
           <InputContainer>
@@ -221,7 +254,14 @@ const Signup = () => {
             <Input
               {...register(
                 "username",
-                { required: true, pattern: /^[a-zA-Z0-9]{4,12}$/ },
+                {
+                  required: "아이디를 입력해 주세요.",
+                  pattern: {
+                    value: /^[a-zA-Z0-9]{4,12}$/,
+                    message:
+                      "아이디는 4~12자의 영문 대소문자와 숫자로만 입력해주세요.",
+                  },
+                },
                 { maxLength: 12 },
                 { minLength: 4 }
               )}
@@ -231,23 +271,21 @@ const Signup = () => {
               name="username"
             ></Input>
             {errors.username && (
-              <ErrorMessage>
-                아이디는 4~12자의 영문 대소문자와 숫자로만 입력해주세요.
-              </ErrorMessage>
+              <ErrorMessage>{errors.username.message}</ErrorMessage>
             )}
           </InputContainer>
           <InputContainer>
             <Label htmlFor="password">비밀번호를 입력해 주세요.</Label>
             <Password>
               <Input
-                {...register(
-                  "password",
-                  {
-                    required: true,
-                    pattern: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/,
+                {...register("password", {
+                  required: "비밀번호를 입력해 주세요.",
+                  pattern: {
+                    value: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,32}$/,
+                    message:
+                      "확인 비밀번호는 영어, 숫자를 포함하고 최소 8자 이상, 최대 32자 이하이여야 합니다.",
                   },
-                  { minLength: 8 }
-                )}
+                })}
                 placeholder="비밀번호"
                 autoComplete="off"
                 id="password"
@@ -262,9 +300,7 @@ const Signup = () => {
               </PasswordShow>
             </Password>
             {errors.password && (
-              <ErrorMessage>
-                비밀번호는 영어, 숫자를 포함하고 최소 8자 이상이어야 합니다.
-              </ErrorMessage>
+              <ErrorMessage>{errors.password.message}</ErrorMessage>
             )}
           </InputContainer>
           <InputContainer>
@@ -272,15 +308,14 @@ const Signup = () => {
               비밀번호를 다시 입력해 주세요.
             </Label>
             <Input
-              {...register(
-                "passwordConfirmation",
-                {
-                  required: true,
-                  pattern: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,16}$/,
+              {...register("passwordConfirmation", {
+                required: "확인 비밀번호를 입력해 주세요.",
+                pattern: {
+                  value: /^(?=.*[a-zA-Z])(?=.*[0-9]).{8,32}$/,
+                  message:
+                    "확인 비밀번호는 영어, 숫자를 포함하고 최소 8자 이상, 최대 32자 이하이여야 합니다.",
                 },
-                { maxLength: 16 },
-                { minLength: 8 }
-              )}
+              })}
               placeholder="비밀번호 확인"
               autoComplete="off"
               id="passwordConfirmation"
@@ -288,9 +323,21 @@ const Signup = () => {
               type="password"
             ></Input>
             {errors.passwordConfirmation && (
-              <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>
+              <ErrorMessage>{errors.passwordConfirmation.message}</ErrorMessage>
             )}
           </InputContainer>
+          <CheckBox>
+            <CheckBoxInput
+              {...register("agreeTerms")}
+              type="checkbox"
+              id="terms"
+            />
+            <CheckBoxLabel htmlFor="terms">
+              <Link to="/policies/terms">ArtifyThumbs 이용약관</Link>과{" "}
+              <Link to="/policies/privacy-policy">개인정보 수집 및 이용</Link>에
+              동의합니다.
+            </CheckBoxLabel>
+          </CheckBox>
           {error && <ErrorMessage>{error}</ErrorMessage>}
           <SignUpButton>
             {isLoading ? "가입하는 중.." : "가입하기"}
