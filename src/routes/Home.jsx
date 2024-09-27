@@ -115,7 +115,7 @@ const Home = () => {
   const userData = useRecoilValue(userAtom);
   const isMobile = useRecoilValue(isMobileAtom);
   const [user, setUser] = useState(null);
-  const [label, setLabel] = useState("");
+  const [label, setLabel] = useState(labelList[0]);
   const [isFirst, setIsFirst] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const createComebackInterval = useCallback(
@@ -213,7 +213,7 @@ const Home = () => {
       <Wrapper>
         <Container $isMobile={isMobile} id="main">
           <ContainerTitle $isMobile={isMobile}>
-            쉽고, <span>{label}</span>
+            쉽고, <span suppressHydrationWarning={true}>{label}</span>
             <Pipe variants={PipeVariants} initial="initial" animate="animate" />
           </ContainerTitle>
           <ContainerSubtitle>
